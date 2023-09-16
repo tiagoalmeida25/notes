@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:notes/components/close_slidable.dart';
 import 'package:notes/models/note.dart';
 import 'package:notes/models/note_data.dart';
 import 'package:notes/pages/editing_note.dart';
@@ -13,11 +16,17 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-enum SortBy { Title, LastUpdated, Created }
+enum SortBy { title, lastUpdated, created }
 
 class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   bool isSorted = false;
-  ValueNotifier<SortBy> sortNotifier = ValueNotifier(SortBy.LastUpdated);
+  ValueNotifier<SortBy> sortNotifier = ValueNotifier(SortBy.lastUpdated);
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    Provider.of<NoteData>(context, listen: false).initializeNotes();
+  }
 
   @override
   void initState() {
@@ -73,8 +82,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    Provider.of<NoteData>(context, listen: false).sortNotesByUpdate();
-
     return Consumer<NoteData>(
       builder: (context, value, child) => Scaffold(
         backgroundColor: CupertinoColors.systemBackground,
@@ -98,157 +105,167 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                 ],
               ),
             ),
-            value.getAllNotes().isEmpty
-                ? const Padding(
-                    padding: EdgeInsets.only(top: 50.0),
-                    child: Center(
-                      child: Text('No Notes Yet...'),
-                    ),
-                  )
-                : CupertinoListSection.insetGrouped(
-                    backgroundColor: CupertinoColors.systemBackground,
-                    header: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              DropdownButtonHideUnderline(
-                                child: DropdownButton<SortBy>(
-                                  alignment: Alignment.centerRight,
-                                  style: const TextStyle(
-                                    color: CupertinoColors.systemGrey,
-                                    fontSize: 16,
-                                  ),
-                                  iconSize: 0.0,
-                                  borderRadius: BorderRadius.circular(16),
-                                  value: sortNotifier.value,
-                                  items: const [
-                                    DropdownMenuItem<SortBy>(
-                                      value: SortBy.Title,
-                                      child: Row(
-                                        children: [
-                                          Icon(
-                                            CupertinoIcons.textformat_alt,
-                                            color: CupertinoColors.systemGrey,
-                                            size: 20,
-                                          ),
-                                          SizedBox(width: 5),
-                                          Text('Title'),
-                                        ],
-                                      ),
+            SlidableAutoCloseBehavior(
+              child: value.getAllNotes().isEmpty
+                  ? const Padding(
+                      padding: EdgeInsets.only(top: 50.0),
+                      child: Center(
+                        child: Text('No Notes Yet...'),
+                      ),
+                    )
+                  : CupertinoListSection.insetGrouped(
+                      backgroundColor: CupertinoColors.systemBackground,
+                      header: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                DropdownButtonHideUnderline(
+                                  child: DropdownButton<SortBy>(
+                                    alignment: Alignment.centerRight,
+                                    style: const TextStyle(
+                                      color: CupertinoColors.systemGrey,
+                                      fontSize: 16,
                                     ),
-                                    DropdownMenuItem<SortBy>(
-                                      value: SortBy.LastUpdated,
-                                      child: Row(
-                                        children: [
-                                          Icon(
-                                            CupertinoIcons.clock,
-                                            color: CupertinoColors.systemGrey,
-                                            size: 20,
-                                          ),
-                                          SizedBox(width: 5),
-                                          Text('Last updated'),
-                                        ],
+                                    iconSize: 0.0,
+                                    borderRadius: BorderRadius.circular(16),
+                                    value: sortNotifier.value,
+                                    items: const [
+                                      DropdownMenuItem<SortBy>(
+                                        value: SortBy.title,
+                                        child: Row(
+                                          children: [
+                                            Icon(
+                                              CupertinoIcons.textformat_alt,
+                                              color: CupertinoColors.systemGrey,
+                                              size: 20,
+                                            ),
+                                            SizedBox(width: 5),
+                                            Text('Title'),
+                                          ],
+                                        ),
                                       ),
-                                    ),
-                                    DropdownMenuItem<SortBy>(
-                                      value: SortBy.Created,
-                                      child: Row(
-                                        children: [
-                                          Icon(
-                                            CupertinoIcons.plus_app,
-                                            color: CupertinoColors.systemGrey,
-                                            size: 20,
-                                          ),
-                                          SizedBox(width: 5),
-                                          Text('Created'),
-                                        ],
+                                      DropdownMenuItem<SortBy>(
+                                        value: SortBy.lastUpdated,
+                                        child: Row(
+                                          children: [
+                                            Icon(
+                                              CupertinoIcons.clock,
+                                              color: CupertinoColors.systemGrey,
+                                              size: 20,
+                                            ),
+                                            SizedBox(width: 5),
+                                            Text('Last updated'),
+                                          ],
+                                        ),
                                       ),
-                                    ),
-                                  ],
-                                  onChanged: (SortBy? value) {
-                                    if (value != null) {
-                                      String sortBy = '';
-                                      if (value == SortBy.Title) {
-                                        sortBy = 'Title';
-                                      } else if (value == SortBy.LastUpdated) {
-                                        sortBy = 'LastUpdated';
-                                      } else if (value == SortBy.Created) {
-                                        sortBy = 'Created';
-                                      }
-                                      sortNotifier.value = value;
+                                      DropdownMenuItem<SortBy>(
+                                        value: SortBy.created,
+                                        child: Row(
+                                          children: [
+                                            Icon(
+                                              CupertinoIcons.plus_app,
+                                              color: CupertinoColors.systemGrey,
+                                              size: 20,
+                                            ),
+                                            SizedBox(width: 5),
+                                            Text('Created'),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                    onChanged: (SortBy? value) {
+                                      if (value != null) {
+                                        String sortBy = '';
+                                        if (value == SortBy.title) {
+                                          sortBy = 'Title';
+                                        } else if (value ==
+                                            SortBy.lastUpdated) {
+                                          sortBy = 'LastUpdated';
+                                        } else if (value == SortBy.created) {
+                                          sortBy = 'Created';
+                                        }
+                                        sortNotifier.value = value;
 
-                                      Provider.of<NoteData>(context,
-                                              listen: false)
-                                          .sortNotes(sortBy, isSorted);
-                                    }
-                                  },
+                                        Provider.of<NoteData>(context,
+                                                listen: false)
+                                            .sortNotes(sortBy, isSorted);
+                                      }
+                                    },
+                                  ),
                                 ),
-                              ),
-                              IconButton(
-                                onPressed: () {
-                                  String sortBy = '';
-                                  if (sortNotifier.value == SortBy.Title) {
-                                    sortBy = 'Title';
-                                  } else if (sortNotifier.value ==
-                                      SortBy.LastUpdated) {
-                                    sortBy = 'LastUpdated';
-                                  } else if (sortNotifier.value ==
-                                      SortBy.Created) {
-                                    sortBy = 'Created';
-                                  }
-                                  Provider.of<NoteData>(context, listen: false)
-                                      .sortNotes(sortBy, isSorted);
-                                  isSorted = !isSorted;
-                                },
-                                icon: isSorted
-                                    ? const Icon(
-                                        CupertinoIcons.arrow_up,
-                                        color: CupertinoColors.systemGrey,
-                                      )
-                                    : const Icon(CupertinoIcons.arrow_down,
-                                        color: CupertinoColors.systemGrey),
+                                IconButton(
+                                  onPressed: () {
+                                    String sortBy = '';
+                                    if (sortNotifier.value == SortBy.title) {
+                                      sortBy = 'Title';
+                                    } else if (sortNotifier.value ==
+                                        SortBy.lastUpdated) {
+                                      sortBy = 'LastUpdated';
+                                    } else if (sortNotifier.value ==
+                                        SortBy.created) {
+                                      sortBy = 'Created';
+                                    }
+                                    isSorted = !isSorted;
+                                    Provider.of<NoteData>(context,
+                                            listen: false)
+                                        .sortNotes(sortBy, isSorted);
+                                  },
+                                  icon: isSorted
+                                      ? const Icon(
+                                          CupertinoIcons.arrow_up,
+                                          color: CupertinoColors.systemGrey,
+                                        )
+                                      : const Icon(CupertinoIcons.arrow_down,
+                                          color: CupertinoColors.systemGrey),
+                                ),
+                              ],
+                            ),
+                          ]),
+                      children: List.generate(
+                        value.getAllNotes().length,
+                        (index) => Slidable(
+                          groupTag: 'delete',
+                          startActionPane: ActionPane(
+                            extentRatio: 0.15,
+                            motion: const StretchMotion(),
+                            children: [
+                              SlidableAction(
+                                onPressed: (context) => deleteNote(
+                                  value.getAllNotes()[index],
+                                ),
+                                backgroundColor: Colors.red,
+                                icon: CupertinoIcons.trash,
+                                foregroundColor: Colors.white,
                               ),
                             ],
                           ),
-                        ]),
-                    children: List.generate(
-                      value.getAllNotes().length,
-                      (index) => Slidable(
-                        startActionPane: ActionPane(
-                          extentRatio: 0.15,
-                          motion: const StretchMotion(),
-                          children: [
-                            SlidableAction(
-                              onPressed: (context) => deleteNote(
-                                value.getAllNotes()[index],
+                          child: CupertinoListTile(
+                            title: Text(
+                              value.getAllNotes()[index].title,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
                               ),
-                              backgroundColor: Colors.red,
-                              icon: CupertinoIcons.trash,
-                              foregroundColor: Colors.white,
                             ),
-                          ],
-                        ),
-                        child: CupertinoListTile(
-                          title: Text(
-                            value.getAllNotes()[index].title,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                            ),
+                            subtitle:
+                                jsonDecode(value.getAllNotes()[index].text)[0]
+                                            ['insert'] !=
+                                        '\n'
+                                    ? Text(jsonDecode(
+                                            value.getAllNotes()[index].text)[0]
+                                        ['insert'])
+                                    : null,
+                            trailing: const Icon(CupertinoIcons.chevron_right),
+                            onTap: () {
+                              goToNotePage(value.getAllNotes()[index], false);
+                            },
+                            backgroundColor: Colors.grey[200],
                           ),
-                          subtitle: value.getAllNotes()[index].text.trim() != ''
-                              ? Text(value.getAllNotes()[index].text)
-                              : null,
-                          trailing: const Icon(CupertinoIcons.chevron_right),
-                          onTap: () {
-                            goToNotePage(value.getAllNotes()[index], false);
-                          },
-                          backgroundColor: Colors.grey[200],
                         ),
                       ),
                     ),
-                  ),
+            ),
           ],
         ),
       ),

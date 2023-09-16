@@ -24,16 +24,6 @@ class HiveDatabase {
           savedNotesFormatted.add(eachNote);
         }
       }
-      else {
-        savedNotesFormatted.add(Note(id: 0, text: 'Example Note', title: 'My first note', createdAt: DateTime.now(), updatedAt: DateTime.now()));
-      }
-    } else {
-      savedNotesFormatted.add(Note(
-          id: 0,
-          text: 'Example Note',
-          title: 'My first note',
-          createdAt: DateTime.now(),
-          updatedAt: DateTime.now()));
     }
 
     return savedNotesFormatted;

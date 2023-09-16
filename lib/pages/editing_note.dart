@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
@@ -26,18 +28,19 @@ class _EditingNoteState extends State<EditingNote> {
   }
 
   void loadExistingNote() {
-    final doc = Document()..insert(0, widget.note.text);
+    if (widget.note.text.isNotEmpty) {
     setState(() {
       _controller = QuillController(
-        document: doc,
+        document: Document.fromJson(jsonDecode(widget.note.text)),
         selection: const TextSelection.collapsed(offset: 0),
       );
       _titleController.text = widget.note.title;
     });
   }
+  }
 
   void addNewNote(int i) {
-    String text = _controller.document.toPlainText();
+    String text = jsonEncode(_controller.document.toDelta().toJson());
 
     Provider.of<NoteData>(context, listen: false).addNewNote(
       Note(
@@ -51,7 +54,8 @@ class _EditingNoteState extends State<EditingNote> {
   }
 
   void updateNote() {
-    String text = _controller.document.toPlainText();
+    // String text = _controller.document.toPlainText();
+    String text = jsonEncode(_controller.document.toDelta().toJson());
     String title = _titleController.text;
 
     Provider.of<NoteData>(context, listen: false)
@@ -91,11 +95,7 @@ class _EditingNoteState extends State<EditingNote> {
             }
 
             if (widget.isNewNote) {
-              addNewNote(
-                Provider.of<NoteData>(context, listen: false)
-                    .getAllNotes()
-                    .length,
-              );
+              addNewNote(DateTime.now().millisecondsSinceEpoch);
             } else {
               updateNote();
             }

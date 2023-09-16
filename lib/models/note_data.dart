@@ -5,93 +5,77 @@ import 'package:notes/models/note.dart';
 class NoteData extends ChangeNotifier {
   final db = HiveDatabase();
 
-  List<Note> allNotes = [];
+  List<Note> _allNotes = [];
+  List<Note> get allNotes => _allNotes;
 
   void initializeNotes() {
-    allNotes = db.loadNotes();
+    _allNotes = db.loadNotes();
     notifyListeners();
   }
 
+  void setAllNotes(List<Note> notes) {
+    _allNotes = notes;
+    notifyListeners();
+  }
+
+
   void addNewNote(Note note) {
-    allNotes.add(note);
-    saveNotes(allNotes);
+    _allNotes.add(note);
+    saveNotes(_allNotes);
     notifyListeners();
   }
 
   void deleteNote(Note note) {
-    allNotes.remove(note);
-    saveNotes(allNotes);
+    _allNotes.remove(note);
+    saveNotes(_allNotes);
 
     notifyListeners();
   }
 
   void updateNote(Note note, String text, String title, DateTime updatedAt) {
-    for (int i = 0; i < allNotes.length; i++) {
-      if (allNotes[i].id == note.id) {
-        allNotes[i].text = text;
-        allNotes[i].title = title;
-        allNotes[i].updatedAt = updatedAt;
+    for (int i = 0; i < _allNotes.length; i++) {
+      if (_allNotes[i].id == note.id) {
+        _allNotes[i].text = text;
+        _allNotes[i].title = title;
+        _allNotes[i].updatedAt = updatedAt;
       }
     }
-    saveNotes(allNotes);
+    saveNotes(_allNotes);
     notifyListeners();
   }
 
   List<Note> getAllNotes() {
-    return allNotes;
+    return _allNotes;
   }
 
   void saveNotes(List<Note> allNotes) {
-    db.saveNotes(allNotes);
+    db.saveNotes(_allNotes);
   }
 
   void sortNotes(String sortBy, bool isSorted) {
-    print(sortBy);
-    print(isSorted);
+    List<Note> sortedNotes = List.from(_allNotes);
+
+    
     if (sortBy == 'Title') {
       if (isSorted) {
-        print('sortNotesByTitle');
-        sortNotesByTitle();
+        sortedNotes.sort((a, b) => a.title.compareTo(b.title));
       } else {
-        invertSortNotesByTitle();
+        sortedNotes.sort((a, b) => b.title.compareTo(a.title));
       }
     } else if (sortBy == 'LastUpdated') {
       if (isSorted) {
-        sortNotesByUpdate();
+        sortedNotes.sort((a, b) => a.updatedAt!.compareTo(b.updatedAt!));
       } else {
-        invertSortNotesByUpdate();
+        sortedNotes.sort((a, b) => b.updatedAt!.compareTo(a.updatedAt!));
       }
     } else if (sortBy == 'Created') {
       if (isSorted) {
-        sortNotesByCreate();
+        sortedNotes.sort((a, b) => a.createdAt!.compareTo(b.createdAt!));
       } else {
-        invertSortNotesByCreate();
+        sortedNotes.sort((a, b) => b.createdAt!.compareTo(a.createdAt!));
       }
     }
-    notifyListeners();
-  }
-
-  void sortNotesByCreate() {
-    allNotes.sort((a, b) => a.createdAt!.compareTo(b.createdAt!));
-  }
-
-  void invertSortNotesByCreate() {
-    allNotes.sort((a, b) => b.createdAt!.compareTo(a.createdAt!));
-  }
-
-  void sortNotesByUpdate() {
-    allNotes.sort((a, b) => a.updatedAt!.compareTo(b.updatedAt!));
-  }
-
-  void invertSortNotesByUpdate() {
-    allNotes.sort((a, b) => b.updatedAt!.compareTo(a.updatedAt!));
-  }
-
-  void sortNotesByTitle() {
-    allNotes.sort((a, b) => a.title.compareTo(b.title));
-  }
-
-  void invertSortNotesByTitle() {
-    allNotes.sort((a, b) => b.title.compareTo(a.title));
+    
+    setAllNotes(sortedNotes);
   }
 }
