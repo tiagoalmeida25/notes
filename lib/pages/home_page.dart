@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:notes/components/close_slidable.dart';
 import 'package:notes/models/note.dart';
 import 'package:notes/models/note_data.dart';
 import 'package:notes/pages/editing_note.dart';

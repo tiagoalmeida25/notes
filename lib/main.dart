@@ -11,7 +11,7 @@ void main() async {
 
   await Hive.openBox('note_database');
   // SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge, overlays: []);
-  SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     statusBarColor: Colors.white, // Set the background color for the status bar
     statusBarIconBrightness: Brightness.dark, // Set the icon color to dark
   ));

@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
@@ -7,6 +6,7 @@ import 'package:notes/models/note.dart';
 import 'package:notes/models/note_data.dart';
 import 'package:provider/provider.dart';
 
+// ignore: must_be_immutable
 class EditingNote extends StatefulWidget {
   Note note;
   bool isNewNote;
@@ -64,107 +64,122 @@ class _EditingNoteState extends State<EditingNote> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CupertinoNavigationBar(
-        middle: TextField(
-          controller: _titleController,
-          decoration: InputDecoration(
-            hintText: widget.isNewNote
-                ? 'Title'
-                : widget.note.title == ''
-                    ? 'Title'
-                    : widget.note.title,
-            border: InputBorder.none,
-          ),
-          textCapitalization: TextCapitalization.words,
-          style: const TextStyle(
-            color: CupertinoColors.darkBackgroundGray,
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
-          onChanged: (value) {
-            widget.note.title = value;
-          },
-        ),
-        leading: GestureDetector(
-          onTap: () {
-            if (_controller.document.isEmpty() &&
-                _titleController.text.isEmpty) {
-              Navigator.pop(context);
-              return;
-            }
+    return WillPopScope(
+      onWillPop: () async {
+        if (_controller.document.isEmpty() && _titleController.text.isEmpty) {
+          return true;
+        }
 
-            if (widget.isNewNote) {
-              addNewNote(DateTime.now().millisecondsSinceEpoch);
-            } else {
-              updateNote();
-            }
+        if (widget.isNewNote) {
+          addNewNote(DateTime.now().millisecondsSinceEpoch);
+        } else {
+          updateNote();
+        }
 
-            Navigator.pop(context);
-          },
-          child: const Icon(
-            CupertinoIcons.back,
-            color: CupertinoColors.systemGrey,
-          ),
-        ),
-      ),
-      body: Column(
-        children: [
-          QuillToolbar.basic(
-            controller: _controller,
-            multiRowsDisplay: false,
-            showDividers: true,
-            showFontFamily: true,
-            showFontSize: true,
-            showBoldButton: true,
-            showItalicButton: true,
-            showSmallButton: false,
-            showUnderLineButton: true,
-            showStrikeThrough: true,
-            showInlineCode: true,
-            showColorButton: true,
-            showBackgroundColorButton: true,
-            showClearFormat: true,
-            showAlignmentButtons: true,
-            showLeftAlignment: true,
-            showCenterAlignment: true,
-            showRightAlignment: true,
-            showJustifyAlignment: true,
-            showHeaderStyle: true,
-            showListNumbers: true,
-            showListBullets: true,
-            showListCheck: true,
-            showCodeBlock: false,
-            showQuote: true,
-            showIndent: true,
-            showLink: true,
-            showUndo: true,
-            showRedo: true,
-            showDirection: false,
-            showSearchButton: true,
-            showSubscript: true,
-            showSuperscript: true,
-            toolbarIconSize: 20,
-            fontSizeValues: const {
-              'Small': '8',
-              'Normal': '12',
-              'Large': '20',
-              'Huge': '30',
-              'Clear': '0'
+        return true;
+      },
+      child: Scaffold(
+        appBar: CupertinoNavigationBar(
+          middle: TextField(
+            controller: _titleController,
+            decoration: InputDecoration(
+              hintText: widget.isNewNote
+                  ? 'Title'
+                  : widget.note.title == ''
+                      ? 'Title'
+                      : widget.note.title,
+              border: InputBorder.none,
+            ),
+            textCapitalization: TextCapitalization.words,
+            style: const TextStyle(
+              color: CupertinoColors.darkBackgroundGray,
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+            onChanged: (value) {
+              widget.note.title = value;
             },
           ),
-          const Divider(),
-          Expanded(
-            child: Container(
-              padding: const EdgeInsets.all(16),
-              child: QuillEditor.basic(
-                controller: _controller,
-                readOnly: false,
-                autoFocus: false,
-              ),
+          leading: GestureDetector(
+            onTap: () {
+              if (_controller.document.isEmpty() &&
+                  _titleController.text.isEmpty) {
+                Navigator.pop(context);
+                return;
+              }
+    
+              if (widget.isNewNote) {
+                addNewNote(DateTime.now().millisecondsSinceEpoch);
+              } else {
+                updateNote();
+              }
+    
+              Navigator.pop(context);
+            },
+            child: const Icon(
+              CupertinoIcons.back,
+              color: CupertinoColors.systemGrey,
             ),
-          )
-        ],
+          ),
+        ),
+        body: Column(
+          children: [
+            QuillToolbar.basic(
+              controller: _controller,
+              multiRowsDisplay: false,
+              showDividers: true,
+              showFontFamily: true,
+              showFontSize: true,
+              showBoldButton: true,
+              showItalicButton: true,
+              showSmallButton: false,
+              showUnderLineButton: true,
+              showStrikeThrough: true,
+              showInlineCode: true,
+              showColorButton: true,
+              showBackgroundColorButton: true,
+              showClearFormat: true,
+              showAlignmentButtons: true,
+              showLeftAlignment: true,
+              showCenterAlignment: true,
+              showRightAlignment: true,
+              showJustifyAlignment: true,
+              showHeaderStyle: true,
+              showListNumbers: true,
+              showListBullets: true,
+              showListCheck: true,
+              showCodeBlock: false,
+              showQuote: true,
+              showIndent: true,
+              showLink: true,
+              showUndo: true,
+              showRedo: true,
+              showDirection: false,
+              showSearchButton: true,
+              showSubscript: true,
+              showSuperscript: true,
+              toolbarIconSize: 20,
+              fontSizeValues: const {
+                'Small': '8',
+                'Normal': '12',
+                'Large': '20',
+                'Huge': '30',
+                'Clear': '0'
+              },
+            ),
+            const Divider(),
+            Expanded(
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                child: QuillEditor.basic(
+                  controller: _controller,
+                  readOnly: false,
+                  autoFocus: false,
+                ),
+              ),
+            )
+          ],
+        ),
       ),
     );
   }
