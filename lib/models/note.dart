@@ -4,6 +4,7 @@ class Note {
   String text;
   DateTime? createdAt;
   DateTime? updatedAt;
+  String? backgroundColor;
 
   Note({
     required this.id,
@@ -11,5 +12,6 @@ class Note {
     required this.title,
     required this.createdAt,
     required this.updatedAt,
+    required this.backgroundColor,
   });
 }

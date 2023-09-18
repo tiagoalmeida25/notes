@@ -70,6 +70,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       title: '',
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
+      backgroundColor: "white",
     );
 
     goToNotePage(newNote, true);
@@ -86,7 +87,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         backgroundColor: CupertinoColors.systemBackground,
         floatingActionButton: FloatingActionButton(
           onPressed: createNewNote,
-          backgroundColor: Colors.grey[200],
+          backgroundColor: Colors.grey[400],
           child: const Icon(CupertinoIcons.add),
         ),
         body: Column(

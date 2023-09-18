@@ -2,9 +2,14 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
+import 'package:notes/components/colors.dart';
 import 'package:notes/models/note.dart';
 import 'package:notes/models/note_data.dart';
+import 'package:notes/pages/note_settings.dart';
 import 'package:provider/provider.dart';
+import 'package:super_editor/super_editor.dart';
+// import document from quill
+import 'package:flutter_quill/src/models/documents/document.dart' as quill_doc;
 
 // ignore: must_be_immutable
 class EditingNote extends StatefulWidget {
@@ -19,7 +24,10 @@ class EditingNote extends StatefulWidget {
 
 class _EditingNoteState extends State<EditingNote> {
   QuillController _controller = QuillController.basic();
+
   final TextEditingController _titleController = TextEditingController();
+
+  Color backgroundColor = Colors.white;
 
   @override
   void initState() {
@@ -29,14 +37,15 @@ class _EditingNoteState extends State<EditingNote> {
 
   void loadExistingNote() {
     if (widget.note.text.isNotEmpty) {
-    setState(() {
-      _controller = QuillController(
-        document: Document.fromJson(jsonDecode(widget.note.text)),
-        selection: const TextSelection.collapsed(offset: 0),
-      );
-      _titleController.text = widget.note.title;
-    });
-  }
+      setState(() {
+        _controller = QuillController(
+          document: quill_doc.Document.fromJson(jsonDecode(widget.note.text)),
+          selection: const TextSelection.collapsed(offset: 0),
+        );
+        _titleController.text = widget.note.title;
+        backgroundColor = getColorFromString(widget.note.backgroundColor);
+      });
+    }
   }
 
   void addNewNote(int i) {
@@ -49,6 +58,7 @@ class _EditingNoteState extends State<EditingNote> {
         title: _titleController.text,
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
+        backgroundColor: setStringFromColor(backgroundColor),
       ),
     );
   }
@@ -58,12 +68,44 @@ class _EditingNoteState extends State<EditingNote> {
     String text = jsonEncode(_controller.document.toDelta().toJson());
     String title = _titleController.text;
 
-    Provider.of<NoteData>(context, listen: false)
-        .updateNote(widget.note, text, title, DateTime.now());
+    Provider.of<NoteData>(context, listen: false).updateNote(widget.note, text,
+        title, DateTime.now(), setStringFromColor(backgroundColor));
+  }
+
+  void noteSettings() async {
+    final result = await Navigator.push(
+        context, MaterialPageRoute(builder: (context) => const NoteSettings()));
+
+    if (result != null) {
+      setState(() {
+        backgroundColor = result[0];
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final myDoc = MutableDocument(
+      nodes: [
+        ParagraphNode(
+          id: DocumentEditor.createNodeId(),
+          text: AttributedText(text: 'This is a header'),
+          metadata: {
+            'blockType': header1Attribution,
+          },
+        ),
+        ParagraphNode(
+          id: DocumentEditor.createNodeId(),
+          text: AttributedText(text: 'This is the first paragraph'),
+        ),
+      ],
+    );
+
+    final docEditor = DocumentEditor(document: myDoc);
+
+    double width = MediaQuery.of(context).size.width;
+    double height = MediaQuery.of(context).size.height;
+
     return WillPopScope(
       onWillPop: () async {
         if (_controller.document.isEmpty() && _titleController.text.isEmpty) {
@@ -79,7 +121,21 @@ class _EditingNoteState extends State<EditingNote> {
         return true;
       },
       child: Scaffold(
+        backgroundColor: backgroundColor,
         appBar: CupertinoNavigationBar(
+          backgroundColor: backgroundColor == Colors.white
+            ? Colors.white
+            : backgroundColor == Colors.black
+                ? Colors.black
+                : backgroundColor == Color.fromRGBO(117, 117, 117, 1)
+                    ? Colors.grey[800]
+                    : backgroundColor == Colors.pink[50]
+                        ? Colors.pink[100]
+                        : backgroundColor == Colors.blue[100]
+                            ? Colors.blue[200]
+                            : backgroundColor == Colors.orange[100]
+                                ? Colors.orange[200]
+                                : backgroundColor,
           middle: TextField(
             controller: _titleController,
             decoration: InputDecoration(
@@ -100,46 +156,59 @@ class _EditingNoteState extends State<EditingNote> {
               widget.note.title = value;
             },
           ),
-          leading: GestureDetector(
-            onTap: () {
+          leading: IconButton(
+            alignment: Alignment.centerLeft,
+            padding: const EdgeInsets.only(left: 0),
+            icon: const Icon(
+              CupertinoIcons.back,
+              color: CupertinoColors.systemGrey,
+            ),
+            onPressed: () {
               if (_controller.document.isEmpty() &&
                   _titleController.text.isEmpty) {
                 Navigator.pop(context);
                 return;
               }
-    
+
               if (widget.isNewNote) {
                 addNewNote(DateTime.now().millisecondsSinceEpoch);
               } else {
                 updateNote();
               }
-    
+
               Navigator.pop(context);
             },
-            child: const Icon(
-              CupertinoIcons.back,
-              color: CupertinoColors.systemGrey,
+          ),
+          trailing: IconButton(
+            onPressed: () {
+              noteSettings();
+            },
+            icon: const Icon(
+              CupertinoIcons.ellipsis_vertical,
+              size: 20,
             ),
           ),
         ),
         body: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             QuillToolbar.basic(
+              sectionDividerSpace: 0,
               controller: _controller,
               multiRowsDisplay: false,
               showDividers: true,
-              showFontFamily: true,
-              showFontSize: true,
+              showFontFamily: false,
+              showFontSize: false,
               showBoldButton: true,
               showItalicButton: true,
               showSmallButton: false,
               showUnderLineButton: true,
-              showStrikeThrough: true,
+              showStrikeThrough: false,
               showInlineCode: true,
               showColorButton: true,
               showBackgroundColorButton: true,
-              showClearFormat: true,
-              showAlignmentButtons: true,
+              showClearFormat: false,
+              showAlignmentButtons: false,
               showLeftAlignment: true,
               showCenterAlignment: true,
               showRightAlignment: true,
@@ -156,28 +225,45 @@ class _EditingNoteState extends State<EditingNote> {
               showRedo: true,
               showDirection: false,
               showSearchButton: true,
-              showSubscript: true,
-              showSuperscript: true,
-              toolbarIconSize: 20,
+              showSubscript: false,
+              showSuperscript: false,
+              toolbarIconSize: 18,
               fontSizeValues: const {
-                'Small': '8',
-                'Normal': '12',
-                'Large': '20',
-                'Huge': '30',
+                '5': '5',
+                '6': '6',
+                '7': '7',
+                '8': '8',
+                '9': '9',
+                '10': '10',
+                '11': '11',
+                '12': '12',
+                '13': '13',
+                '14': '14',
+                '15': '15',
+                '16': '16',
+                '18': '18',
+                '20': '20',
+                '22': '22',
+                '24': '24',
+                '28': '28',
+                '32': '32',
+                '36': '36',
+                '40': '40',
                 'Clear': '0'
               },
             ),
             const Divider(),
             Expanded(
               child: Container(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.only(left: 25, right: 25),
+                height: height * 0.8,
                 child: QuillEditor.basic(
                   controller: _controller,
                   readOnly: false,
                   autoFocus: false,
                 ),
               ),
-            )
+            ),
           ],
         ),
       ),

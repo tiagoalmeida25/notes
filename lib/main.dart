@@ -10,10 +10,8 @@ void main() async {
   await Hive.initFlutter();
 
   await Hive.openBox('note_database');
-  // SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge, overlays: []);
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-    statusBarColor: Colors.white, // Set the background color for the status bar
-    statusBarIconBrightness: Brightness.dark, // Set the icon color to dark
+    statusBarIconBrightness: Brightness.dark,
   ));
 
 

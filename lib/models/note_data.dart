@@ -32,12 +32,14 @@ class NoteData extends ChangeNotifier {
     notifyListeners();
   }
 
-  void updateNote(Note note, String text, String title, DateTime updatedAt) {
+  void updateNote(Note note, String text, String title, DateTime updatedAt, String backgroundColor) {
     for (int i = 0; i < _allNotes.length; i++) {
       if (_allNotes[i].id == note.id) {
         _allNotes[i].text = text;
         _allNotes[i].title = title;
         _allNotes[i].updatedAt = updatedAt;
+        _allNotes[i].backgroundColor = backgroundColor;
+
       }
     }
     saveNotes(_allNotes);

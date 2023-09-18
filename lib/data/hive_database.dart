@@ -19,6 +19,7 @@ class HiveDatabase {
             title: savedNotes[i][2],
             createdAt: savedNotes[i][3],
             updatedAt: savedNotes[i][4],
+            backgroundColor: savedNotes[i][5],
           );
 
           savedNotesFormatted.add(eachNote);
@@ -38,8 +39,9 @@ class HiveDatabase {
       String title = note.title;
       DateTime? createdAt = note.createdAt;
       DateTime? updatedAt = note.updatedAt;
+      String? backgroundColor = note.backgroundColor;
 
-      allNotesFormatted.add([id, text, title, createdAt, updatedAt]);
+      allNotesFormatted.add([id, text, title, createdAt, updatedAt, backgroundColor]);
     }
     _myBox.put("ALL_NOTES", allNotesFormatted);
   }
