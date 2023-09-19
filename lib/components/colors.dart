@@ -3,25 +3,48 @@ import 'package:flutter/material.dart';
 String setStringFromColor(Color colorString) {
   if (colorString == Colors.black) {
     return 'black';
-  } else if (colorString == Colors.grey[800]) {
-    return 'grey[800]';
-  } else if (colorString == Colors.grey[600]) {
-    return 'grey[600]';
-  } else if (colorString == Colors.grey[400]) {
-    return 'grey[400]';
-  } else if (colorString == Colors.grey[200]) {
-    return 'grey[200]';
-  } else if (colorString == Colors.pink[50]) {
-    return 'pink[50]';
-  } else if (colorString == Colors.white) {
-    return 'white';
-  } else if(colorString == Colors.blue[100]) {
-    return 'blue[100]';
-  } else if(colorString == Colors.orange[100]){
-    return 'orange[100]';
+  } else if(colorString == const Color.fromRGBO(101, 110, 117, 1)){
+    return 'darkgrey';
   }
-  
-  else {
+  else if(colorString == const Color.fromRGBO(84, 110, 122, 1)){
+    return 'bluegrey';
+  }
+  else if(colorString == const Color.fromRGBO(176, 178, 199, 1)){
+    return 'grey';
+  }
+  else if(colorString == Colors.white){
+    return 'white';
+  }
+  else if(colorString == const Color.fromARGB(255, 176, 82, 76)){
+    return 'red';
+  }
+  else if(colorString == const Color.fromRGBO(56, 142, 60, 1)){
+    return 'darkgreen';
+  }
+  else if(colorString == const Color.fromRGBO(236, 176, 47, 1)){
+    return 'yellow';
+  }
+  else if(colorString == const Color.fromRGBO(25, 82, 148, 1)){
+    return 'darkblue';
+  }
+  else if(colorString == const Color.fromRGBO(209, 196, 233, 1)){
+    return 'lightpurple';
+  }
+  else if(colorString == const Color.fromRGBO(255, 224, 178, 1)){
+    return 'lightorange';
+  }
+  else if(colorString == const Color.fromRGBO(220, 237, 200, 1)){
+    return 'lightgreen';
+  }
+  else if(colorString == const Color.fromRGBO(255, 249, 196, 1)){
+    return 'lightyellow';
+  }
+  else if(colorString == const Color.fromRGBO(187, 222, 251, 1)){
+    return 'lightblue';
+  }
+  else if(colorString == const Color.fromRGBO(252, 228, 236, 1)){
+    return 'lightpink';
+  } else {
     return 'white';
   }
 }
@@ -30,22 +53,34 @@ Color getColorFromString(String? colorString) {
   switch (colorString) {
     case 'black':
       return Colors.black;
-    case 'grey[800]':
-      return const Color.fromRGBO(66, 66, 66, 1);
-    case 'grey[600]':
-      return const Color.fromRGBO(117, 117, 117, 1);
-    case 'grey[400]':
-      return const Color.fromRGBO(189, 189, 189, 1);
-    case 'grey[200]':
-      return const Color.fromRGBO(238, 238, 238, 1);
+    case 'darkgrey':
+      return const Color.fromRGBO(101, 110, 117, 1);
+    case 'bluegrey':
+      return const Color.fromRGBO(84, 110, 122, 1);
+    case 'grey':
+      return const Color.fromRGBO(176, 178, 199, 1);
     case 'white':
       return Colors.white;
-    case 'pink[50]':
-      return Colors.pink[50]!;
-    case 'blue[100]':
-      return Color.fromRGBO(187, 222, 251, 1);
-    case 'orange[100]':
-      return Color.fromRGBO(255, 224, 178, 1);
+    case 'red':
+      return const Color.fromARGB(255, 176, 82, 76);
+    case 'darkgreen':
+      return const Color.fromRGBO(56, 142, 60, 1);
+    case 'yellow':
+      return const Color.fromRGBO(236, 176, 47, 1);
+    case 'darkblue':
+      return const Color.fromRGBO(25, 82, 148, 1);
+    case 'lightpurple':
+      return const Color.fromRGBO(209, 196, 233, 1);
+    case 'lightorange':
+      return const Color.fromRGBO(255, 224, 178, 1);
+    case 'lightgreen':
+      return const Color.fromRGBO(220, 237, 200, 1);
+    case 'lightyellow':
+      return const Color.fromRGBO(255, 249, 196, 1);
+    case 'lightblue':
+      return const Color.fromRGBO(187, 222, 251, 1);
+    case 'lightpink':
+      return const Color.fromRGBO(252, 228, 236, 1);
     default:
       return Colors.white;
   }

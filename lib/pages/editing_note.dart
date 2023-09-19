@@ -1,15 +1,13 @@
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:notes/components/colors.dart';
 import 'package:notes/models/note.dart';
 import 'package:notes/models/note_data.dart';
 import 'package:notes/pages/note_settings.dart';
 import 'package:provider/provider.dart';
-import 'package:super_editor/super_editor.dart';
-// import document from quill
-import 'package:flutter_quill/src/models/documents/document.dart' as quill_doc;
 
 // ignore: must_be_immutable
 class EditingNote extends StatefulWidget {
@@ -21,6 +19,27 @@ class EditingNote extends StatefulWidget {
   @override
   State<EditingNote> createState() => _EditingNoteState();
 }
+
+List<Color> darkColors = [
+  Colors.black,
+  const Color.fromRGBO(101, 110, 117, 1),
+  const Color.fromRGBO(84, 110, 122, 1),
+  const Color.fromARGB(255, 176, 82, 76),
+  const Color.fromRGBO(56, 142, 60, 1),
+  const Color.fromRGBO(25, 82, 148, 1),
+  const Color.fromRGBO(176, 178, 199, 1)
+];
+
+List<Color> lightColors = [
+  Colors.white,
+  const Color.fromRGBO(209, 196, 233, 1),
+  const Color.fromRGBO(236, 176, 47, 1),
+  const Color.fromRGBO(255, 224, 178, 1),
+  const Color.fromRGBO(220, 237, 200, 1),
+  const Color.fromRGBO(255, 249, 196, 1),
+  const Color.fromRGBO(187, 222, 251, 1),
+  const Color.fromRGBO(252, 228, 236, 1),
+];
 
 class _EditingNoteState extends State<EditingNote> {
   QuillController _controller = QuillController.basic();
@@ -39,7 +58,7 @@ class _EditingNoteState extends State<EditingNote> {
     if (widget.note.text.isNotEmpty) {
       setState(() {
         _controller = QuillController(
-          document: quill_doc.Document.fromJson(jsonDecode(widget.note.text)),
+          document: Document.fromJson(jsonDecode(widget.note.text)),
           selection: const TextSelection.collapsed(offset: 0),
         );
         _titleController.text = widget.note.title;
@@ -85,26 +104,12 @@ class _EditingNoteState extends State<EditingNote> {
 
   @override
   Widget build(BuildContext context) {
-    final myDoc = MutableDocument(
-      nodes: [
-        ParagraphNode(
-          id: DocumentEditor.createNodeId(),
-          text: AttributedText(text: 'This is a header'),
-          metadata: {
-            'blockType': header1Attribution,
-          },
-        ),
-        ParagraphNode(
-          id: DocumentEditor.createNodeId(),
-          text: AttributedText(text: 'This is the first paragraph'),
-        ),
-      ],
-    );
-
-    final docEditor = DocumentEditor(document: myDoc);
-
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
+
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+      statusBarIconBrightness: darkColors.contains(backgroundColor)? Brightness.light : Brightness.dark,
+    ));
 
     return WillPopScope(
       onWillPop: () async {
@@ -124,18 +129,69 @@ class _EditingNoteState extends State<EditingNote> {
         backgroundColor: backgroundColor,
         appBar: CupertinoNavigationBar(
           backgroundColor: backgroundColor == Colors.white
-            ? Colors.white
-            : backgroundColor == Colors.black
-                ? Colors.black
-                : backgroundColor == Color.fromRGBO(117, 117, 117, 1)
-                    ? Colors.grey[800]
-                    : backgroundColor == Colors.pink[50]
-                        ? Colors.pink[100]
-                        : backgroundColor == Colors.blue[100]
-                            ? Colors.blue[200]
-                            : backgroundColor == Colors.orange[100]
-                                ? Colors.orange[200]
-                                : backgroundColor,
+              ? Colors.white
+              : backgroundColor == Colors.black
+                  ? Colors.black
+                  : backgroundColor == const Color.fromRGBO(101, 110, 117, 1)
+                      ? Colors.grey[800]
+                      : backgroundColor == const Color.fromRGBO(84, 110, 122, 1)
+                          ? Colors.blueGrey[800]
+                          : backgroundColor ==
+                                  const Color.fromRGBO(176, 178, 199, 1)
+                              ? Color.fromARGB(255, 123, 126, 152)
+                              : backgroundColor ==
+                                      const Color.fromRGBO(176, 82, 76, 1)
+                                  ? Color.fromARGB(255, 135, 42, 42)
+                                  : backgroundColor ==
+                                          const Color.fromRGBO(56, 142, 60, 1)
+                                      ? const Color.fromARGB(255, 52, 106, 55)
+                                      : backgroundColor ==
+                                              const Color.fromRGBO(
+                                                  236, 176, 47, 1)
+                                          ? Color.fromARGB(255, 180, 121, 26)
+                                          : backgroundColor ==
+                                                  const Color.fromRGBO(
+                                                      25, 82, 148, 1)
+                                              ? Color.fromARGB(255, 24, 59, 99)
+                                              : backgroundColor ==
+                                                      const Color.fromRGBO(
+                                                          209, 196, 233, 1)
+                                                  ? Colors.purple[200]
+                                                  : backgroundColor ==
+                                                          const Color.fromRGBO(
+                                                              255, 224, 178, 1)
+                                                      ? Colors.orange[200]
+                                                      : backgroundColor ==
+                                                              const Color.fromRGBO(
+                                                                  220,
+                                                                  237,
+                                                                  200,
+                                                                  1)
+                                                          ? Colors.green[200]
+                                                          : backgroundColor ==
+                                                                  const Color.fromRGBO(
+                                                                      255,
+                                                                      249,
+                                                                      196,
+                                                                      1)
+                                                              ? Colors
+                                                                  .yellow[200]
+                                                              : backgroundColor ==
+                                                                      const Color.fromRGBO(
+                                                                          187,
+                                                                          222,
+                                                                          251,
+                                                                          1)
+                                                                  ? Colors
+                                                                      .blue[200]
+                                                                  : backgroundColor ==
+                                                                          const Color.fromRGBO(
+                                                                              252,
+                                                                              228,
+                                                                              236,
+                                                                              1)
+                                                                      ? Colors.pink[200]
+                                                                      : Colors.white,
           middle: TextField(
             controller: _titleController,
             decoration: InputDecoration(
@@ -144,11 +200,34 @@ class _EditingNoteState extends State<EditingNote> {
                   : widget.note.title == ''
                       ? 'Title'
                       : widget.note.title,
+              hintStyle: TextStyle(
+                color: darkColors.contains(backgroundColor) && (widget.isNewNote || widget.note.title == '')
+                    ? Colors.grey[300]
+                    : lightColors.contains(backgroundColor) && (widget.isNewNote || widget.note.title == '')
+                        ? Colors.grey[700]
+                        : darkColors.contains(backgroundColor)
+                            ? Colors.white
+                            : lightColors.contains(backgroundColor)
+                                ? Colors.black
+                                : Colors.black,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
               border: InputBorder.none,
             ),
             textCapitalization: TextCapitalization.words,
-            style: const TextStyle(
-              color: CupertinoColors.darkBackgroundGray,
+            style: TextStyle(
+              color: darkColors.contains(backgroundColor) &&
+                      (widget.isNewNote || widget.note.title == '')
+                  ? Colors.grey[300]
+                  : lightColors.contains(backgroundColor) &&
+                          (widget.isNewNote || widget.note.title == '')
+                      ? Colors.grey[700]
+                      : darkColors.contains(backgroundColor)
+                          ? Colors.white
+                          : lightColors.contains(backgroundColor)
+                              ? Colors.black
+                              : Colors.black,
               fontSize: 20,
               fontWeight: FontWeight.bold,
             ),
@@ -159,9 +238,13 @@ class _EditingNoteState extends State<EditingNote> {
           leading: IconButton(
             alignment: Alignment.centerLeft,
             padding: const EdgeInsets.only(left: 0),
-            icon: const Icon(
+            icon: Icon(
               CupertinoIcons.back,
-              color: CupertinoColors.systemGrey,
+              color: darkColors.contains(backgroundColor)
+                  ? Colors.grey[300]
+                  : lightColors.contains(backgroundColor)
+                      ? Colors.grey[700]
+                      : Colors.grey[700],
             ),
             onPressed: () {
               if (_controller.document.isEmpty() &&
@@ -169,7 +252,6 @@ class _EditingNoteState extends State<EditingNote> {
                 Navigator.pop(context);
                 return;
               }
-
               if (widget.isNewNote) {
                 addNewNote(DateTime.now().millisecondsSinceEpoch);
               } else {
@@ -183,9 +265,14 @@ class _EditingNoteState extends State<EditingNote> {
             onPressed: () {
               noteSettings();
             },
-            icon: const Icon(
+            icon: Icon(
               CupertinoIcons.ellipsis_vertical,
               size: 20,
+              color: darkColors.contains(backgroundColor) 
+                  ? Colors.grey[300]
+                  : lightColors.contains(backgroundColor)
+                      ? Colors.grey[700]
+                      : Colors.grey[700],
             ),
           ),
         ),
@@ -252,7 +339,6 @@ class _EditingNoteState extends State<EditingNote> {
                 'Clear': '0'
               },
             ),
-            const Divider(),
             Expanded(
               child: Container(
                 padding: const EdgeInsets.only(left: 25, right: 25),
