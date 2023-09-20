@@ -12,6 +12,8 @@ class HiveDatabase {
       if (_myBox.get("ALL_NOTES").length > 0) {
         List<dynamic> savedNotes = _myBox.get("ALL_NOTES");
 
+        // saveNotes([]);
+
         for (int i = 0; i < savedNotes.length; i++) {
           Note eachNote = Note(
             id: savedNotes[i][0],
@@ -20,6 +22,7 @@ class HiveDatabase {
             createdAt: savedNotes[i][3],
             updatedAt: savedNotes[i][4],
             backgroundColor: savedNotes[i][5],
+            isPinned: savedNotes[i][6],
           );
 
           savedNotesFormatted.add(eachNote);
@@ -40,8 +43,10 @@ class HiveDatabase {
       DateTime? createdAt = note.createdAt;
       DateTime? updatedAt = note.updatedAt;
       String? backgroundColor = note.backgroundColor;
+      bool? isPinned = note.isPinned;
 
-      allNotesFormatted.add([id, text, title, createdAt, updatedAt, backgroundColor]);
+      allNotesFormatted.add(
+          [id, text, title, createdAt, updatedAt, backgroundColor, isPinned]);
     }
     _myBox.put("ALL_NOTES", allNotesFormatted);
   }

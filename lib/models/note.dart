@@ -5,6 +5,7 @@ class Note {
   DateTime? createdAt;
   DateTime? updatedAt;
   String? backgroundColor;
+  bool? isPinned;
 
   Note({
     required this.id,
@@ -13,5 +14,6 @@ class Note {
     required this.createdAt,
     required this.updatedAt,
     required this.backgroundColor,
+    required this.isPinned,
   });
 }

@@ -20,26 +20,6 @@ class EditingNote extends StatefulWidget {
   State<EditingNote> createState() => _EditingNoteState();
 }
 
-List<Color> darkColors = [
-  Colors.black,
-  const Color.fromRGBO(101, 110, 117, 1),
-  const Color.fromRGBO(84, 110, 122, 1),
-  const Color.fromARGB(255, 176, 82, 76),
-  const Color.fromRGBO(56, 142, 60, 1),
-  const Color.fromRGBO(25, 82, 148, 1),
-  const Color.fromRGBO(176, 178, 199, 1)
-];
-
-List<Color> lightColors = [
-  Colors.white,
-  const Color.fromRGBO(209, 196, 233, 1),
-  const Color.fromRGBO(236, 176, 47, 1),
-  const Color.fromRGBO(255, 224, 178, 1),
-  const Color.fromRGBO(220, 237, 200, 1),
-  const Color.fromRGBO(255, 249, 196, 1),
-  const Color.fromRGBO(187, 222, 251, 1),
-  const Color.fromRGBO(252, 228, 236, 1),
-];
 
 class _EditingNoteState extends State<EditingNote> {
   QuillController _controller = QuillController.basic();
@@ -78,6 +58,7 @@ class _EditingNoteState extends State<EditingNote> {
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
         backgroundColor: setStringFromColor(backgroundColor),
+        isPinned: false,
       ),
     );
   }
@@ -88,7 +69,7 @@ class _EditingNoteState extends State<EditingNote> {
     String title = _titleController.text;
 
     Provider.of<NoteData>(context, listen: false).updateNote(widget.note, text,
-        title, DateTime.now(), setStringFromColor(backgroundColor));
+        title, DateTime.now(), setStringFromColor(backgroundColor), false);
   }
 
   void noteSettings() async {
@@ -138,25 +119,25 @@ class _EditingNoteState extends State<EditingNote> {
                           ? Colors.blueGrey[800]
                           : backgroundColor ==
                                   const Color.fromRGBO(176, 178, 199, 1)
-                              ? Color.fromARGB(255, 123, 126, 152)
+                              ? const Color.fromARGB(255, 123, 126, 152)
                               : backgroundColor ==
                                       const Color.fromRGBO(176, 82, 76, 1)
-                                  ? Color.fromARGB(255, 135, 42, 42)
+                                  ? const Color.fromARGB(255, 135, 42, 42)
                                   : backgroundColor ==
                                           const Color.fromRGBO(56, 142, 60, 1)
                                       ? const Color.fromARGB(255, 52, 106, 55)
                                       : backgroundColor ==
                                               const Color.fromRGBO(
                                                   236, 176, 47, 1)
-                                          ? Color.fromARGB(255, 180, 121, 26)
+                                          ? const Color.fromARGB(255, 180, 121, 26)
                                           : backgroundColor ==
                                                   const Color.fromRGBO(
                                                       25, 82, 148, 1)
-                                              ? Color.fromARGB(255, 24, 59, 99)
+                                              ? const Color.fromARGB(255, 24, 59, 99)
                                               : backgroundColor ==
                                                       const Color.fromRGBO(
                                                           209, 196, 233, 1)
-                                                  ? Colors.purple[200]
+                                                  ? const Color.fromRGBO(183, 171, 204, 1)
                                                   : backgroundColor ==
                                                           const Color.fromRGBO(
                                                               255, 224, 178, 1)

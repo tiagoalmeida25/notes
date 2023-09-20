@@ -1,5 +1,27 @@
 import 'package:flutter/material.dart';
 
+List<Color> darkColors = [
+  Colors.black,
+  const Color.fromRGBO(101, 110, 117, 1),
+  const Color.fromRGBO(84, 110, 122, 1),
+  const Color.fromARGB(255, 176, 82, 76),
+  const Color.fromRGBO(56, 142, 60, 1),
+  const Color.fromRGBO(25, 82, 148, 1),
+  const Color.fromRGBO(176, 178, 199, 1)
+];
+
+List<Color> lightColors = [
+  Colors.white,
+  const Color.fromRGBO(209, 196, 233, 1),
+  const Color.fromRGBO(236, 176, 47, 1),
+  const Color.fromRGBO(255, 224, 178, 1),
+  const Color.fromRGBO(220, 237, 200, 1),
+  const Color.fromRGBO(255, 249, 196, 1),
+  const Color.fromRGBO(187, 222, 251, 1),
+  const Color.fromRGBO(252, 228, 236, 1),
+];
+
+
 String setStringFromColor(Color colorString) {
   if (colorString == Colors.black) {
     return 'black';

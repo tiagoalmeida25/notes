@@ -20,6 +20,7 @@ dependencies:
   flutter_launcher_icons:
   cupertino_icons: ^1.0.2
   super_editor: ^0.2.6
+  shared_preferences: ^2.2.1
 
 flutter_icons:
   image_path: "icon/icon-note.png" 
