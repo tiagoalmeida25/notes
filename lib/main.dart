@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:notes/models/note_data.dart';
 import 'package:notes/pages/home_page.dart';
+import 'package:notes/pages/pinned.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
@@ -33,6 +34,10 @@ class MainApp extends StatelessWidget {
           ),
         ),
         home: const HomePage(),
+        routes: {
+          '/home': (context) => const HomePage(),
+          '/pinned': (context) => const Pinned(),
+        },
       ),
     );
   }

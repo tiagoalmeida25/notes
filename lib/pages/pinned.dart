@@ -11,16 +11,16 @@ import 'package:provider/provider.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+class Pinned extends StatefulWidget {
+  const Pinned({Key? key}) : super(key: key);
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<Pinned> createState() => _PinnedState();
 }
 
 enum SortBy { title, lastUpdated, created }
 
-class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
+class _PinnedState extends State<Pinned> with WidgetsBindingObserver {
   bool isSorted = false;
   bool isListView = true;
   bool isSearching = false;
@@ -53,7 +53,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.paused) {
       List<Note> allNotes =
-          Provider.of<NoteData>(context, listen: false).getAllNotes();
+          Provider.of<NoteData>(context, listen: false).getPinnedNotes();
 
       Provider.of<NoteData>(context, listen: false).saveNotes(allNotes);
     }
@@ -106,7 +106,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   }
 
   void createNewNote() {
-    int id = Provider.of<NoteData>(context, listen: false).getAllNotes().length;
+    int id = Provider.of<NoteData>(context, listen: false).getPinnedNotes().length;
     Note newNote = Note(
       id: id,
       text: '',
@@ -138,7 +138,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    allNotes = Provider.of<NoteData>(context).getAllNotes();
+    allNotes = Provider.of<NoteData>(context).getPinnedNotes();
     return Consumer<NoteData>(
       builder: (context, value, child) {
         return Scaffold(
@@ -146,7 +146,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             backgroundColor: CupertinoColors.systemBackground,
             height: MediaQuery.of(context).size.height * 0.08,
             elevation: 8,
-            selectedIndex: 0,
+            selectedIndex: 1,
             destinations: [
               const NavigationDestination(
                 icon: Icon(CupertinoIcons.square_list),
@@ -316,7 +316,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                                       allNotes =
                                                           Provider.of<NoteData>(
                                                                   context)
-                                                              .getAllNotes();
+                                                              .getPinnedNotes();
                                                     });
                                                   },
                                                   icon: const Icon(
@@ -395,7 +395,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                               ),
                               isListView
                                   ? Flexible(
-                                    child: ListView.builder(
+                                      child: ListView.builder(
                                         shrinkWrap: true,
                                         itemCount: allNotes.length,
                                         itemBuilder: (context, index) {
@@ -434,7 +434,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                                     );
                                                   },
                                                   icon: value
-                                                          .getAllNotes()[index]
+                                                          .getPinnedNotes()[index]
                                                           .isPinned!
                                                       ? CupertinoIcons
                                                           .pin_slash_fill
@@ -443,9 +443,10 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                                       BorderRadius.circular(
                                                     16,
                                                   ),
-                                                  backgroundColor: Colors.transparent,
+                                                  backgroundColor:
+                                                      Colors.transparent,
                                                   foregroundColor: value
-                                                          .getAllNotes()[index]
+                                                          .getPinnedNotes()[index]
                                                           .isPinned!
                                                       ? Colors.grey
                                                       : Colors.black,
@@ -454,36 +455,36 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                             ),
                                             child: NoteCard(
                                               title: value
-                                                  .getAllNotes()[index]
+                                                  .getPinnedNotes()[index]
                                                   .title,
                                               text: jsonDecode(value
-                                                          .getAllNotes()[index]
+                                                          .getPinnedNotes()[index]
                                                           .text)[0]['insert'] !=
                                                       '\n'
                                                   ? jsonDecode(value
-                                                      .getAllNotes()[index]
+                                                      .getPinnedNotes()[index]
                                                       .text)[0]['insert']
                                                   : '',
                                               date: value
-                                                  .getAllNotes()[index]
+                                                  .getPinnedNotes()[index]
                                                   .updatedAt!,
                                               backgroundColor: value
-                                                  .getAllNotes()[index]
+                                                  .getPinnedNotes()[index]
                                                   .backgroundColor!,
                                               isPinned: value
-                                                  .getAllNotes()[index]
+                                                  .getPinnedNotes()[index]
                                                   .isPinned!,
                                               onTap: () => goToNotePage(
                                                   allNotes[index], false),
                                               tags: ['tag1', 'tag2'],
-                                              folder: 'folder',
+                                              folder: 'Folder',
                                             ),
                                           );
                                         },
                                       ),
-                                  )
+                                    )
                                   : Flexible(
-                                    child: SizedBox(
+                                      child: SizedBox(
                                         height:
                                             MediaQuery.of(context).size.height *
                                                 0.72,
@@ -505,8 +506,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                                           const StretchMotion(),
                                                       children: [
                                                         SlidableAction(
-                                                          onPressed: (context) =>
-                                                              deleteNote(
+                                                          onPressed:
+                                                              (context) =>
+                                                                  deleteNote(
                                                             allNotes[index],
                                                           ),
                                                           backgroundColor:
@@ -529,22 +531,22 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                                         SlidableAction(
                                                           onPressed: (context) {
                                                             value
-                                                                    .getAllNotes()[
+                                                                    .getPinnedNotes()[
                                                                         index]
                                                                     .isPinned =
                                                                 !value
-                                                                    .getAllNotes()[
+                                                                    .getPinnedNotes()[
                                                                         index]
                                                                     .isPinned!;
                                                             value.saveNotes(value
-                                                                .getAllNotes());
+                                                                .getPinnedNotes());
                                                             sort(
                                                                 sortNotifier
                                                                     .value,
                                                                 isSorted);
                                                           },
                                                           icon: value
-                                                                  .getAllNotes()[
+                                                                  .getPinnedNotes()[
                                                                       index]
                                                                   .isPinned!
                                                               ? CupertinoIcons
@@ -555,7 +557,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                                               BorderRadius
                                                                   .circular(16),
                                                           foregroundColor: value
-                                                                  .getAllNotes()[
+                                                                  .getPinnedNotes()[
                                                                       index]
                                                                   .isPinned!
                                                               ? Colors.grey
@@ -565,51 +567,53 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                                     ),
                                                     child: GridNote(
                                                       title: value
-                                                          .getAllNotes()[index]
+                                                          .getPinnedNotes()[index]
                                                           .title,
                                                       text: jsonDecode(value
-                                                                      .getAllNotes()[
+                                                                      .getPinnedNotes()[
                                                                           index]
                                                                       .text)[0]
                                                                   ['insert'] !=
                                                               '\n'
                                                           ? jsonDecode(value
-                                                              .getAllNotes()[
+                                                              .getPinnedNotes()[
                                                                   index]
                                                               .text)[0]['insert']
                                                           : '',
                                                       updatedAt: value
-                                                          .getAllNotes()[index]
+                                                          .getPinnedNotes()[index]
                                                           .updatedAt!,
                                                       backgroundColor: value
-                                                          .getAllNotes()[index]
+                                                          .getPinnedNotes()[index]
                                                           .backgroundColor!,
                                                       isPinned: value
-                                                          .getAllNotes()[index]
+                                                          .getPinnedNotes()[index]
                                                           .isPinned!,
                                                       onTap: () => goToNotePage(
-                                                          allNotes[index], false),
+                                                          allNotes[index],
+                                                          false),
                                                     ),
                                                   )
                                                 : GridNote(
                                                     title: value
-                                                        .getAllNotes()[index]
+                                                        .getPinnedNotes()[index]
                                                         .title,
                                                     text: jsonDecode(allNotes[index].text)[
                                                                 0]['insert'] !=
                                                             '\n'
                                                         ? jsonDecode(value
-                                                            .getAllNotes()[index]
+                                                            .getPinnedNotes()[
+                                                                index]
                                                             .text)[0]['insert']
                                                         : '',
                                                     updatedAt: value
-                                                        .getAllNotes()[index]
+                                                        .getPinnedNotes()[index]
                                                         .updatedAt!,
                                                     backgroundColor: value
-                                                        .getAllNotes()[index]
+                                                        .getPinnedNotes()[index]
                                                         .backgroundColor!,
                                                     isPinned: value
-                                                        .getAllNotes()[index]
+                                                        .getPinnedNotes()[index]
                                                         .isPinned!,
                                                     onTap: () => goToNotePage(
                                                         allNotes[index], false),
@@ -622,8 +626,10 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                                           actions: [
                                                             CupertinoActionSheetAction(
                                                               onPressed: () {
-                                                                value.deleteNote(
-                                                                  allNotes[index],
+                                                                value
+                                                                    .deleteNote(
+                                                                  allNotes[
+                                                                      index],
                                                                 );
                                                                 Navigator.pop(
                                                                     context);
@@ -638,11 +644,12 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                                                 allNotes[index]
                                                                         .isPinned =
                                                                     !value
-                                                                        .getAllNotes()[
+                                                                        .getPinnedNotes()[
                                                                             index]
                                                                         .isPinned!;
-                                                                value.saveNotes(value
-                                                                    .getAllNotes());
+                                                                value.saveNotes(
+                                                                    value
+                                                                        .getPinnedNotes());
                                                                 sort(
                                                                     sortNotifier
                                                                         .value,
@@ -651,7 +658,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                                                     context);
                                                               },
                                                               child: Text(value
-                                                                      .getAllNotes()[
+                                                                      .getPinnedNotes()[
                                                                           index]
                                                                       .isPinned!
                                                                   ? 'Unpin'
@@ -673,7 +680,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                           },
                                         ),
                                       ),
-                                  )
+                                    )
                             ],
                           ),
                   ),

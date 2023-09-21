@@ -1,139 +1,182 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:notes/components/colors.dart';
 
-class ListNote extends StatelessWidget {
-  const ListNote({
-    Key? key,
+class NoteCard extends StatelessWidget {
+  final String title;
+  final String text;
+  final DateTime date;
+  final String backgroundColor;
+  final bool isPinned;
+  final List<String> tags;
+  final Function() onTap;
+  final String folder;
+
+  NoteCard({
     required this.title,
     required this.text,
     required this.backgroundColor,
+    required this.date,
     required this.isPinned,
+    required this.tags,
     required this.onTap,
-    required this.updatedAt,
-  }) : super(key: key);
-
-  final String title;
-  final String text;
-  final String backgroundColor;
-  final bool isPinned;
-  final Function() onTap;
-  final DateTime? updatedAt;
+    required this.folder,
+  });
 
   @override
   Widget build(BuildContext context) {
-    double width = MediaQuery.of(context).size.width;
+    String dateHour = date.hour < 10 ? '0${date.hour}' : date.hour.toString();
+    String dateMinute =
+        date.minute < 10 ? '0${date.minute}' : date.minute.toString();
 
-    String hourText = updatedAt!.hour < 10
-        ? '0${updatedAt!.hour}'
-        : updatedAt!.hour.toString();
-
-    String minuteText = updatedAt!.minute < 10
-        ? '0${updatedAt!.minute}'
-        : updatedAt!.minute.toString();
-
-    DateTime today = DateTime.now();
-
-    String updatedAtText = '';
-
-    if (updatedAt!.day == today.day &&
-        updatedAt!.month == today.month &&
-        updatedAt!.year == today.year) {
-       updatedAtText = '${hourText}:${minuteText}';
-    } else {
-       updatedAtText =
-          '${updatedAt!.day}/${updatedAt!.month}/${updatedAt!.year} $hourText:$minuteText';
+    String formattedDate =
+        '${date.day}/${date.month}/${date.year} $dateHour:$dateMinute';
+    if (date.day == DateTime.now().day &&
+        date.month == DateTime.now().month &&
+        date.year == DateTime.now().year) {
+      formattedDate = '${date.hour}:${date.minute}';
     }
 
-    Color? newColor = darkColors.contains(getColorFromString(backgroundColor))
-        ? const Color.fromRGBO(255, 255, 255, 1)
-        : const Color.fromRGBO(0, 0, 0, 1);
+    String truncatedTitle = '';
+
+    if (title.isEmpty) {
+      truncatedTitle = 'New note...';
+    } else {
+      if (title.length > 35) {
+        truncatedTitle = '${title.substring(0, 35)}...';
+      } else {
+        truncatedTitle = title;
+      }
+    }
 
     return GestureDetector(
       onTap: onTap,
       child: Center(
         child: SizedBox(
-          width: width,
+          width: MediaQuery.of(context).size.width * 0.9,
+          height: text.isNotEmpty ? 165 : 115,
           child: Card(
             elevation: 4,
-            color: getColorFromString(backgroundColor),
+            color: Colors.white,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      // Text and chevron icon in a Row
-                      Row(
+            child: Stack(
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            title,
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: newColor,
-                            ),
-                          ),
-                          const SizedBox(
-                              width: 8), // Adjust the spacing as needed
-                          Icon(
-                            Icons
-                                .chevron_right, // Replace with your desired chevron icon
-                            color: newColor,
-                            size: 20,
-                          ),
-                        ],
-                      ),
-                      if (isPinned)
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            Transform.rotate(
-                              angle: 0.5,
-                              child: Icon(
-                                Icons.push_pin,
-                                color: newColor,
+                          Row(
+                            children: [
+                              Text(
+                                truncatedTitle,
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
-                            ),
-                          ],
-                        ),
-                    ],
-                  ),
-                  text != ''
-                      ? Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
+                              const SizedBox(width: 4),
+                              const Icon(
+                                Icons.chevron_right,
+                                color: Colors.grey,
+                                size: 20,
+                              ),
+                            ],
+                          ),
+                          if (text.isNotEmpty) ...[
+                            const SizedBox(height: 4),
                             Text(
                               text,
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: newColor,
-                              ),
+                              style: const TextStyle(fontSize: 14),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ],
-                        )
-                      : const SizedBox(
-                          height: 0,
-                          width: 0,
+                        ],
+                      ),
+                    ),
+                    const Spacer(),
+                  ],
+                ),
+                if (tags.isNotEmpty)
+                  Positioned(
+                    bottom: 34,
+                    left: 4,
+                    right: 8,
+                    child: SizedBox(
+                      height: 30,
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: tags.length,
+                        itemBuilder: (context, index) {
+                          final tag = tags[index];
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 4),
+                            child: Chip(
+                              label: Text(tag),
+                              backgroundColor: Colors.red[100],
+                              side: const BorderSide(
+                                color: Colors.red,
+                                width: 1,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                if (isPinned)
+                  Positioned(
+                    top: 8,
+                    right: 8,
+                    child: Transform.rotate(
+                      angle: 0.5,
+                      child: const Icon(Icons.push_pin, color: Colors.grey),
+                    ),
+                  ),
+                if (folder.isNotEmpty)
+                  Positioned(
+                    bottom: 8,
+                    left: 8,
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.folder,
+                          size: 16,
+                          color: getColorFromString(backgroundColor),
                         ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
+                        const SizedBox(width: 4),
+                        Text(
+                          folder,
+                          style: TextStyle(
+                              fontSize: 12,
+                              fontStyle: FontStyle.italic,
+                              color: getColorFromString(backgroundColor)),
+                        ),
+                      ],
+                    ),
+                  ),
+                Positioned(
+                  bottom: 8,
+                  right: 8,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        updatedAtText,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: newColor,
-                        ),
+                        formattedDate,
+                        style: const TextStyle(fontSize: 12),
                       ),
                     ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),

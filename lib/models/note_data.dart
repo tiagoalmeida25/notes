@@ -50,6 +50,10 @@ class NoteData extends ChangeNotifier {
     return _allNotes;
   }
 
+  List<Note> getPinnedNotes() {
+    return _allNotes.where((note) => note.isPinned == true).toList();
+  }
+
   void saveNotes(List<Note> allNotes) {
     db.saveNotes(_allNotes);
   }
