@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:notes/components/colors.dart';
+import 'package:notes/app_colors.dart';
+import 'package:notes/components/note_tag.dart';
+import 'package:notes/models/tag.dart';
 
 class NoteCard extends StatelessWidget {
   final String title;
@@ -7,11 +9,11 @@ class NoteCard extends StatelessWidget {
   final DateTime date;
   final String backgroundColor;
   final bool isPinned;
-  final List<String> tags;
+  final List<Tag> tags;
   final Function() onTap;
   final String folder;
 
-  NoteCard({
+  const NoteCard({super.key, 
     required this.title,
     required this.text,
     required this.backgroundColor,
@@ -33,7 +35,8 @@ class NoteCard extends StatelessWidget {
     if (date.day == DateTime.now().day &&
         date.month == DateTime.now().month &&
         date.year == DateTime.now().year) {
-      formattedDate = '${date.hour}:${date.minute}';
+          
+      formattedDate = '$dateHour:$dateMinute';
     }
 
     String truncatedTitle = '';
@@ -53,7 +56,7 @@ class NoteCard extends StatelessWidget {
       child: Center(
         child: SizedBox(
           width: MediaQuery.of(context).size.width * 0.9,
-          height: text.isNotEmpty ? 165 : 115,
+          height: text.isNotEmpty ? 135 : 100,
           child: Card(
             elevation: 4,
             color: Colors.white,
@@ -110,7 +113,7 @@ class NoteCard extends StatelessWidget {
                     left: 4,
                     right: 8,
                     child: SizedBox(
-                      height: 30,
+                      height: 25,
                       child: ListView.builder(
                         scrollDirection: Axis.horizontal,
                         itemCount: tags.length,
@@ -118,13 +121,10 @@ class NoteCard extends StatelessWidget {
                           final tag = tags[index];
                           return Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 4),
-                            child: Chip(
-                              label: Text(tag),
-                              backgroundColor: Colors.red[100],
-                              side: const BorderSide(
-                                color: Colors.red,
-                                width: 1,
-                              ),
+                            child: NoteTag(
+                              label: tag.text,
+                              backgroundColor:
+                                  getColorFromString(tag.backgroundColor),
                             ),
                           );
                         },

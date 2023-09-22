@@ -7,6 +7,7 @@ class NoteSettings extends StatefulWidget {
   const NoteSettings({Key? key}) : super(key: key);
 
   @override
+  // ignore: library_private_types_in_public_api
   _NoteSettingsState createState() => _NoteSettingsState();
 }
 
@@ -15,8 +16,6 @@ class _NoteSettingsState extends State<NoteSettings> {
 
   @override
   Widget build(BuildContext context) {
-    double height = MediaQuery.of(context).size.height;
-
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.symmetric(vertical: 24.0),
@@ -46,7 +45,7 @@ class _NoteSettingsState extends State<NoteSettings> {
                   ],
                 ),
                 const Padding(
-                  padding: EdgeInsets.symmetric(horizontal:16.0),
+                  padding: EdgeInsets.symmetric(horizontal: 16.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [

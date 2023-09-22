@@ -2,10 +2,13 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_quill/flutter_quill.dart';
-import 'package:notes/components/colors.dart';
+import 'package:flutter_quill/flutter_quill.dart' hide Text;
+import 'package:notes/app_colors.dart';
+import 'package:notes/components/note_tag.dart';
 import 'package:notes/models/note.dart';
 import 'package:notes/models/note_data.dart';
+import 'package:notes/models/tag.dart';
+import 'package:notes/models/tag_data.dart';
 import 'package:notes/pages/note_settings.dart';
 import 'package:provider/provider.dart';
 
@@ -20,7 +23,6 @@ class EditingNote extends StatefulWidget {
   State<EditingNote> createState() => _EditingNoteState();
 }
 
-
 class _EditingNoteState extends State<EditingNote> {
   QuillController _controller = QuillController.basic();
 
@@ -28,10 +30,15 @@ class _EditingNoteState extends State<EditingNote> {
 
   Color backgroundColor = Colors.white;
 
+  late List<Tag> _selectedTags;
+
   @override
   void initState() {
     super.initState();
     loadExistingNote();
+    _selectedTags = widget.note.tags
+        .map((id) => Provider.of<TagData>(context, listen: false).getTag(id))
+        .toList();
   }
 
   void loadExistingNote() {
@@ -59,6 +66,7 @@ class _EditingNoteState extends State<EditingNote> {
         updatedAt: DateTime.now(),
         backgroundColor: setStringFromColor(backgroundColor),
         isPinned: false,
+        tags: _selectedTags.map((e) => e.id).toList(),
       ),
     );
   }
@@ -68,8 +76,14 @@ class _EditingNoteState extends State<EditingNote> {
     String text = jsonEncode(_controller.document.toDelta().toJson());
     String title = _titleController.text;
 
-    Provider.of<NoteData>(context, listen: false).updateNote(widget.note, text,
-        title, DateTime.now(), setStringFromColor(backgroundColor), false);
+    Provider.of<NoteData>(context, listen: false).updateNote(
+        widget.note,
+        text,
+        title,
+        DateTime.now(),
+        setStringFromColor(backgroundColor),
+        false,
+        _selectedTags.map((e) => e.id).toList());
   }
 
   void noteSettings() async {
@@ -83,13 +97,25 @@ class _EditingNoteState extends State<EditingNote> {
     }
   }
 
+  void _handleTagSelected(Tag tag) {
+    setState(() {
+      if (_selectedTags.contains(tag)) {
+        _selectedTags.remove(tag);
+      } else {
+        _selectedTags.add(tag);
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
+    final allTags = Provider.of<TagData>(context).allTags;
 
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-      statusBarIconBrightness: darkColors.contains(backgroundColor)? Brightness.light : Brightness.dark,
+      statusBarIconBrightness: darkColors.contains(backgroundColor)
+          ? Brightness.light
+          : Brightness.dark,
     ));
 
     return WillPopScope(
@@ -129,32 +155,29 @@ class _EditingNoteState extends State<EditingNote> {
                                       : backgroundColor ==
                                               const Color.fromRGBO(
                                                   236, 176, 47, 1)
-                                          ? const Color.fromARGB(255, 180, 121, 26)
+                                          ? const Color.fromARGB(
+                                              255, 180, 121, 26)
                                           : backgroundColor ==
                                                   const Color.fromRGBO(
                                                       25, 82, 148, 1)
-                                              ? const Color.fromARGB(255, 24, 59, 99)
+                                              ? const Color.fromARGB(
+                                                  255, 24, 59, 99)
                                               : backgroundColor ==
                                                       const Color.fromRGBO(
                                                           209, 196, 233, 1)
-                                                  ? const Color.fromRGBO(183, 171, 204, 1)
+                                                  ? const Color.fromRGBO(
+                                                      183, 171, 204, 1)
                                                   : backgroundColor ==
                                                           const Color.fromRGBO(
                                                               255, 224, 178, 1)
                                                       ? Colors.orange[200]
                                                       : backgroundColor ==
                                                               const Color.fromRGBO(
-                                                                  220,
-                                                                  237,
-                                                                  200,
-                                                                  1)
+                                                                  220, 237, 200, 1)
                                                           ? Colors.green[200]
                                                           : backgroundColor ==
                                                                   const Color.fromRGBO(
-                                                                      255,
-                                                                      249,
-                                                                      196,
-                                                                      1)
+                                                                      255, 249, 196, 1)
                                                               ? Colors
                                                                   .yellow[200]
                                                               : backgroundColor ==
@@ -182,9 +205,11 @@ class _EditingNoteState extends State<EditingNote> {
                       ? 'Title'
                       : widget.note.title,
               hintStyle: TextStyle(
-                color: darkColors.contains(backgroundColor) && (widget.isNewNote || widget.note.title == '')
+                color: darkColors.contains(backgroundColor) &&
+                        (widget.isNewNote || widget.note.title == '')
                     ? Colors.grey[300]
-                    : lightColors.contains(backgroundColor) && (widget.isNewNote || widget.note.title == '')
+                    : lightColors.contains(backgroundColor) &&
+                            (widget.isNewNote || widget.note.title == '')
                         ? Colors.grey[700]
                         : darkColors.contains(backgroundColor)
                             ? Colors.white
@@ -249,7 +274,7 @@ class _EditingNoteState extends State<EditingNote> {
             icon: Icon(
               CupertinoIcons.ellipsis_vertical,
               size: 20,
-              color: darkColors.contains(backgroundColor) 
+              color: darkColors.contains(backgroundColor)
                   ? Colors.grey[300]
                   : lightColors.contains(backgroundColor)
                       ? Colors.grey[700]
@@ -321,14 +346,63 @@ class _EditingNoteState extends State<EditingNote> {
               },
             ),
             Expanded(
-              child: Container(
-                padding: const EdgeInsets.only(left: 25, right: 25),
-                height: height * 0.8,
-                child: QuillEditor.basic(
-                  controller: _controller,
-                  readOnly: false,
-                  autoFocus: false,
-                ),
+              child: Column(
+                children: [
+                  ClipRRect(
+                    borderRadius: const BorderRadius.only(
+                      bottomLeft: Radius.circular(10),
+                      bottomRight: Radius.circular(10),
+                    ),
+                    child: Container(
+                      color: Colors.white,
+                      width: MediaQuery.of(context).size.width,
+                      child: Padding(
+                        padding: const EdgeInsets.only(left:16, right: 16, bottom: 8, top: 2),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            
+                            Text('Tags',
+                                style: Theme.of(context).textTheme.bodySmall),
+                            const SizedBox(height: 8),
+                            Wrap(
+                              spacing: 8,
+                              runSpacing: 8,
+                              children: [
+                                for (final tag in allTags)
+                                  GestureDetector(
+                                    onTap: () => _handleTagSelected(tag),
+                                    child: SizedBox(
+                                      height: 28,
+                                      width: tag.text.length * 10.0,
+                                      child: _selectedTags.contains(tag) ?
+                                      NoteTag(
+                                        label: tag.text,
+                                        backgroundColor: getColorFromString(tag.backgroundColor),
+                                      ) : NoteTag(
+                                        label: tag.text,
+                                        backgroundColor: const Color.fromARGB(255, 148, 148, 148),
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: height * 0.01),
+                  Container(
+                    padding: const EdgeInsets.only(left: 25, right: 25),
+                    height: height * 0.63,
+                    child: QuillEditor.basic(
+                      controller: _controller,
+                      readOnly: false,
+                      autoFocus: false,
+                    ),
+                  ),
+                ],
               ),
             ),
           ],

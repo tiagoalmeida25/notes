@@ -1,9 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
-import 'package:notes/data/hive_database.dart';
+import 'package:notes/data/hive_database_notes.dart';
 import 'package:notes/models/note.dart';
 
 class NoteData extends ChangeNotifier {
-  final db = HiveDatabase();
+  final db = HiveNotesDatabase();
 
   List<Note> _allNotes = [];
   List<Note> get allNotes => _allNotes;
@@ -18,7 +20,6 @@ class NoteData extends ChangeNotifier {
     notifyListeners();
   }
 
-
   void addNewNote(Note note) {
     _allNotes.add(note);
     saveNotes(_allNotes);
@@ -32,7 +33,24 @@ class NoteData extends ChangeNotifier {
     notifyListeners();
   }
 
-  void updateNote(Note note, String text, String title, DateTime updatedAt, String backgroundColor, bool isPinned) {
+  List<Note> searchNotes(String query) {
+    List<Note> filteredNotes = [];
+    if (query.isEmpty) {
+      filteredNotes = getAllNotes();
+    } else {
+      filteredNotes = getAllNotes().where((note) {
+        String noteText = jsonDecode(note.text)[0]['insert'];
+        return note.title.toLowerCase().contains(query.toLowerCase()) ||
+            noteText.toLowerCase().contains(query.toLowerCase());
+      }).toList();
+    }
+
+    notifyListeners();
+    return filteredNotes;
+  }
+
+  void updateNote(Note note, String text, String title, DateTime updatedAt,
+      String backgroundColor, bool isPinned, List<int> tags) {
     for (int i = 0; i < _allNotes.length; i++) {
       if (_allNotes[i].id == note.id) {
         _allNotes[i].text = text;
@@ -40,6 +58,7 @@ class NoteData extends ChangeNotifier {
         _allNotes[i].updatedAt = updatedAt;
         _allNotes[i].backgroundColor = backgroundColor;
         _allNotes[i].isPinned = note.isPinned;
+        _allNotes[i].tags = tags;
       }
     }
     saveNotes(_allNotes);
@@ -61,7 +80,6 @@ class NoteData extends ChangeNotifier {
   void sortNotes(String sortBy, bool isSorted) {
     List<Note> sortedNotes = List.from(_allNotes);
 
-    
     if (sortBy == 'Title') {
       if (isSorted) {
         sortedNotes.sort((a, b) => a.title.compareTo(b.title));
@@ -70,18 +88,25 @@ class NoteData extends ChangeNotifier {
       }
     } else if (sortBy == 'LastUpdated') {
       if (isSorted) {
-        sortedNotes.sort((a, b) => a.updatedAt!.compareTo(b.updatedAt!));
+        sortedNotes.sort((a, b) => a.updatedAt.compareTo(b.updatedAt));
       } else {
-        sortedNotes.sort((a, b) => b.updatedAt!.compareTo(a.updatedAt!));
+        sortedNotes.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
       }
     } else if (sortBy == 'Created') {
       if (isSorted) {
-        sortedNotes.sort((a, b) => a.createdAt!.compareTo(b.createdAt!));
+        sortedNotes.sort((a, b) => a.createdAt.compareTo(b.createdAt));
       } else {
-        sortedNotes.sort((a, b) => b.createdAt!.compareTo(a.createdAt!));
+        sortedNotes.sort((a, b) => b.createdAt.compareTo(a.createdAt));
       }
     }
-    
+
+    final List<Note> pinnedNotes =
+        sortedNotes.where((note) => note.isPinned).toList();
+    final List<Note> unpinnedNotes =
+        sortedNotes.where((note) => !note.isPinned).toList();
+    pinnedNotes.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+    sortedNotes = [...pinnedNotes, ...unpinnedNotes];
+
     setAllNotes(sortedNotes);
   }
 }

@@ -2,14 +2,14 @@ import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:notes/models/note.dart';
 
-class HiveDatabase {
+class HiveNotesDatabase {
   final _myBox = Hive.box('note_database');
 
   List<Note> loadNotes() {
     List<Note> savedNotesFormatted = [];
 
-    if (_myBox.get("ALL_NOTES") != null) {
-      if (_myBox.get("ALL_NOTES").length > 0) {
+    if (_myBox.get("ALL_NOTES") != null && _myBox.get("ALL_NOTES").length > 0) {
+      
         List<dynamic> savedNotes = _myBox.get("ALL_NOTES");
 
         // saveNotes([]);
@@ -23,10 +23,11 @@ class HiveDatabase {
             updatedAt: savedNotes[i][4],
             backgroundColor: savedNotes[i][5],
             isPinned: savedNotes[i][6],
+            tags: savedNotes[i][7],
           );
 
           savedNotesFormatted.add(eachNote);
-        }
+        
       }
     }
 
@@ -44,9 +45,11 @@ class HiveDatabase {
       DateTime? updatedAt = note.updatedAt;
       String? backgroundColor = note.backgroundColor;
       bool? isPinned = note.isPinned;
+      List<int> tags = note.tags;
+
 
       allNotesFormatted.add(
-          [id, text, title, createdAt, updatedAt, backgroundColor, isPinned]);
+          [id, text, title, createdAt, updatedAt, backgroundColor, isPinned, tags]);
     }
     _myBox.put("ALL_NOTES", allNotesFormatted);
   }

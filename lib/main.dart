@@ -1,20 +1,28 @@
+import 'dart:math' as math;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hive_flutter/adapters.dart';
+import 'package:notes/models/note.dart';
 import 'package:notes/models/note_data.dart';
+import 'package:notes/models/tag_data.dart';
+import 'package:notes/pages/create_tag.dart';
+import 'package:notes/pages/editing_note.dart';
+import 'package:notes/pages/folders.dart';
 import 'package:notes/pages/home_page.dart';
 import 'package:notes/pages/pinned.dart';
+import 'package:notes/pages/tags.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
   await Hive.initFlutter();
 
   await Hive.openBox('note_database');
+  await Hive.openBox('tags_database');
+
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     statusBarIconBrightness: Brightness.dark,
   ));
-
 
   runApp(const MainApp());
 }
@@ -24,21 +32,226 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => NoteData(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => NoteData()),
+        ChangeNotifierProvider(create: (context) => TagData()),
+      ],
       builder: (context, child) => MaterialApp(
         title: 'Notes',
-        theme: ThemeData(
-          cupertinoOverrideTheme: const CupertinoThemeData(
-            primaryColor: CupertinoColors.systemGrey2,
-          ),
-        ),
-        home: const HomePage(),
+        home: const MainPage(),
         routes: {
           '/home': (context) => const HomePage(),
           '/pinned': (context) => const Pinned(),
+          '/folders': (context) => const Folders(),
+          '/tags': (context) => const Tags(),
         },
       ),
     );
+  }
+}
+
+class MainPage extends StatefulWidget {
+  const MainPage({Key? key}) : super(key: key);
+
+  @override
+  // ignore: library_private_types_in_public_api
+  _MainPageState createState() => _MainPageState();
+}
+
+class _MainPageState extends State<MainPage> {
+  final PageController _pageController = PageController();
+  int _currentIndex = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: PageView(
+        controller: _pageController,
+        onPageChanged: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
+        children: const [
+          HomePage(),
+          Pinned(),
+          Folders(),
+          Tags(),
+        ],
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
+        selectedFontSize: 12,
+        unselectedFontSize: 12,
+        backgroundColor: CupertinoColors.white,
+        elevation: 8,
+        currentIndex: _currentIndex,
+        items: [
+          BottomNavigationBarItem(
+            icon: Padding(
+              padding: const EdgeInsets.only(bottom: 2.5),
+              child: _currentIndex == 0
+                  ? const Icon(
+                      Icons.home,
+                      color: Colors.black,
+                    )
+                  : const Icon(
+                      Icons.home_outlined,
+                      color: Colors.black,
+                    ),
+            ),
+            label: 'Notes',
+            tooltip: 'Notes',
+          ),
+          BottomNavigationBarItem(
+            icon: Padding(
+              padding: const EdgeInsets.only(bottom: 2.5),
+              child: _currentIndex == 1
+                  ? Transform.rotate(
+                      angle: 20 * math.pi / 180,
+                      child: const Icon(
+                        Icons.push_pin,
+                        color: Colors.black,
+                      ),
+                    )
+                  : Transform.rotate(
+                      angle: 20 * math.pi / 180,
+                      child: const Icon(
+                        Icons.push_pin_outlined,
+                        color: Colors.black,
+                      ),
+                    ),
+            ),
+            label: 'Pinned',
+            tooltip: 'Pinned',
+          ),
+          BottomNavigationBarItem(
+            icon: Padding(
+              padding: const EdgeInsets.only(bottom: 2.5),
+              child: _currentIndex == 2
+                  ? const Icon(
+                      CupertinoIcons.folder_fill,
+                      color: Colors.black,
+                    )
+                  : const Icon(
+                      CupertinoIcons.folder,
+                      color: Colors.black,
+                    ),
+            ),
+            label: 'Folders',
+            tooltip: 'Folders',
+          ),
+          BottomNavigationBarItem(
+            icon: _currentIndex == 3
+                ? const Icon(
+                    CupertinoIcons.tag_fill,
+                    color: Colors.black,
+                  )
+                : const Icon(
+                    CupertinoIcons.tag,
+                    color: Colors.black,
+                  ),
+            label: 'Tags',
+            tooltip: 'Tags',
+          ),
+        ],
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index;
+            _pageController.animateToPage(
+              index,
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+            );
+          });
+        },
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      floatingActionButton: _buildFloatingActionButton(),
+    );
+  }
+
+  void goToNotePage(Note note, bool isNewNote) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EditingNote(
+          note: note,
+          isNewNote: isNewNote,
+        ),
+      ),
+    );
+  }
+
+  void createNewNote() {
+    int id = Provider.of<NoteData>(context, listen: false).getAllNotes().length;
+    Note newNote = Note(
+      id: id,
+      text: '',
+      title: '',
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+      backgroundColor: "white",
+      isPinned: false,
+      tags: [],
+    );
+
+    goToNotePage(newNote, true);
+  }
+
+  void createNewPinnedNote() {
+    int id = Provider.of<NoteData>(context, listen: false).getAllNotes().length;
+    Note newNote = Note(
+      id: id,
+      text: '',
+      title: '',
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+      backgroundColor: "white",
+      isPinned: true,
+      tags: [],
+    );
+
+    goToNotePage(newNote, true);
+  }
+
+  void goToCreateTagPage() async {
+    await showDialog(
+      context: context,
+      builder: (context) => const CreateTag(),
+    );
+  }
+
+
+  Widget _buildFloatingActionButton() {
+    switch (_currentIndex) {
+      case 0:
+        return FloatingActionButton(
+          onPressed: createNewNote,
+          backgroundColor: Colors.black,
+          child: const Icon(CupertinoIcons.add, color: Colors.white),
+        );
+      case 1:
+        return FloatingActionButton(
+          onPressed: createNewPinnedNote,
+          backgroundColor: Colors.black,
+          child: const Icon(CupertinoIcons.add, color: Colors.white),
+        );
+      case 2:
+        return FloatingActionButton(
+          onPressed: () {},
+          backgroundColor: Colors.black,
+          child: const Icon(CupertinoIcons.add, color: Colors.white),
+        );
+      case 3:
+        return FloatingActionButton(
+          onPressed: goToCreateTagPage,
+          backgroundColor: Colors.black,
+          child: const Icon(CupertinoIcons.add, color: Colors.white),
+        );
+      default:
+        return const SizedBox.shrink();
+    }
   }
 }

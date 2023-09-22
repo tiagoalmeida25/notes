@@ -1,11 +1,13 @@
 import 'dart:convert';
-import 'dart:math' as math;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:notes/components/grid_note.dart';
-import 'package:notes/components/list_note.dart';
+import 'package:notes/components/note_card.dart';
+import 'package:notes/components/sort_dropdown.dart';
 import 'package:notes/models/note.dart';
 import 'package:notes/models/note_data.dart';
+import 'package:notes/models/tag.dart';
+import 'package:notes/models/tag_data.dart';
 import 'package:notes/pages/editing_note.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -18,17 +20,14 @@ class Pinned extends StatefulWidget {
   State<Pinned> createState() => _PinnedState();
 }
 
-enum SortBy { title, lastUpdated, created }
-
 class _PinnedState extends State<Pinned> with WidgetsBindingObserver {
   bool isSorted = false;
   bool isListView = true;
   bool isSearching = false;
 
-  ValueNotifier<SortBy> sortNotifier = ValueNotifier(SortBy.lastUpdated);
-  String _searchText = '';
+  ValueNotifier<String> sortNotifier = ValueNotifier('Last Updated');
   final TextEditingController _searchController = TextEditingController();
-  List<Note> allNotes = [];
+  List<Note> _allNotes = [];
 
   @override
   void didChangeDependencies() {
@@ -59,10 +58,10 @@ class _PinnedState extends State<Pinned> with WidgetsBindingObserver {
     }
   }
 
-  void saveToPrefs(SortBy sortBy, bool isSorted, bool isListView) async {
+  void saveToPrefs(String sortBy, bool isSorted, bool isListView) async {
     final prefs = await SharedPreferences.getInstance();
 
-    await prefs.setString('sortBy', sortBy.toString());
+    await prefs.setString('sortBy', sortBy);
     await prefs.setBool('isSorted', isSorted);
     await prefs.setBool('isListView', isListView);
   }
@@ -75,13 +74,7 @@ class _PinnedState extends State<Pinned> with WidgetsBindingObserver {
     bool? isListView = prefs.getBool('isListView');
 
     if (sortBy != null) {
-      if (sortBy == 'SortBy.title') {
-        sortNotifier.value = SortBy.title;
-      } else if (sortBy == 'SortBy.lastUpdated') {
-        sortNotifier.value = SortBy.lastUpdated;
-      } else if (sortBy == 'SortBy.created') {
-        sortNotifier.value = SortBy.created;
-      }
+      sortNotifier.value = sortBy;
     }
 
     if (isSorted != null) {
@@ -106,7 +99,8 @@ class _PinnedState extends State<Pinned> with WidgetsBindingObserver {
   }
 
   void createNewNote() {
-    int id = Provider.of<NoteData>(context, listen: false).getPinnedNotes().length;
+    int id =
+        Provider.of<NoteData>(context, listen: false).getPinnedNotes().length;
     Note newNote = Note(
       id: id,
       text: '',
@@ -114,7 +108,8 @@ class _PinnedState extends State<Pinned> with WidgetsBindingObserver {
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
       backgroundColor: "white",
-      isPinned: false,
+      isPinned: true,
+      tags: [],
     );
 
     goToNotePage(newNote, true);
@@ -124,58 +119,18 @@ class _PinnedState extends State<Pinned> with WidgetsBindingObserver {
     Provider.of<NoteData>(context, listen: false).deleteNote(note);
   }
 
-  void sort(SortBy sortFor, bool isSorted) {
-    String sortBy = '';
-    if (sortFor == SortBy.title) {
-      sortBy = 'Title';
-    } else if (sortFor == SortBy.lastUpdated) {
-      sortBy = 'LastUpdated';
-    } else if (sortFor == SortBy.created) {
-      sortBy = 'Created';
-    }
+  void sort(String sortBy, bool isSorted) {
     Provider.of<NoteData>(context, listen: false).sortNotes(sortBy, isSorted);
   }
 
   @override
   Widget build(BuildContext context) {
-    allNotes = Provider.of<NoteData>(context).getPinnedNotes();
+    _allNotes = Provider.of<NoteData>(context).getPinnedNotes();
+    List<Tag> allTags = Provider.of<TagData>(context).getAllTags();
     return Consumer<NoteData>(
       builder: (context, value, child) {
         return Scaffold(
-          bottomNavigationBar: NavigationBar(
-            backgroundColor: CupertinoColors.systemBackground,
-            height: MediaQuery.of(context).size.height * 0.08,
-            elevation: 8,
-            selectedIndex: 1,
-            destinations: [
-              const NavigationDestination(
-                icon: Icon(CupertinoIcons.square_list),
-                label: 'Notes',
-              ),
-              NavigationDestination(
-                icon: Transform.rotate(
-                  angle: 20 * math.pi / 180,
-                  child: const Icon(
-                    Icons.push_pin_sharp,
-                  ),
-                ),
-                label: 'Pinned',
-              ),
-            ],
-            onDestinationSelected: (index) {
-              if (index == 0) {
-                Navigator.pushNamed(context, '/home');
-              } else if (index == 1) {
-                Navigator.pushNamed(context, '/pinned');
-              }
-            },
-          ),
           backgroundColor: CupertinoColors.systemBackground,
-          floatingActionButton: FloatingActionButton(
-            onPressed: createNewNote,
-            backgroundColor: Colors.grey[400],
-            child: const Icon(CupertinoIcons.add),
-          ),
           body: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -185,7 +140,7 @@ class _PinnedState extends State<Pinned> with WidgetsBindingObserver {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Notes',
+                      'Pinned Notes',
                       style:
                           TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
                     ),
@@ -196,11 +151,11 @@ class _PinnedState extends State<Pinned> with WidgetsBindingObserver {
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: SlidableAutoCloseBehavior(
-                    child: allNotes.isEmpty
+                    child: _allNotes.isEmpty
                         ? const Padding(
                             padding: EdgeInsets.only(top: 50.0),
                             child: Center(
-                              child: Text('No Notes Yet...'),
+                              child: Text('No Pinned Notes Yet...'),
                             ),
                           )
                         : Column(
@@ -212,73 +167,6 @@ class _PinnedState extends State<Pinned> with WidgetsBindingObserver {
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.start,
                                     children: [
-                                      DropdownButtonHideUnderline(
-                                        child: DropdownButton<SortBy>(
-                                          alignment: Alignment.centerRight,
-                                          style: const TextStyle(
-                                            color: CupertinoColors.systemGrey,
-                                            fontSize: 16,
-                                          ),
-                                          iconSize: 0.0,
-                                          borderRadius:
-                                              BorderRadius.circular(16),
-                                          value: sortNotifier.value,
-                                          items: const [
-                                            DropdownMenuItem<SortBy>(
-                                              value: SortBy.title,
-                                              child: Row(
-                                                children: [
-                                                  Icon(
-                                                    CupertinoIcons
-                                                        .textformat_alt,
-                                                    color: CupertinoColors
-                                                        .systemGrey,
-                                                    size: 20,
-                                                  ),
-                                                  SizedBox(width: 5),
-                                                  Text('Title'),
-                                                ],
-                                              ),
-                                            ),
-                                            DropdownMenuItem<SortBy>(
-                                              value: SortBy.lastUpdated,
-                                              child: Row(
-                                                children: [
-                                                  Icon(
-                                                    CupertinoIcons.clock,
-                                                    color: CupertinoColors
-                                                        .systemGrey,
-                                                    size: 20,
-                                                  ),
-                                                  SizedBox(width: 5),
-                                                  Text('Last updated'),
-                                                ],
-                                              ),
-                                            ),
-                                            DropdownMenuItem<SortBy>(
-                                              value: SortBy.created,
-                                              child: Row(
-                                                children: [
-                                                  Icon(
-                                                    CupertinoIcons.plus_app,
-                                                    color: CupertinoColors
-                                                        .systemGrey,
-                                                    size: 20,
-                                                  ),
-                                                  SizedBox(width: 5),
-                                                  Text('Created'),
-                                                ],
-                                              ),
-                                            ),
-                                          ],
-                                          onChanged: (SortBy? value) {
-                                            if (value != null) {
-                                              sort(
-                                                  sortNotifier.value, isSorted);
-                                            }
-                                          },
-                                        ),
-                                      ),
                                       IconButton(
                                         onPressed: () {
                                           setState(() {
@@ -300,6 +188,11 @@ class _PinnedState extends State<Pinned> with WidgetsBindingObserver {
                                                 size: 20,
                                               ),
                                       ),
+                                      SortDropdown(
+                                        sortNotifier: sortNotifier,
+                                        isSorted: isSorted,
+                                        sort: sort,
+                                      ),
                                     ],
                                   ),
                                   Row(
@@ -313,7 +206,7 @@ class _PinnedState extends State<Pinned> with WidgetsBindingObserver {
                                                     setState(() {
                                                       isSearching = false;
                                                       _searchController.clear();
-                                                      allNotes =
+                                                      _allNotes =
                                                           Provider.of<NoteData>(
                                                                   context)
                                                               .getPinnedNotes();
@@ -335,7 +228,7 @@ class _PinnedState extends State<Pinned> with WidgetsBindingObserver {
                                                     ),
                                                     onChanged: (value) {
                                                       setState(() {
-                                                        allNotes.where((note) {
+                                                        _allNotes.where((note) {
                                                           return note.title
                                                                   .toLowerCase()
                                                                   .contains(
@@ -397,8 +290,22 @@ class _PinnedState extends State<Pinned> with WidgetsBindingObserver {
                                   ? Flexible(
                                       child: ListView.builder(
                                         shrinkWrap: true,
-                                        itemCount: allNotes.length,
+                                        itemCount: _allNotes.length,
                                         itemBuilder: (context, index) {
+                                          List<Tag> noteTags = [];
+
+                                          for (int i = 0;
+                                              i < _allNotes[index].tags.length;
+                                              i++) {
+                                            for (int j = 0;
+                                                j < allTags.length;
+                                                j++) {
+                                              if (_allNotes[index].tags[i] ==
+                                                  allTags[j].id) {
+                                                noteTags.add(allTags[j]);
+                                              }
+                                            }
+                                          }
                                           return Slidable(
                                             groupTag: 'delete',
                                             startActionPane: ActionPane(
@@ -406,10 +313,16 @@ class _PinnedState extends State<Pinned> with WidgetsBindingObserver {
                                               motion: const StretchMotion(),
                                               children: [
                                                 SlidableAction(
-                                                  onPressed: (context) =>
-                                                      deleteNote(
-                                                    allNotes[index],
-                                                  ),
+                                                  onPressed: (context) {
+                                                    deleteNote(
+                                                      _allNotes[index],
+                                                    );
+                                                    value.saveNotes(_allNotes);
+                                                    sort(
+                                                      sortNotifier.value,
+                                                      isSorted,
+                                                    );
+                                                  },
                                                   backgroundColor: Colors.red,
                                                   borderRadius:
                                                       BorderRadius.circular(16),
@@ -424,18 +337,19 @@ class _PinnedState extends State<Pinned> with WidgetsBindingObserver {
                                               children: [
                                                 SlidableAction(
                                                   onPressed: (context) {
-                                                    allNotes[index].isPinned =
-                                                        !allNotes[index]
-                                                            .isPinned!;
-                                                    value.saveNotes(allNotes);
+                                                    _allNotes[index].isPinned =
+                                                        !_allNotes[index]
+                                                            .isPinned;
+                                                    value.saveNotes(_allNotes);
                                                     sort(
                                                       sortNotifier.value,
                                                       isSorted,
                                                     );
                                                   },
                                                   icon: value
-                                                          .getPinnedNotes()[index]
-                                                          .isPinned!
+                                                          .getPinnedNotes()[
+                                                              index]
+                                                          .isPinned
                                                       ? CupertinoIcons
                                                           .pin_slash_fill
                                                       : CupertinoIcons.pin_fill,
@@ -446,8 +360,9 @@ class _PinnedState extends State<Pinned> with WidgetsBindingObserver {
                                                   backgroundColor:
                                                       Colors.transparent,
                                                   foregroundColor: value
-                                                          .getPinnedNotes()[index]
-                                                          .isPinned!
+                                                          .getPinnedNotes()[
+                                                              index]
+                                                          .isPinned
                                                       ? Colors.grey
                                                       : Colors.black,
                                                 ),
@@ -458,7 +373,8 @@ class _PinnedState extends State<Pinned> with WidgetsBindingObserver {
                                                   .getPinnedNotes()[index]
                                                   .title,
                                               text: jsonDecode(value
-                                                          .getPinnedNotes()[index]
+                                                          .getPinnedNotes()[
+                                                              index]
                                                           .text)[0]['insert'] !=
                                                       '\n'
                                                   ? jsonDecode(value
@@ -467,16 +383,16 @@ class _PinnedState extends State<Pinned> with WidgetsBindingObserver {
                                                   : '',
                                               date: value
                                                   .getPinnedNotes()[index]
-                                                  .updatedAt!,
+                                                  .updatedAt,
                                               backgroundColor: value
                                                   .getPinnedNotes()[index]
-                                                  .backgroundColor!,
+                                                  .backgroundColor,
                                               isPinned: value
                                                   .getPinnedNotes()[index]
-                                                  .isPinned!,
+                                                  .isPinned,
                                               onTap: () => goToNotePage(
-                                                  allNotes[index], false),
-                                              tags: ['tag1', 'tag2'],
+                                                  _allNotes[index], false),
+                                              tags: noteTags,
                                               folder: 'Folder',
                                             ),
                                           );
@@ -495,188 +411,107 @@ class _PinnedState extends State<Pinned> with WidgetsBindingObserver {
                                             crossAxisSpacing: 8.0,
                                             mainAxisSpacing: 8.0,
                                           ),
-                                          itemCount: allNotes.length,
+                                          itemCount: _allNotes.length,
                                           itemBuilder: (context, index) {
-                                            return isListView
-                                                ? Slidable(
-                                                    groupTag: 'delete',
-                                                    startActionPane: ActionPane(
-                                                      extentRatio: 0.15,
-                                                      motion:
-                                                          const StretchMotion(),
-                                                      children: [
-                                                        SlidableAction(
-                                                          onPressed:
-                                                              (context) =>
-                                                                  deleteNote(
-                                                            allNotes[index],
-                                                          ),
-                                                          backgroundColor:
-                                                              Colors.red,
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(16),
-                                                          icon: CupertinoIcons
-                                                              .trash,
-                                                          foregroundColor:
-                                                              Colors.white,
+                                            List<Tag> noteTags = [];
+
+                                            for (int i = 0;
+                                                i <
+                                                    _allNotes[index]
+                                                        .tags
+                                                        .length;
+                                                i++) {
+                                              for (int j = 0;
+                                                  j < allTags.length;
+                                                  j++) {
+                                                if (_allNotes[index].tags[i] ==
+                                                    allTags[j].id) {
+                                                  noteTags.add(allTags[j]);
+                                                }
+                                              }
+                                            }
+                                            return NoteGrid(
+                                                title: value
+                                                    .getAllNotes()[index]
+                                                    .title,
+                                                text: jsonDecode(_allNotes[index]
+                                                                .text)[0]
+                                                            ['insert'] !=
+                                                        '\n'
+                                                    ? jsonDecode(value
+                                                        .getAllNotes()[index]
+                                                        .text)[0]['insert']
+                                                    : '',
+                                                date: value
+                                                    .getAllNotes()[index]
+                                                    .updatedAt,
+                                                backgroundColor: value
+                                                    .getAllNotes()[index]
+                                                    .backgroundColor,
+                                                isPinned: value
+                                                    .getAllNotes()[index]
+                                                    .isPinned,
+                                                tags: noteTags,
+                                                folder: 'folder',
+                                                onTap: () => goToNotePage(
+                                                    _allNotes[index], false),
+                                                onLongPress: () {
+                                                  // delete or pin
+                                                  showCupertinoModalPopup(
+                                                    context: context,
+                                                    builder: (context) =>
+                                                        CupertinoActionSheet(
+                                                      actions: [
+                                                        CupertinoActionSheetAction(
+                                                          onPressed: () {
+                                                            value.deleteNote(
+                                                              _allNotes[index],
+                                                            );
+                                                            Navigator.pop(
+                                                                context);
+                                                          },
+                                                          isDestructiveAction:
+                                                              true,
+                                                          child: const Text(
+                                                              'Delete'),
                                                         ),
-                                                      ],
-                                                    ),
-                                                    endActionPane: ActionPane(
-                                                      extentRatio: 0.15,
-                                                      motion:
-                                                          const StretchMotion(),
-                                                      children: [
-                                                        SlidableAction(
-                                                          onPressed: (context) {
-                                                            value
-                                                                    .getPinnedNotes()[
-                                                                        index]
+                                                        CupertinoActionSheetAction(
+                                                          onPressed: () {
+                                                            _allNotes[index]
                                                                     .isPinned =
                                                                 !value
-                                                                    .getPinnedNotes()[
+                                                                    .getAllNotes()[
                                                                         index]
-                                                                    .isPinned!;
+                                                                    .isPinned;
                                                             value.saveNotes(value
-                                                                .getPinnedNotes());
+                                                                .getAllNotes());
                                                             sort(
                                                                 sortNotifier
                                                                     .value,
                                                                 isSorted);
+                                                            Navigator.pop(
+                                                                context);
                                                           },
-                                                          icon: value
-                                                                  .getPinnedNotes()[
+                                                          child: Text(value
+                                                                  .getAllNotes()[
                                                                       index]
-                                                                  .isPinned!
-                                                              ? CupertinoIcons
-                                                                  .pin_slash_fill
-                                                              : CupertinoIcons
-                                                                  .pin_fill,
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(16),
-                                                          foregroundColor: value
-                                                                  .getPinnedNotes()[
-                                                                      index]
-                                                                  .isPinned!
-                                                              ? Colors.grey
-                                                              : Colors.black,
+                                                                  .isPinned
+                                                              ? 'Unpin'
+                                                              : 'Pin'),
                                                         ),
                                                       ],
+                                                      cancelButton:
+                                                          CupertinoActionSheetAction(
+                                                        onPressed: () {
+                                                          Navigator.pop(
+                                                              context);
+                                                        },
+                                                        child: const Text(
+                                                            'Cancel'),
+                                                      ),
                                                     ),
-                                                    child: GridNote(
-                                                      title: value
-                                                          .getPinnedNotes()[index]
-                                                          .title,
-                                                      text: jsonDecode(value
-                                                                      .getPinnedNotes()[
-                                                                          index]
-                                                                      .text)[0]
-                                                                  ['insert'] !=
-                                                              '\n'
-                                                          ? jsonDecode(value
-                                                              .getPinnedNotes()[
-                                                                  index]
-                                                              .text)[0]['insert']
-                                                          : '',
-                                                      updatedAt: value
-                                                          .getPinnedNotes()[index]
-                                                          .updatedAt!,
-                                                      backgroundColor: value
-                                                          .getPinnedNotes()[index]
-                                                          .backgroundColor!,
-                                                      isPinned: value
-                                                          .getPinnedNotes()[index]
-                                                          .isPinned!,
-                                                      onTap: () => goToNotePage(
-                                                          allNotes[index],
-                                                          false),
-                                                    ),
-                                                  )
-                                                : GridNote(
-                                                    title: value
-                                                        .getPinnedNotes()[index]
-                                                        .title,
-                                                    text: jsonDecode(allNotes[index].text)[
-                                                                0]['insert'] !=
-                                                            '\n'
-                                                        ? jsonDecode(value
-                                                            .getPinnedNotes()[
-                                                                index]
-                                                            .text)[0]['insert']
-                                                        : '',
-                                                    updatedAt: value
-                                                        .getPinnedNotes()[index]
-                                                        .updatedAt!,
-                                                    backgroundColor: value
-                                                        .getPinnedNotes()[index]
-                                                        .backgroundColor!,
-                                                    isPinned: value
-                                                        .getPinnedNotes()[index]
-                                                        .isPinned!,
-                                                    onTap: () => goToNotePage(
-                                                        allNotes[index], false),
-                                                    onLongPress: () {
-                                                      // delete or pin
-                                                      showCupertinoModalPopup(
-                                                        context: context,
-                                                        builder: (context) =>
-                                                            CupertinoActionSheet(
-                                                          actions: [
-                                                            CupertinoActionSheetAction(
-                                                              onPressed: () {
-                                                                value
-                                                                    .deleteNote(
-                                                                  allNotes[
-                                                                      index],
-                                                                );
-                                                                Navigator.pop(
-                                                                    context);
-                                                              },
-                                                              isDestructiveAction:
-                                                                  true,
-                                                              child: const Text(
-                                                                  'Delete'),
-                                                            ),
-                                                            CupertinoActionSheetAction(
-                                                              onPressed: () {
-                                                                allNotes[index]
-                                                                        .isPinned =
-                                                                    !value
-                                                                        .getPinnedNotes()[
-                                                                            index]
-                                                                        .isPinned!;
-                                                                value.saveNotes(
-                                                                    value
-                                                                        .getPinnedNotes());
-                                                                sort(
-                                                                    sortNotifier
-                                                                        .value,
-                                                                    isSorted);
-                                                                Navigator.pop(
-                                                                    context);
-                                                              },
-                                                              child: Text(value
-                                                                      .getPinnedNotes()[
-                                                                          index]
-                                                                      .isPinned!
-                                                                  ? 'Unpin'
-                                                                  : 'Pin'),
-                                                            ),
-                                                          ],
-                                                          cancelButton:
-                                                              CupertinoActionSheetAction(
-                                                            onPressed: () {
-                                                              Navigator.pop(
-                                                                  context);
-                                                            },
-                                                            child: const Text(
-                                                                'Cancel'),
-                                                          ),
-                                                        ),
-                                                      );
-                                                    });
+                                                  );
+                                                });
                                           },
                                         ),
                                       ),

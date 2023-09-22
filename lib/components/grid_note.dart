@@ -1,163 +1,201 @@
 import 'package:flutter/material.dart';
-import 'package:notes/components/colors.dart';
+import 'package:notes/app_colors.dart';
+import 'package:notes/components/note_tag.dart';
+import 'package:notes/models/tag.dart';
 
-class GridNote extends StatelessWidget {
-  const GridNote({
-    Key? key,
+class NoteGrid extends StatelessWidget {
+  final String title;
+  final String text;
+  final DateTime date;
+  final String backgroundColor;
+  final bool isPinned;
+  final List<Tag> tags;
+  final Function() onTap;
+  final String folder;
+  final Function()? onLongPress;
+
+  const NoteGrid({
+    super.key,
     required this.title,
     required this.text,
     required this.backgroundColor,
+    required this.date,
     required this.isPinned,
+    required this.tags,
     required this.onTap,
-    required this.updatedAt,
-    this.onLongPress,
-  }) : super(key: key);
-
-  final String title;
-  final String text;
-  final String backgroundColor;
-  final bool isPinned;
-  final Function() onTap;
-  final DateTime? updatedAt;
-  final Function()? onLongPress;
+    required this.folder,
+    required this.onLongPress,
+  });
 
   @override
   Widget build(BuildContext context) {
-    String hourText = updatedAt!.hour < 10
-        ? '0${updatedAt!.hour}'
-        : updatedAt!.hour.toString();
+    String dateHour = date.hour < 10 ? '0${date.hour}' : date.hour.toString();
+    String dateMinute =
+        date.minute < 10 ? '0${date.minute}' : date.minute.toString();
 
-    String minuteText = updatedAt!.minute < 10
-        ? '0${updatedAt!.minute}'
-        : updatedAt!.minute.toString();
-
-    DateTime today = DateTime.now();
-
-    String updatedAtText = '';
-
-    if (updatedAt!.day == today.day &&
-        updatedAt!.month == today.month &&
-        updatedAt!.year == today.year) {
-      updatedAtText = '${hourText}:${minuteText}';
-    } else {
-      updatedAtText =
-          '${updatedAt!.day}/${updatedAt!.month}/${updatedAt!.year} $hourText:$minuteText';
+    String formattedDate =
+        '${date.day}/${date.month}/${date.year % 100} $dateHour:$dateMinute';
+    if (date.day == DateTime.now().day &&
+        date.month == DateTime.now().month &&
+        date.year == DateTime.now().year) {
+      formattedDate = '$dateHour:$dateMinute';
     }
 
-    Color? newColor = const Color.fromRGBO(0, 0, 0, 1);
+    String truncatedTitle = '';
 
-    String title = this.title;
-    if (title.length > 14) title = '${title.substring(0, 14)}...';
-
-    if (title == '') title = 'New note';
-
-    String text = this.text;
-    if (text.length > 18) text = '${text.substring(0, 18)}...';
-    if (text == '') text = 'Empty note...';
+    if (title.isEmpty) {
+      truncatedTitle = 'New note...';
+    } else {
+      if (title.length > 12) {
+        truncatedTitle = '${title.substring(0, 12)}...';
+      } else {
+        truncatedTitle = title;
+      }
+    }
 
     return GestureDetector(
       onTap: onTap,
       onLongPress: onLongPress,
-      child: Card(
-        elevation: 4,
-        color: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            children: [
-              Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: Center(
+        child: SizedBox(
+          width: MediaQuery.of(context).size.width * 0.9,
+          height: 165,
+          child: Card(
+            elevation: 4,
+            color: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Stack(
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
                             children: [
                               Text(
-                                title,
-                                style: TextStyle(
+                                truncatedTitle,
+                                style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
-                                  color: newColor,
                                 ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
-                              const SizedBox(
-                                width: 8,
-                              ),
-                              Icon(
+                              const SizedBox(width: 4),
+                              const Icon(
                                 Icons.chevron_right,
-                                color: newColor,
+                                color: Colors.grey,
                                 size: 20,
                               ),
                             ],
                           ),
-                          if (isPinned)
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                Transform.rotate(
-                                  angle: 0.5,
-                                  child: Icon(
-                                    Icons.push_pin_sharp,
-                                    color: newColor,
-                                  ),
-                                ),
-                              ],
+                          if (text.isNotEmpty) ...[
+                            const SizedBox(height: 8),
+                            Text(
+                              text,
+                              style: const TextStyle(fontSize: 14),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
                             ),
+                          ],
                         ],
                       ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          text != ''
-                              ? Text(
-                                  text,
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: newColor,
-                                  ),
-                                )
-                              : const SizedBox(
-                                  height: 0,
-                                  width: 0,
-                                ),
-                        ],
+                    ),
+                  ],
+                ),
+                if (tags.isNotEmpty)
+                  Positioned(
+                    bottom: 34,
+                    left: 4,
+                    right: 8,
+                    child: SizedBox(
+                      height: 25,
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: tags.length,
+                        itemBuilder: (context, index) {
+                          final tag = tags[index];
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 4),
+                            child: NoteTag(
+                              label: tag.text,
+                              backgroundColor:
+                                  getColorFromString(tag.backgroundColor),
+                              
+                            )
+                          );
+                        },
                       ),
-                    ],
+                    ),
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
+                if (isPinned)
+                  Positioned(
+                    top: 8,
+                    right: 8,
+                    child: Transform.rotate(
+                      angle: 0.5,
+                      child: const Icon(Icons.push_pin, color: Colors.grey),
+                    ),
+                  ),
+                // if (folder.isNotEmpty)
+                //   Positioned(
+                //     bottom: 8,
+                //     left: 8,
+                //     child: Row(
+                //       children: [
+                //         Icon(
+                //           Icons.folder,
+                //           size: 16,
+                //           color: getColorFromString(backgroundColor),
+                //         ),
+                //         const SizedBox(width: 4),
+                //         Text(
+                //           folder,
+                //           style: TextStyle(
+                //               fontSize: 12,
+                //               fontStyle: FontStyle.italic,
+                //               color: getColorFromString(backgroundColor)),
+                //         ),
+                //       ],
+                //     ),
+                //   ),
+                Positioned(
+                  bottom: 8,
+                  right: 8,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        updatedAtText,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: newColor,
-                        ),
+                        formattedDate,
+                        style: const TextStyle(fontSize: 12),
                       ),
                     ],
                   ),
-                ],
-              ),
-              ClipRRect(
-                borderRadius: const BorderRadius.only(
-                    bottomLeft: Radius.circular(10),
-                    bottomRight: Radius.circular(10)),
-                child: Container(
-                  width: 10,
-
-                  // color: getColorFromString(backgroundColor),
-                  color: Colors.red,
                 ),
-              ),
-            ],
+                Positioned(
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  child: ClipRRect(
+                    borderRadius: const BorderRadius.only(
+                      bottomLeft: Radius.circular(10),
+                      bottomRight: Radius.circular(10),
+                    ),
+                    child: Container(
+                      height: 6,
+                      color: getColorFromString(backgroundColor),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
