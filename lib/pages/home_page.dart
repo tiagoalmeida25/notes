@@ -91,6 +91,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         ),
       ),
     );
+    
   }
 
   void createNewNote() {

@@ -3,10 +3,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hive_flutter/adapters.dart';
+import 'package:notes/models/folder_data.dart';
 import 'package:notes/models/note.dart';
 import 'package:notes/models/note_data.dart';
-import 'package:notes/models/tag.dart';
 import 'package:notes/models/tag_data.dart';
+import 'package:notes/pages/create_folder.dart';
 import 'package:notes/pages/create_tag.dart';
 import 'package:notes/pages/editing_note.dart';
 import 'package:notes/pages/folders.dart';
@@ -19,6 +20,7 @@ void main() async {
   await Hive.initFlutter();
 
   await Hive.openBox('note_database');
+  await Hive.openBox('folders_database');
   await Hive.openBox('tags_database');
 
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
@@ -36,6 +38,7 @@ class MainApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => NoteData()),
+        ChangeNotifierProvider(create: (context) => FolderData()),
         ChangeNotifierProvider(create: (context) => TagData()),
       ],
       builder: (context, child) => MaterialApp(
@@ -217,14 +220,21 @@ class _MainPageState extends State<MainPage> {
     goToNotePage(newNote, true);
   }
 
-  void goToCreateTagPage(BuildContext context) {
-     showDialog(
+  void createTagDialog(BuildContext context) {
+    showDialog(
       context: context,
-      builder: (context) => CreateTag(
-          tagData: Provider.of<TagData>(context, listen: false)),
+      builder: (context) =>
+          CreateTag(tagData: Provider.of<TagData>(context, listen: false)),
     );
   }
 
+  void createFolderDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) =>
+          CreateFolder(folderData: Provider.of<FolderData>(context, listen: false)),
+    );
+  }
 
   Widget _buildFloatingActionButton() {
     switch (_currentIndex) {
@@ -242,13 +252,13 @@ class _MainPageState extends State<MainPage> {
         );
       case 2:
         return FloatingActionButton(
-          onPressed: () {},
+          onPressed: () => createFolderDialog(context),
           backgroundColor: Colors.black,
           child: const Icon(CupertinoIcons.add, color: Colors.white),
         );
       case 3:
         return FloatingActionButton(
-            onPressed: () => goToCreateTagPage(context),
+          onPressed: () => createTagDialog(context),
           backgroundColor: Colors.black,
           child: const Icon(CupertinoIcons.add, color: Colors.white),
         );

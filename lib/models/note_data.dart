@@ -21,9 +21,8 @@ class NoteData extends ChangeNotifier {
   }
 
   void addNewNote(Note note) {
-    List<Note> allNotes = getAllNotes();
-    allNotes.add(note);
-    saveNotes(allNotes);
+    _allNotes.add(note);
+    saveNotes(_allNotes);
     notifyListeners();
   }
 
