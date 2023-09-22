@@ -4,6 +4,7 @@ class Tag {
   DateTime createdAt;
   DateTime updatedAt;
   String backgroundColor;
+  int order;
 
   Tag({
     required this.id,
@@ -11,5 +12,6 @@ class Tag {
     required this.createdAt,
     required this.updatedAt,
     required this.backgroundColor,
+    required this.order,
   });
 }

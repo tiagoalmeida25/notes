@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:notes/models/note.dart';
 import 'package:notes/models/note_data.dart';
+import 'package:notes/models/tag.dart';
 import 'package:notes/models/tag_data.dart';
 import 'package:notes/pages/create_tag.dart';
 import 'package:notes/pages/editing_note.dart';
@@ -216,10 +217,11 @@ class _MainPageState extends State<MainPage> {
     goToNotePage(newNote, true);
   }
 
-  void goToCreateTagPage() async {
-    await showDialog(
+  void goToCreateTagPage(BuildContext context) {
+     showDialog(
       context: context,
-      builder: (context) => const CreateTag(),
+      builder: (context) => CreateTag(
+          tagData: Provider.of<TagData>(context, listen: false)),
     );
   }
 
@@ -246,7 +248,7 @@ class _MainPageState extends State<MainPage> {
         );
       case 3:
         return FloatingActionButton(
-          onPressed: goToCreateTagPage,
+            onPressed: () => goToCreateTagPage(context),
           backgroundColor: Colors.black,
           child: const Icon(CupertinoIcons.add, color: Colors.white),
         );

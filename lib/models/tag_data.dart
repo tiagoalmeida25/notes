@@ -34,18 +34,19 @@ class TagData extends ChangeNotifier {
     return filteredTags;
   }
 
-
   void addNewTag(Tag tag) {
-    List<Tag> _allTags = getAllTags();
+    List<Tag> allTags = getAllTags();
 
-    _allTags.add(tag);
+    allTags.add(tag);
 
-    saveTags(_allTags);
+    saveTags(allTags);
+    notifyListeners();
   }
 
   void deleteTag(Tag tag) {
     _allTags.remove(tag);
     saveTags(_allTags);
+    notifyListeners();
   }
 
   void updateTag(Tag tag, String text, DateTime updatedAt,
@@ -58,6 +59,7 @@ class TagData extends ChangeNotifier {
       }
     }
     saveTags(_allTags);
+    notifyListeners();
   }
 
   List<Note> getNotesWithTag(Tag tag) {
@@ -88,6 +90,7 @@ class TagData extends ChangeNotifier {
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
       backgroundColor: '',
+      order: 0,
     );
   }
 
@@ -97,11 +100,32 @@ class TagData extends ChangeNotifier {
   }
 
   void saveTags(List<Tag> allTags) {
-    db.saveTags(_allTags);
+    db.saveTags(allTags);
+  }
+
+  void saveOrder(List<Tag> allTags) {
+    for(int i = 0; i < allTags.length; i++) {
+      allTags[i].order = i;
+    }
+  }
+
+  void getTagsInOrder(List<Tag> allTags){
+    List<Tag> sorted = [];
+
+    while(sorted.length != _allTags.length){
+      for (var tag in _allTags){
+        if (tag.order == sorted.length){
+          sorted.add(tag);
+        }
+      }
+    }
+
+    _allTags = sorted;
+    saveTags(_allTags);
     notifyListeners();
   }
 
-  List<Tag> sortTags(String sortBy, bool isSorted) {
+  void sortTags(String sortBy, bool isSorted) {
     List<Tag> sortedTags = List.from(_allTags);
 
     if (sortBy == 'Title') {
@@ -110,19 +134,16 @@ class TagData extends ChangeNotifier {
       } else {
         sortedTags.sort((a, b) => b.text.compareTo(a.text));
       }
-    } else if (sortBy == 'Last Updated') {
+    } else if (sortBy == 'Custom') {
       if (isSorted) {
-        sortedTags.sort((a, b) => a.updatedAt.compareTo(b.updatedAt));
+        sortedTags.sort((a, b) => a.order.compareTo(b.order));
       } else {
-        sortedTags.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+        sortedTags.sort((a, b) => b.order.compareTo(a.order));
       }
-    } else if (sortBy == 'Created') {
-      if (isSorted) {
-        sortedTags.sort((a, b) => a.createdAt.compareTo(b.createdAt));
-      } else {
-        sortedTags.sort((a, b) => b.createdAt.compareTo(a.createdAt));
-      }
-    }
-    return sortedTags;
+    } 
+
+    _allTags = sortedTags;
+    saveTags(_allTags);
+    notifyListeners();
   }
 }

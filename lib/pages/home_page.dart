@@ -27,7 +27,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   ValueNotifier<String> sortNotifier = ValueNotifier("");
   final TextEditingController _searchController = TextEditingController();
-  List<Note> _allNotes = [];
 
   @override
   void initState() {
@@ -120,7 +119,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    _allNotes = Provider.of<NoteData>(context).getAllNotes();
     List<Tag> allTags = Provider.of<TagData>(context).getAllTags();
 
     sort(sortNotifier.value, isSorted);
@@ -148,7 +146,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: SlidableAutoCloseBehavior(
-                    child: _allNotes.isEmpty
+                    child: value.getAllNotes().isEmpty
                         ? const Padding(
                             padding: EdgeInsets.only(top: 50.0),
                             child: Center(
@@ -266,7 +264,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                   ? Flexible(
                                       child: ListView.builder(
                                         shrinkWrap: true,
-                                        itemCount: _allNotes.length,
+                                        itemCount: value.getAllNotes().length,
                                         itemBuilder: (context, index) {
                                           List<Tag> noteTags = [];
 
@@ -293,13 +291,12 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                               children: [
                                                 SlidableAction(
                                                   onPressed: (context) {
+                                                    print(value
+                                                        .getAllNotes()[index]
+                                                        .title);
                                                     deleteNote(
-                                                      _allNotes[index],
-                                                    );
-                                                    value.saveNotes(_allNotes);
-                                                    sort(
-                                                      sortNotifier.value,
-                                                      isSorted,
+                                                      value
+                                                          .getAllNotes()[index],
                                                     );
                                                   },
                                                   backgroundColor: Colors.red,
@@ -316,14 +313,14 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                               children: [
                                                 SlidableAction(
                                                   onPressed: (context) {
-                                                    _allNotes[index].isPinned =
-                                                        !_allNotes[index]
-                                                            .isPinned;
-                                                    value.saveNotes(_allNotes);
+                                                    value.pinHandler(value
+                                                        .getAllNotes()[index]);
+
                                                     sort(
                                                       sortNotifier.value,
                                                       isSorted,
                                                     );
+                                                    value.getAllNotes();
                                                   },
                                                   icon: value
                                                           .getAllNotes()[index]
@@ -367,7 +364,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                                   .getAllNotes()[index]
                                                   .isPinned,
                                               onTap: () => goToNotePage(
-                                                  _allNotes[index], false),
+                                                  value.getAllNotes()[index],
+                                                  false),
                                               tags: noteTags,
                                               folder: 'folder',
                                             ),
@@ -385,7 +383,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                               const SliverGridDelegateWithFixedCrossAxisCount(
                                             crossAxisCount: 2,
                                           ),
-                                          itemCount: _allNotes.length,
+                                          itemCount: value.getAllNotes().length,
                                           itemBuilder: (context, index) {
                                             List<Tag> noteTags = [];
 
@@ -413,7 +411,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                                   SlidableAction(
                                                     onPressed: (context) =>
                                                         deleteNote(
-                                                      _allNotes[index],
+                                                      value
+                                                          .getAllNotes()[index],
                                                     ),
                                                     backgroundColor: Colors.red,
                                                     borderRadius:
@@ -467,9 +466,10 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                                 title: value
                                                     .getAllNotes()[index]
                                                     .title,
-                                                text: jsonDecode(
-                                                                _allNotes[index]
-                                                                    .text)[0]
+                                                text: jsonDecode(value
+                                                                .getAllNotes()[
+                                                                    index]
+                                                                .text)[0]
                                                             ['insert'] !=
                                                         '\n'
                                                     ? jsonDecode(value
@@ -488,7 +488,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                                 tags: noteTags,
                                                 folder: 'folder',
                                                 onTap: () => goToNotePage(
-                                                    _allNotes[index], false),
+                                                    value.getAllNotes()[index],
+                                                    false),
                                                 onLongPress: () {
                                                   // delete or pin
                                                   showCupertinoModalPopup(
@@ -499,7 +500,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                                         CupertinoActionSheetAction(
                                                           onPressed: () {
                                                             value.deleteNote(
-                                                              _allNotes[index],
+                                                              value.getAllNotes()[
+                                                                  index],
                                                             );
                                                             Navigator.pop(
                                                                 context);
@@ -511,7 +513,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                                         ),
                                                         CupertinoActionSheetAction(
                                                           onPressed: () {
-                                                            _allNotes[index]
+                                                            value
+                                                                    .getAllNotes()[
+                                                                        index]
                                                                     .isPinned =
                                                                 !value
                                                                     .getAllNotes()[

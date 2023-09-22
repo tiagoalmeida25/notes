@@ -20,6 +20,7 @@ class HiveTagsDatabase {
           createdAt: savedTags[i][2],
           updatedAt: savedTags[i][3],
           backgroundColor: savedTags[i][4],
+          order: savedTags[i][5],
         );
 
         savedTagsFormatted.add(eachTag);
@@ -35,11 +36,12 @@ class HiveTagsDatabase {
     for (var tag in allTags) {
       int id = tag.id;
       String text = tag.text;
-      DateTime? createdAt = tag.createdAt;
-      DateTime? updatedAt = tag.updatedAt;
-      String? backgroundColor = tag.backgroundColor;
+      DateTime createdAt = tag.createdAt;
+      DateTime updatedAt = tag.updatedAt;
+      String backgroundColor = tag.backgroundColor;
+      int order = tag.order;
 
-      allTagsFormatted.add([id, text, createdAt, updatedAt, backgroundColor]);
+      allTagsFormatted.add([id, text, createdAt, updatedAt, backgroundColor, order]);
     }
     _myBox.put("ALL_TAGS", allTagsFormatted);
   }

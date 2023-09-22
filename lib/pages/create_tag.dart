@@ -5,7 +5,8 @@ import 'package:notes/models/tag_data.dart';
 import 'package:provider/provider.dart';
 
 class CreateTag extends StatefulWidget {
-  const CreateTag({Key? key}) : super(key: key);
+final TagData tagData;
+  const CreateTag({Key? key, required this.tagData}) : super(key: key);
 
   @override
   // ignore: library_private_types_in_public_api
@@ -31,7 +32,7 @@ class _CreateTagState extends State<CreateTag> {
 
   void _handleSave() {
     final text = _textEditingController.text.trim();
-    final allTags = Provider.of<TagData>(context).getAllTags();
+    final allTags = widget.tagData.getAllTags();
 
     for (int i = 0; i < allTags.length; i++) {
       if (allTags[i].text.toLowerCase() == text.toLowerCase()) {
@@ -40,15 +41,17 @@ class _CreateTagState extends State<CreateTag> {
     }
 
     if (text.isNotEmpty) {
-      Provider.of<TagData>(context).addNewTag(
+      widget.tagData.addNewTag(
         Tag(
           text: text,
           backgroundColor: setStringFromColor(_color),
           id: DateTime.now().millisecondsSinceEpoch,
           createdAt: DateTime.now(),
           updatedAt: DateTime.now(),
+          order: allTags.length,
         ),
       );
+      Navigator.pop(context);
     }
   }
 
@@ -140,7 +143,7 @@ class _ColorPickerState extends State<ColorPicker> {
                   height: 32,
                   color: color,
                   child: _color == color
-                      ? const Icon(Icons.check, color: Colors.white)
+                      ? const Icon(Icons.check, size: 18, color: Colors.white)
                       : null,
                 ),
               ),

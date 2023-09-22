@@ -21,15 +21,16 @@ class NoteData extends ChangeNotifier {
   }
 
   void addNewNote(Note note) {
-    _allNotes.add(note);
-    saveNotes(_allNotes);
+    List<Note> allNotes = getAllNotes();
+    allNotes.add(note);
+    saveNotes(allNotes);
     notifyListeners();
   }
 
   void deleteNote(Note note) {
     _allNotes.remove(note);
     saveNotes(_allNotes);
-
+    
     notifyListeners();
   }
 
@@ -57,7 +58,7 @@ class NoteData extends ChangeNotifier {
         _allNotes[i].title = title;
         _allNotes[i].updatedAt = updatedAt;
         _allNotes[i].backgroundColor = backgroundColor;
-        _allNotes[i].isPinned = note.isPinned;
+        _allNotes[i].isPinned = isPinned;
         _allNotes[i].tags = tags;
       }
     }
@@ -66,7 +67,17 @@ class NoteData extends ChangeNotifier {
   }
 
   List<Note> getAllNotes() {
+    _allNotes = db.loadNotes();
     return _allNotes;
+  }
+
+  void pinHandler(Note note) {
+    for (int i = 0; i < _allNotes.length; i++) {
+      if (_allNotes[i].id == note.id) {
+        _allNotes[i].isPinned = !_allNotes[i].isPinned;
+      }
+    }
+    saveNotes(_allNotes);
   }
 
   List<Note> getPinnedNotes() {
@@ -74,19 +85,19 @@ class NoteData extends ChangeNotifier {
   }
 
   void saveNotes(List<Note> allNotes) {
-    db.saveNotes(_allNotes);
+    db.saveNotes(allNotes);
   }
 
-  void sortNotes(String sortBy, bool isSorted) {
-    List<Note> sortedNotes = List.from(_allNotes);
-
+  List<Note> _sortInternally(String sortBy, bool isSorted, List<Note> sortedNotes){
     if (sortBy == 'Title') {
       if (isSorted) {
-        sortedNotes.sort((a, b) => a.title.compareTo(b.title));
+        sortedNotes.sort(
+            (a, b) => a.title.toLowerCase().compareTo(b.title.toLowerCase()));
       } else {
-        sortedNotes.sort((a, b) => b.title.compareTo(a.title));
+        sortedNotes.sort(
+            (a, b) => b.title.toLowerCase().compareTo(a.title.toLowerCase()));
       }
-    } else if (sortBy == 'LastUpdated') {
+    } else if (sortBy == 'Last Updated') {
       if (isSorted) {
         sortedNotes.sort((a, b) => a.updatedAt.compareTo(b.updatedAt));
       } else {
@@ -100,13 +111,30 @@ class NoteData extends ChangeNotifier {
       }
     }
 
-    final List<Note> pinnedNotes =
+    return sortedNotes;
+  }
+  void sortNotes(String sortBy, bool isSorted) {
+    List<Note> sortedNotes = getAllNotes();
+
+    print('sortBy: $sortBy, isSorted: $isSorted');
+
+    print(sortedNotes.map((e) => e.title));
+
+    List<Note> pinnedNotes =
         sortedNotes.where((note) => note.isPinned).toList();
-    final List<Note> unpinnedNotes =
+    List<Note> unpinnedNotes =
         sortedNotes.where((note) => !note.isPinned).toList();
-    pinnedNotes.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+
+    pinnedNotes = _sortInternally(sortBy, isSorted, pinnedNotes);
+    unpinnedNotes = _sortInternally(sortBy, isSorted, unpinnedNotes);    
+    
     sortedNotes = [...pinnedNotes, ...unpinnedNotes];
 
-    setAllNotes(sortedNotes);
+    print(sortedNotes.map((e) => e.title));
+
+
+    _allNotes = sortedNotes;
+    saveNotes(_allNotes);
+    notifyListeners();
   }
 }

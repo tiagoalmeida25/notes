@@ -52,12 +52,16 @@ class _EditingTagState extends State<EditingTag> {
       tagData.updateTag(tag, _textEditingController.text, DateTime.now(),
           setStringFromColor(_color), false);
     } else {
-      tagData.addNewTag(Tag(
+      tagData.addNewTag(
+        Tag(
           id: DateTime.now().millisecondsSinceEpoch,
           text: _textEditingController.text,
           createdAt: DateTime.now(),
           updatedAt: DateTime.now(),
-          backgroundColor: setStringFromColor(_color)));
+          backgroundColor: setStringFromColor(_color),
+          order: tagData.getAllTags().length,
+        ),
+      );
     }
     Navigator.pop(context);
   }
@@ -90,7 +94,11 @@ class _EditingTagState extends State<EditingTag> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: EdgeInsets.only(top:8, left: MediaQuery.of(context).size.width * 0.05, right: MediaQuery.of(context).size.width * 0.05  , bottom: 8),
+            padding: EdgeInsets.only(
+                top: 8,
+                left: MediaQuery.of(context).size.width * 0.05,
+                right: MediaQuery.of(context).size.width * 0.05,
+                bottom: 8),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

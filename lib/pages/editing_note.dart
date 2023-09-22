@@ -82,7 +82,7 @@ class _EditingNoteState extends State<EditingNote> {
         title,
         DateTime.now(),
         setStringFromColor(backgroundColor),
-        false,
+        widget.note.isPinned,
         _selectedTags.map((e) => e.id).toList());
   }
 

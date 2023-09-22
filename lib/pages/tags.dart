@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:notes/app_colors.dart';
 import 'package:notes/components/sort_dropdown.dart';
+import 'package:notes/components/sort_tags.dart';
 import 'package:notes/models/note_data.dart';
 import 'package:notes/models/tag.dart';
 import 'package:notes/models/tag_data.dart';
@@ -52,6 +53,7 @@ class _TagsState extends State<Tags> with WidgetsBindingObserver {
     }
   }
 
+  
   void saveToPrefs(String sortBy, bool isSorted, bool isListView) async {
     final prefs = await SharedPreferences.getInstance();
 
@@ -93,6 +95,7 @@ class _TagsState extends State<Tags> with WidgetsBindingObserver {
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
       backgroundColor: "white",
+      order: id,
     );
 
     goToTagPage(newTag, true);
@@ -103,14 +106,14 @@ class _TagsState extends State<Tags> with WidgetsBindingObserver {
   }
 
   void sort(String sortBy, bool isSorted) {
-    allTags =
-        Provider.of<TagData>(context, listen: false).sortTags(sortBy, isSorted);
-    Provider.of<TagData>(context, listen: false).saveTags(allTags);
+    Provider.of<TagData>(context, listen: false).sortTags(sortBy, isSorted);
   }
 
   @override
   Widget build(BuildContext context) {
     allTags = Provider.of<TagData>(context).getAllTags();
+
+
 
     return Consumer<TagData>(
         builder: (BuildContext context, TagData value, Widget? child) {
@@ -138,7 +141,7 @@ class _TagsState extends State<Tags> with WidgetsBindingObserver {
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: SlidableAutoCloseBehavior(
-                  child: value.getAllTags().isEmpty
+                  child: allTags.isEmpty
                       ? const Padding(
                           padding: EdgeInsets.only(top: 50.0),
                           child: Center(
@@ -171,7 +174,7 @@ class _TagsState extends State<Tags> with WidgetsBindingObserver {
                                               size: 20,
                                             ),
                                     ),
-                                    SortDropdown(
+                                    SortTag(
                                       sortNotifier: sortNotifier,
                                       isSorted: isSorted,
                                       sort: sort,
@@ -208,7 +211,7 @@ class _TagsState extends State<Tags> with WidgetsBindingObserver {
                                               setState(() {
                                                 isSearching = !isSearching;
                                                 _searchController.clear();
-                                                value.getAllTags();
+                                                allTags;
                                               });
                                             },
                                           ),
@@ -224,7 +227,7 @@ class _TagsState extends State<Tags> with WidgetsBindingObserver {
                                             isSearching = !isSearching;
                                             if (!isSearching) {
                                               _searchController.clear();
-                                              value.getAllTags();
+                                              allTags;
                                             }
                                           });
                                         },
@@ -234,31 +237,30 @@ class _TagsState extends State<Tags> with WidgetsBindingObserver {
                             Flexible(
                               child: ReorderableListView.builder(
                                 shrinkWrap: true,
-                                itemCount: value.getAllTags().length,
+                                itemCount: allTags.length,
                                 onReorder: (oldIndex, newIndex) {
                                   setState(() {
                                     if (newIndex > oldIndex) {
                                       newIndex -= 1;
                                     }
-                                    final Tag tag =
-                                        value.getAllTags().removeAt(oldIndex);
-                                    value.getAllTags().insert(newIndex, tag);
-                                    value.saveTags(value.getAllTags());
+                                    final Tag tag = allTags.removeAt(oldIndex);
+                                    allTags.insert(newIndex, tag);
+                                    value.saveOrder(allTags);
+                                    value.saveTags(allTags);
                                   });
                                 },
                                 itemBuilder: (context, index) {
                                   String tagText = '';
 
-                                  if (value.getAllTags()[index].text.length >
-                                      29) {
+                                  if (allTags[index].text.length > 29) {
                                     tagText =
-                                        '${value.getAllTags()[index].text.substring(0, 29)}...';
+                                        '${allTags[index].text.substring(0, 29)}...';
                                   } else {
-                                    tagText = value.getAllTags()[index].text;
+                                    tagText = allTags[index].text;
                                   }
 
                                   return Slidable(
-                                    key: ValueKey(value.getAllTags()[index].id),
+                                    key: ValueKey(allTags[index].id),
                                     groupTag: 'delete',
                                     startActionPane: ActionPane(
                                       extentRatio: 0.15,
@@ -266,8 +268,7 @@ class _TagsState extends State<Tags> with WidgetsBindingObserver {
                                       children: [
                                         SlidableAction(
                                           onPressed: (context) {
-                                            value.deleteTag(
-                                                value.getAllTags()[index]);
+                                            value.deleteTag(allTags[index]);
                                           },
                                           backgroundColor: Colors.red,
                                           borderRadius:
@@ -279,8 +280,7 @@ class _TagsState extends State<Tags> with WidgetsBindingObserver {
                                     ),
                                     child: GestureDetector(
                                       onTap: () {
-                                        goToTagPage(
-                                            value.getAllTags()[index], false);
+                                        goToTagPage(allTags[index], false);
                                       },
                                       child: Padding(
                                         padding: const EdgeInsets.symmetric(
@@ -291,9 +291,9 @@ class _TagsState extends State<Tags> with WidgetsBindingObserver {
                                             borderRadius:
                                                 BorderRadius.circular(16),
                                             child: Container(
-                                              color: getColorFromString(value
-                                                      .getAllTags()[index]
-                                                      .backgroundColor)
+                                              color: getColorFromString(
+                                                      allTags[index]
+                                                          .backgroundColor)
                                                   .withOpacity(0.3),
                                               child: Row(
                                                 mainAxisAlignment:
@@ -312,10 +312,9 @@ class _TagsState extends State<Tags> with WidgetsBindingObserver {
                                                         Icon(
                                                             CupertinoIcons
                                                                 .tag_fill,
-                                                            color: getColorFromString(value
-                                                                .getAllTags()[
-                                                                    index]
-                                                                .backgroundColor)),
+                                                            color: getColorFromString(
+                                                                allTags[index]
+                                                                    .backgroundColor)),
                                                         const SizedBox(
                                                             width: 8),
                                                         Text(
@@ -334,8 +333,7 @@ class _TagsState extends State<Tags> with WidgetsBindingObserver {
                                                   IconButton(
                                                     onPressed: () {
                                                       goToTagPage(
-                                                          value.getAllTags()[
-                                                              index],
+                                                          allTags[index],
                                                           false);
                                                     },
                                                     icon: const Icon(
