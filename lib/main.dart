@@ -199,6 +199,8 @@ class _MainPageState extends State<MainPage> {
       backgroundColor: "white",
       isPinned: false,
       tags: [],
+      folderId: 0,
+      pin: '',
     );
 
     goToNotePage(newNote, true);
@@ -215,6 +217,8 @@ class _MainPageState extends State<MainPage> {
       backgroundColor: "white",
       isPinned: true,
       tags: [],
+      folderId: 0,
+      pin: '',
     );
 
     goToNotePage(newNote, true);

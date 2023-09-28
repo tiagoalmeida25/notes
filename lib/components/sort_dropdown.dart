@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 class SortDropdown extends StatefulWidget {
   final ValueNotifier<String> sortNotifier;
   final void Function(String, bool) sort;
-  final isSorted;
+  final bool isSorted;
   
   const SortDropdown({Key? key, required this.sortNotifier, required this.isSorted, required this.sort}) : super(key: key);
 
@@ -28,7 +28,7 @@ class _SortDropdownState extends State<SortDropdown> {
   Widget build(BuildContext context) {
     return DropdownButtonHideUnderline(
       child: DropdownButton<String>(
-        alignment: Alignment.centerLeft,
+        alignment: Alignment.centerRight,
         style: const TextStyle(
           color: CupertinoColors.systemGrey,
           fontSize: 16,
@@ -64,6 +64,7 @@ class _SortDropdownState extends State<SortDropdown> {
                 Text(value,
                     style: const TextStyle(
                       fontSize: 15,
+                      color: Colors.black
                     )),
               ],
             ),

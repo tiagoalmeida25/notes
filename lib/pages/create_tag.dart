@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:notes/app_colors.dart';
 import 'package:notes/models/tag.dart';
 import 'package:notes/models/tag_data.dart';
-import 'package:provider/provider.dart';
 
 class CreateTag extends StatefulWidget {
 final TagData tagData;

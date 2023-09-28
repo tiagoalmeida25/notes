@@ -7,6 +7,8 @@ class Note {
   String backgroundColor;
   bool isPinned;
   List<int> tags;
+  int folderId;
+  String pin;
 
   Note({
     required this.id,
@@ -17,5 +19,7 @@ class Note {
     required this.backgroundColor,
     required this.isPinned,
     required this.tags,
+    required this.folderId,
+    required this.pin,
   });
 }

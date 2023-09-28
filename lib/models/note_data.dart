@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:notes/data/hive_database_notes.dart';
+import 'package:notes/models/folder.dart';
 import 'package:notes/models/note.dart';
 
 class NoteData extends ChangeNotifier {
@@ -12,25 +13,30 @@ class NoteData extends ChangeNotifier {
 
   void initializeNotes() {
     _allNotes = db.loadNotes();
-    notifyListeners();
   }
 
   void setAllNotes(List<Note> notes) {
     _allNotes = notes;
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
     notifyListeners();
+  });
   }
 
   void addNewNote(Note note) {
     _allNotes.add(note);
     saveNotes(_allNotes);
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
     notifyListeners();
+  });
   }
 
   void deleteNote(Note note) {
     _allNotes.remove(note);
     saveNotes(_allNotes);
     
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
     notifyListeners();
+  });
   }
 
   List<Note> searchNotes(String query) {
@@ -45,7 +51,9 @@ class NoteData extends ChangeNotifier {
       }).toList();
     }
 
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
     notifyListeners();
+  });
     return filteredNotes;
   }
 
@@ -62,12 +70,26 @@ class NoteData extends ChangeNotifier {
       }
     }
     saveNotes(_allNotes);
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
     notifyListeners();
+  });
   }
 
   List<Note> getAllNotes() {
     _allNotes = db.loadNotes();
     return _allNotes;
+  }
+
+  void lockNote(Note note, String pin){
+    for (int i = 0; i < _allNotes.length; i++) {
+      if (_allNotes[i].id == note.id) {
+        _allNotes[i].pin = pin;
+      }
+    }
+    saveNotes(_allNotes);
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
+    notifyListeners();
+  });
   }
 
   void pinHandler(Note note) {
@@ -77,6 +99,19 @@ class NoteData extends ChangeNotifier {
       }
     }
     saveNotes(_allNotes);
+  }
+
+  void moveNoteToFolder(Note note, Folder folder) {
+    for (int i = 0; i < _allNotes.length; i++) {
+      if (_allNotes[i].id == note.id) {
+        _allNotes[i].folderId = folder.id;
+      }
+    }
+
+    saveNotes(_allNotes);
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
+    notifyListeners();
+  });
   }
 
   List<Note> getPinnedNotes() {
@@ -114,11 +149,6 @@ class NoteData extends ChangeNotifier {
   }
   void sortNotes(String sortBy, bool isSorted) {
     List<Note> sortedNotes = getAllNotes();
-
-    print('sortBy: $sortBy, isSorted: $isSorted');
-
-    print(sortedNotes.map((e) => e.title));
-
     List<Note> pinnedNotes =
         sortedNotes.where((note) => note.isPinned).toList();
     List<Note> unpinnedNotes =
@@ -129,11 +159,10 @@ class NoteData extends ChangeNotifier {
     
     sortedNotes = [...pinnedNotes, ...unpinnedNotes];
 
-    print(sortedNotes.map((e) => e.title));
-
-
     _allNotes = sortedNotes;
     saveNotes(_allNotes);
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
     notifyListeners();
+  });
   }
 }

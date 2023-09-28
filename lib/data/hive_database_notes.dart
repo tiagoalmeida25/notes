@@ -24,6 +24,8 @@ class HiveNotesDatabase {
             backgroundColor: savedNotes[i][5],
             isPinned: savedNotes[i][6],
             tags: savedNotes[i][7],
+            folderId: savedNotes[i][8],
+            pin: savedNotes[i][9],
           );
 
           savedNotesFormatted.add(eachNote);
@@ -46,10 +48,12 @@ class HiveNotesDatabase {
       String? backgroundColor = note.backgroundColor;
       bool? isPinned = note.isPinned;
       List<int> tags = note.tags;
+      int folderId = note.folderId;
+      String pin = note.pin;
 
 
       allNotesFormatted.add(
-          [id, text, title, createdAt, updatedAt, backgroundColor, isPinned, tags]);
+          [id, text, title, createdAt, updatedAt, backgroundColor, isPinned, tags, folderId, pin]);
     }
     _myBox.put("ALL_NOTES", allNotesFormatted);
   }

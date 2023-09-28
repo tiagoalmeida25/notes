@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:notes/app_colors.dart';
 import 'package:notes/models/folder_data.dart';
 import 'package:notes/models/folder.dart';
-import 'package:provider/provider.dart';
 
 class CreateFolder extends StatefulWidget {
   final FolderData folderData;

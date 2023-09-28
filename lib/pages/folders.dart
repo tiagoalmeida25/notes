@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:notes/components/grid_folder.dart';
+import 'package:notes/components/folder_card.dart';
 import 'package:notes/components/sort_dropdown.dart';
 import 'package:notes/models/folder.dart';
 import 'package:notes/models/folder_data.dart';
@@ -20,7 +20,6 @@ class Folders extends StatefulWidget {
 
 class _FoldersState extends State<Folders> with WidgetsBindingObserver {
   bool isSorted = false;
-  bool isSearching = false;
 
   ValueNotifier<String> sortNotifier = ValueNotifier("");
 
@@ -73,7 +72,31 @@ class _FoldersState extends State<Folders> with WidgetsBindingObserver {
   }
 
   void deleteFolder(Folder folder) {
-    Provider.of<FolderData>(context, listen: false).deleteFolder(folder);
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirm Deletion'),
+          content: const Text('Are you sure you want to delete this folder?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                Provider.of<FolderData>(context, listen: false)
+                    .deleteFolder(folder);
+                Navigator.of(context).pop();
+              },
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void sort(String sortBy, bool isSorted) {
@@ -125,6 +148,11 @@ class _FoldersState extends State<Folders> with WidgetsBindingObserver {
                                 children: [
                                   Row(
                                     children: [
+                                      SortDropdown(
+                                        sortNotifier: sortNotifier,
+                                        isSorted: isSorted,
+                                        sort: sort,
+                                      ),
                                       IconButton(
                                         onPressed: () {
                                           setState(() {
@@ -146,28 +174,18 @@ class _FoldersState extends State<Folders> with WidgetsBindingObserver {
                                                 size: 18,
                                               ),
                                       ),
-                                      SortDropdown(
-                                        sortNotifier: sortNotifier,
-                                        isSorted: isSorted,
-                                        sort: sort,
-                                      ),
                                     ],
                                   ),
                                 ],
                               ),
                               Flexible(
-                                child: SizedBox(
-                                  height:
-                                      MediaQuery.of(context).size.height * 0.72,
-                                  child: GridView.builder(
-                                    gridDelegate:
-                                        const SliverGridDelegateWithFixedCrossAxisCount(
-                                      crossAxisCount: 2,
-                                    ),
-                                    itemCount: value.getAllFolders().length,
-                                    itemBuilder: (context, index) {
-                                      List<Note> folderNotes = [];
+                                child: ListView.builder(
+                                  shrinkWrap: true,
+                                  itemCount: value.getAllFolders().length,
+                                  itemBuilder: (context, index) {
+                                    List<Note> folderNotes = [];
 
+                                    if (value.allFolders[index].notes.isNotEmpty) {
                                       for (int i = 0;
                                           i <
                                               value.allFolders[index].notes
@@ -183,130 +201,92 @@ class _FoldersState extends State<Folders> with WidgetsBindingObserver {
                                           }
                                         }
                                       }
-                                      return Slidable(
-                                        groupTag: 'delete',
-                                        startActionPane: ActionPane(
-                                          extentRatio: 0.15,
-                                          motion: const StretchMotion(),
-                                          children: [
-                                            SlidableAction(
-                                              onPressed: (context) =>
-                                                  deleteFolder(
+                                    }
+                                    return Slidable(
+                                      groupTag: 'delete',
+                                      startActionPane: ActionPane(
+                                        extentRatio: 0.15,
+                                        motion: const BehindMotion(),
+                                        children: [
+                                          SlidableAction(
+                                            onPressed: (context) {
+                                              deleteFolder(
                                                 value.getAllFolders()[index],
-                                              ),
-                                              backgroundColor: Colors.red,
-                                              borderRadius:
-                                                  BorderRadius.circular(16),
-                                              icon: CupertinoIcons.trash,
-                                              foregroundColor: Colors.white,
+                                              );
+                                            },
+                                            backgroundColor: Colors.transparent,
+                                            borderRadius:
+                                                BorderRadius.circular(16),
+                                            icon: CupertinoIcons.trash_fill,
+                                            foregroundColor: Colors.black,
+                                          ),
+                                        ],
+                                      ),
+                                      endActionPane: ActionPane(
+                                        extentRatio: 0.35,
+                                        motion: const BehindMotion(),
+                                        children: [
+                                          SlidableAction(
+                                            onPressed: (context) {
+                                              value.pinHandler(
+                                                  value.getAllFolders()[index]);
+                                              sort(
+                                                sortNotifier.value,
+                                                isSorted,
+                                              );
+                                              value.getAllFolders();
+                                            },
+                                            icon: value
+                                                    .getAllFolders()[index]
+                                                    .isPinned
+                                                ? CupertinoIcons.pin_slash_fill
+                                                : CupertinoIcons.pin_fill,
+                                            borderRadius: BorderRadius.circular(
+                                              16,
                                             ),
-                                          ],
-                                        ),
-                                        endActionPane: ActionPane(
-                                          extentRatio: 0.15,
-                                          motion: const StretchMotion(),
-                                          children: [
-                                            SlidableAction(
-                                              onPressed: (context) {
-                                                value
-                                                        .getAllFolders()[index]
-                                                        .isPinned =
-                                                    !value
-                                                        .getAllFolders()[index]
-                                                        .isPinned;
-                                                value.saveFolders(
-                                                    value.getAllFolders());
-                                                sort(sortNotifier.value,
-                                                    isSorted);
-                                              },
-                                              icon: value
-                                                      .getAllFolders()[index]
-                                                      .isPinned
-                                                  ? CupertinoIcons
-                                                      .pin_slash_fill
-                                                  : CupertinoIcons.pin_fill,
-                                              borderRadius:
-                                                  BorderRadius.circular(16),
-                                              foregroundColor: value
-                                                      .getAllFolders()[index]
-                                                      .isPinned
-                                                  ? Colors.grey
-                                                  : Colors.black,
+                                            backgroundColor: Colors.transparent,
+                                            foregroundColor: value
+                                                    .getAllFolders()[index]
+                                                    .isPinned
+                                                ? Colors.grey
+                                                : Colors.black,
+                                          ),
+                                          SlidableAction(
+                                            onPressed: (context) {},
+                                            icon: CupertinoIcons.lock_fill,
+                                            borderRadius: BorderRadius.circular(
+                                              16,
                                             ),
-                                          ],
-                                        ),
-                                        child: FolderGrid(
-                                          title: value
-                                              .getAllFolders()[index]
-                                              .title,
-                                          date: value
-                                              .getAllFolders()[index]
-                                              .updatedAt,
-                                          color: value
-                                              .getAllFolders()[index]
-                                              .color,
-                                          isPinned: value
-                                              .getAllFolders()[index]
-                                              .isPinned,
-                                          notes: folderNotes,
-                                          onTap: () {},
-                                          onLongPress: () {
-                                            showCupertinoModalPopup(
-                                              context: context,
-                                              builder: (context) =>
-                                                  CupertinoActionSheet(
-                                                actions: [
-                                                  CupertinoActionSheetAction(
-                                                    onPressed: () {
-                                                      value.deleteFolder(
-                                                        value.getAllFolders()[
-                                                            index],
-                                                      );
-                                                      Navigator.pop(context);
-                                                    },
-                                                    isDestructiveAction: true,
-                                                    child: const Text('Delete'),
-                                                  ),
-                                                  CupertinoActionSheetAction(
-                                                    onPressed: () {
-                                                      value
-                                                              .getAllFolders()[
-                                                                  index]
-                                                              .isPinned =
-                                                          !value
-                                                              .getAllFolders()[
-                                                                  index]
-                                                              .isPinned;
-                                                      value.saveFolders(value
-                                                          .getAllFolders());
-                                                      sort(sortNotifier.value,
-                                                          isSorted);
-                                                      Navigator.pop(context);
-                                                    },
-                                                    child: Text(value
-                                                            .getAllFolders()[
-                                                                index]
-                                                            .isPinned
-                                                        ? 'Unpin'
-                                                        : 'Pin'),
-                                                  ),
-                                                ],
-                                                cancelButton:
-                                                    CupertinoActionSheetAction(
-                                                  onPressed: () {
-                                                    Navigator.pop(context);
-                                                  },
-                                                  child: const Text('Cancel'),
-                                                ),
-                                              ),
-                                            );
-                                          },
-                                        ),
-                                      );
-                                    },
-                                  ),
+                                            backgroundColor: Colors.transparent,
+                                            foregroundColor: Colors.black,
+                                          ),
+                                          SlidableAction(
+                                            onPressed: (context) {},
+                                            icon: CupertinoIcons.bell_fill,
+                                            borderRadius: BorderRadius.circular(
+                                              16,
+                                            ),
+                                            backgroundColor: Colors.transparent,
+                                            foregroundColor: Colors.black,
+                                          ),
+                                        ],
+                                      ),
+                                      child: FolderCard(
+                                        title:
+                                            value.getAllFolders()[index].title,
+                                        color:
+                                            value.getAllFolders()[index].color,
+                                        isPinned: value
+                                            .getAllFolders()[index]
+                                            .isPinned,
+                                        onTap: () {},
+                                        notes: folderNotes,
+                                        folder: 'folder',
+                                      ),
+                                    );
+                                  },
                                 ),
-                              )
+                              ),
                             ],
                           ),
                   ),

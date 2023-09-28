@@ -4,11 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:notes/components/grid_note.dart';
 import 'package:notes/components/note_card.dart';
 import 'package:notes/components/sort_dropdown.dart';
+import 'package:notes/models/folder.dart';
+import 'package:notes/models/folder_data.dart';
 import 'package:notes/models/note.dart';
 import 'package:notes/models/note_data.dart';
 import 'package:notes/models/tag.dart';
 import 'package:notes/models/tag_data.dart';
 import 'package:notes/pages/editing_note.dart';
+import 'package:pinput/pinput.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -34,6 +37,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     sortNotifier = ValueNotifier("Last Updated");
     Provider.of<NoteData>(context, listen: false).initializeNotes();
     Provider.of<TagData>(context, listen: false).initializeTags();
+    Provider.of<FolderData>(context, listen: false).initializeFolders();
+
     WidgetsBinding.instance.addObserver(this);
   }
 
@@ -91,7 +96,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         ),
       ),
     );
-    
   }
 
   void createNewNote() {
@@ -105,13 +109,38 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       backgroundColor: "white",
       isPinned: false,
       tags: [],
+      folderId: 0,
+      pin: '',
     );
 
     goToNotePage(newNote, true);
   }
 
   void deleteNote(Note note) {
-    Provider.of<NoteData>(context, listen: false).deleteNote(note);
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirm Deletion'),
+          content: const Text('Are you sure you want to delete this note?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                Provider.of<NoteData>(context, listen: false).deleteNote(note);
+                Navigator.of(context).pop();
+              },
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void sort(String sortBy, bool isSorted) {
@@ -121,6 +150,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     List<Tag> allTags = Provider.of<TagData>(context).getAllTags();
+    List<Folder> allFolders = Provider.of<FolderData>(context).getAllFolders();
 
     sort(sortNotifier.value, isSorted);
     return Consumer<NoteData>(
@@ -156,110 +186,136 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                           )
                         : Column(
                             children: [
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Row(
-                                    children: [
-                                      IconButton(
-                                        onPressed: () {
-                                          setState(() {
-                                            isSorted = !isSorted;
-                                          });
-                                          sort(sortNotifier.value, isSorted);
-                                        },
-                                        icon: isSorted
-                                            ? const Icon(
-                                                CupertinoIcons.arrow_up,
-                                                color:
-                                                    CupertinoColors.systemGrey,
-                                                size: 18,
-                                              )
-                                            : const Icon(
-                                                CupertinoIcons.arrow_down,
-                                                color:
-                                                    CupertinoColors.systemGrey,
-                                                size: 18,
+                              Padding(
+                                padding:
+                                    const EdgeInsets.only(left: 8.0, right: 16),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    isSearching
+                                        ? Row(
+                                            children: [
+                                              SizedBox(
+                                                width: MediaQuery.of(context)
+                                                        .size
+                                                        .width *
+                                                    0.3,
+                                                child: TextField(
+                                                  controller: _searchController,
+                                                  // placeholder: 'Search',
+                                                  decoration:
+                                                      const InputDecoration(
+                                                    hintText: 'Search',
+                                                    hintStyle: TextStyle(
+                                                      color: CupertinoColors
+                                                          .systemGrey,
+                                                    ),
+                                                    border: InputBorder.none,
+                                                  ),
+                                                  onChanged: (query) {
+                                                    value.searchNotes(query);
+                                                  },
+                                                ),
                                               ),
-                                      ),
-                                      SortDropdown(
-                                        sortNotifier: sortNotifier,
-                                        isSorted: isSorted,
-                                        sort: sort,
-                                      ),
-                                    ],
-                                  ),
-                                  isSearching
-                                      ? Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.end,
-                                          children: [
-                                            SizedBox(
-                                              width: MediaQuery.of(context)
-                                                      .size
-                                                      .width *
-                                                  0.3,
-                                              child:
-                                                  CupertinoTextField.borderless(
-                                                controller: _searchController,
-                                                placeholder: 'Search notes',
-                                                onChanged: (query) {
-                                                  value.searchNotes(query);
-                                                },
+                                              SizedBox(
+                                                width: 20,
+                                                child: IconButton(
+                                                  onPressed: () {
+                                                    setState(() {
+                                                      isSearching =
+                                                          !isSearching;
+                                                    });
+                                                  },
+                                                  icon: const Icon(
+                                                    CupertinoIcons.xmark,
+                                                    color: CupertinoColors
+                                                        .systemGrey,
+                                                  ),
+                                                ),
                                               ),
-                                            ),
-                                            IconButton(
-                                              icon: const Icon(Icons.clear,
-                                                  color: Colors.grey),
+                                            ],
+                                          )
+                                        : SizedBox(
+                                            width: 20,
+                                            child: IconButton(
                                               onPressed: () {
                                                 setState(() {
                                                   isSearching = !isSearching;
-                                                  _searchController.clear();
-                                                  value.getAllNotes();
                                                 });
                                               },
+                                              icon: const Icon(
+                                                CupertinoIcons.search,
+                                                color:
+                                                    CupertinoColors.systemGrey,
+                                              ),
                                             ),
-                                          ],
-                                        )
-                                      : IconButton(
-                                          icon: const Icon(
-                                            CupertinoIcons.search,
-                                            color: Colors.grey,
                                           ),
-                                          onPressed: () {
-                                            setState(() {
-                                              isSearching = !isSearching;
-                                              if (!isSearching) {
-                                                _searchController.clear();
-                                                value.getAllNotes();
-                                              }
-                                            });
-                                          },
+                                    Row(
+                                      children: [
+                                        SortDropdown(
+                                          sortNotifier: sortNotifier,
+                                          isSorted: isSorted,
+                                          sort: sort,
                                         ),
-                                  isListView
-                                      ? IconButton(
-                                          onPressed: () {
-                                            setState(() {
-                                              isListView = !isListView;
-                                            });
-                                          },
-                                          icon: const Icon(
-                                            CupertinoIcons
-                                                .rectangle_grid_2x2_fill,
-                                            color: CupertinoColors.systemGrey,
-                                          ))
-                                      : IconButton(
-                                          onPressed: () {
-                                            setState(() {
-                                              isListView = !isListView;
-                                            });
-                                          },
-                                          icon: const Icon(
-                                            CupertinoIcons.list_bullet,
-                                            color: CupertinoColors.systemGrey,
-                                          ))
-                                ],
+                                        SizedBox(
+                                          width: 24,
+                                          child: IconButton(
+                                            onPressed: () {
+                                              setState(() {
+                                                isSorted = !isSorted;
+                                              });
+                                              sort(
+                                                  sortNotifier.value, isSorted);
+                                            },
+                                            icon: isSorted
+                                                ? const Icon(
+                                                    CupertinoIcons.arrow_up,
+                                                    color: CupertinoColors
+                                                        .systemGrey,
+                                                    size: 18,
+                                                  )
+                                                : const Icon(
+                                                    CupertinoIcons.arrow_down,
+                                                    color: CupertinoColors
+                                                        .systemGrey,
+                                                    size: 18,
+                                                  ),
+                                          ),
+                                        ),
+                                        SizedBox(
+                                          width: 20,
+                                          child: isListView
+                                              ? IconButton(
+                                                  onPressed: () {
+                                                    setState(() {
+                                                      isListView = !isListView;
+                                                    });
+                                                  },
+                                                  icon: const Icon(
+                                                    CupertinoIcons
+                                                        .rectangle_grid_2x2_fill,
+                                                    color: CupertinoColors
+                                                        .systemGrey,
+                                                  ),
+                                                )
+                                              : IconButton(
+                                                  onPressed: () {
+                                                    setState(() {
+                                                      isListView = !isListView;
+                                                    });
+                                                  },
+                                                  icon: const Icon(
+                                                    CupertinoIcons.list_bullet,
+                                                    color: CupertinoColors
+                                                        .systemGrey,
+                                                  ),
+                                                ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
                               ),
                               isListView
                                   ? Flexible(
@@ -284,39 +340,108 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                               }
                                             }
                                           }
+
+                                          Folder? folder;
+
+                                          for (int i = 0;
+                                              i < allFolders.length;
+                                              i++) {
+                                            if (value
+                                                    .allNotes[index].folderId ==
+                                                allFolders[i].id) {
+                                              folder = allFolders[i];
+                                            }
+                                          }
+
                                           return Slidable(
-                                            groupTag: 'delete',
                                             startActionPane: ActionPane(
-                                              extentRatio: 0.15,
-                                              motion: const StretchMotion(),
+                                              extentRatio: 0.3,
+                                              motion: const BehindMotion(),
                                               children: [
                                                 SlidableAction(
                                                   onPressed: (context) {
-                                                    print(value
-                                                        .getAllNotes()[index]
-                                                        .title);
                                                     deleteNote(
                                                       value
                                                           .getAllNotes()[index],
                                                     );
                                                   },
-                                                  backgroundColor: Colors.red,
+                                                  backgroundColor:
+                                                      Colors.transparent,
                                                   borderRadius:
                                                       BorderRadius.circular(16),
-                                                  icon: CupertinoIcons.trash,
-                                                  foregroundColor: Colors.white,
+                                                  icon:
+                                                      CupertinoIcons.trash_fill,
+                                                  foregroundColor: Colors.black,
+                                                ),
+                                                SlidableAction(
+                                                  onPressed: (context) {
+                                                    showCupertinoModalPopup(
+                                                      context: context,
+                                                      builder: (context) =>
+                                                          CupertinoActionSheet(
+                                                        actions: [
+                                                          for (int i = 0;
+                                                              i <
+                                                                  allFolders
+                                                                      .length;
+                                                              i++)
+                                                            CupertinoActionSheetAction(
+                                                              onPressed: () {
+                                                                value
+                                                                    .moveNoteToFolder(
+                                                                  value.getAllNotes()[
+                                                                      index],
+                                                                  allFolders[i],
+                                                                );
+
+                                                                Provider.of<FolderData>(
+                                                                        context,
+                                                                        listen:
+                                                                            false)
+                                                                    .moveNoteToFolder(
+                                                                  value.getAllNotes()[
+                                                                      index],
+                                                                  allFolders[i],
+                                                                );
+                                                                Navigator.pop(
+                                                                    context);
+                                                              },
+                                                              child: Text(
+                                                                allFolders[i]
+                                                                    .title,
+                                                              ),
+                                                            ),
+                                                        ],
+                                                        cancelButton:
+                                                            CupertinoActionSheetAction(
+                                                          onPressed: () {
+                                                            Navigator.pop(
+                                                                context);
+                                                          },
+                                                          child: const Text(
+                                                              'Cancel'),
+                                                        ),
+                                                      ),
+                                                    );
+                                                  },
+                                                  backgroundColor:
+                                                      Colors.transparent,
+                                                  borderRadius:
+                                                      BorderRadius.circular(16),
+                                                  icon: CupertinoIcons
+                                                      .folder_fill,
+                                                  foregroundColor: Colors.black,
                                                 ),
                                               ],
                                             ),
                                             endActionPane: ActionPane(
-                                              extentRatio: 0.15,
-                                              motion: const StretchMotion(),
+                                              extentRatio: 0.35,
+                                              motion: const BehindMotion(),
                                               children: [
                                                 SlidableAction(
                                                   onPressed: (context) {
                                                     value.pinHandler(value
                                                         .getAllNotes()[index]);
-
                                                     sort(
                                                       sortNotifier.value,
                                                       isSorted,
@@ -340,6 +465,132 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                                           .isPinned
                                                       ? Colors.grey
                                                       : Colors.black,
+                                                ),
+                                                SlidableAction(
+                                                  onPressed: (context) {
+
+                                                    value.getAllNotes()[
+                                                                            index].pin == '' ?
+                                                    showDialog(
+                                                      context: context,
+                                                      builder: (BuildContext
+                                                          context) {
+                                                        String notePin = '';
+                                                        return AlertDialog(
+                                                          title: const Text(
+                                                              'Lock Note'),
+                                                          content: Column(
+                                                            mainAxisSize:
+                                                                MainAxisSize
+                                                                    .min,
+                                                            children: [
+                                                              const Text(
+                                                                  'Enter a pin to lock this note:'),
+                                                              Pinput(
+                                                                onCompleted:
+                                                                    (pin) {
+                                                                  notePin = pin;
+                                                                },
+                                                              ),
+                                                            ],
+                                                          ),
+                                                          actions: [
+                                                            TextButton(
+                                                              onPressed: () {
+                                                                Navigator.of(
+                                                                        context)
+                                                                    .pop();
+                                                              },
+                                                              child: const Text(
+                                                                  'Cancel'),
+                                                            ),
+                                                            TextButton(
+                                                              onPressed: () {
+                                                                Provider.of<NoteData>(
+                                                                        context,
+                                                                        listen:
+                                                                            false)
+                                                                    .lockNote(
+                                                                        value.getAllNotes()[
+                                                                            index],
+                                                                        notePin);
+                                                                Navigator.of(
+                                                                        context)
+                                                                    .pop();
+                                                              },
+                                                              child: const Text(
+                                                                  'Lock'),
+                                                            ),
+                                                          ],
+                                                        );
+                                                      },
+                                                    ) : showDialog(
+                                                            context: context,
+                                                            builder:
+                                                                (BuildContext
+                                                                    context) {
+                                                              String notePin = value.getAllNotes()[index].pin;
+                                                              return AlertDialog(
+                                                                title: const Text(
+                                                                    'Open Locked Note'),
+                                                                content: Column(
+                                                                  mainAxisSize:
+                                                                      MainAxisSize
+                                                                          .min,
+                                                                  children: [
+                                                                    const Text(
+                                                                        'Enter the pin to lock this note:'),
+                                                                    Pinput(
+                                                                      onCompleted:
+                                                                          (pin) {
+                                                                        if (pin ==
+                                                                            notePin) {
+                                                                          Navigator.of(context).pop();
+                                                                          goToNotePage(
+                                                                              value.getAllNotes()[index],
+                                                                              false);
+                                                                        }
+                                                                      },
+                                                                    ),
+                                                                  ],
+                                                                ),
+                                                                actions: [
+                                                                  TextButton(
+                                                                    onPressed:
+                                                                        () {
+                                                                      Navigator.of(
+                                                                              context)
+                                                                          .pop();
+                                                                    },
+                                                                    child: const Text(
+                                                                        'Cancel'),
+                                                                  ),
+                                                                ],
+                                                              );
+                                                            },
+                                                          );
+                                                  },
+                                                  icon:
+                                                      CupertinoIcons.lock_fill,
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                    16,
+                                                  ),
+                                                  backgroundColor:
+                                                      Colors.transparent,
+                                                  foregroundColor: Colors.black,
+                                                ),
+                                                SlidableAction(
+                                                  onPressed: (context) {},
+                                                  icon:
+                                                      CupertinoIcons.bell_fill,
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                    16,
+                                                  ),
+                                                  backgroundColor:
+                                                      Colors.transparent,
+                                                  foregroundColor: Colors.black,
                                                 ),
                                               ],
                                             ),
@@ -368,7 +619,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                                   value.getAllNotes()[index],
                                                   false),
                                               tags: noteTags,
-                                              folder: 'folder',
+                                              folder: folder,
                                             ),
                                           );
                                         },
@@ -403,155 +654,84 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                                 }
                                               }
                                             }
-                                            return Slidable(
-                                              groupTag: 'delete',
-                                              startActionPane: ActionPane(
-                                                extentRatio: 0.15,
-                                                motion: const StretchMotion(),
-                                                children: [
-                                                  SlidableAction(
-                                                    onPressed: (context) =>
-                                                        deleteNote(
-                                                      value
-                                                          .getAllNotes()[index],
-                                                    ),
-                                                    backgroundColor: Colors.red,
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            16),
-                                                    icon: CupertinoIcons.trash,
-                                                    foregroundColor:
-                                                        Colors.white,
-                                                  ),
-                                                ],
-                                              ),
-                                              endActionPane: ActionPane(
-                                                extentRatio: 0.15,
-                                                motion: const StretchMotion(),
-                                                children: [
-                                                  SlidableAction(
-                                                    onPressed: (context) {
-                                                      value
-                                                              .getAllNotes()[index]
-                                                              .isPinned =
-                                                          !value
-                                                              .getAllNotes()[
-                                                                  index]
-                                                              .isPinned;
-                                                      value.saveNotes(
-                                                          value.getAllNotes());
-                                                      sort(sortNotifier.value,
-                                                          isSorted);
-                                                    },
-                                                    icon: value
-                                                            .getAllNotes()[
-                                                                index]
-                                                            .isPinned
-                                                        ? CupertinoIcons
-                                                            .pin_slash_fill
-                                                        : CupertinoIcons
-                                                            .pin_fill,
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            16),
-                                                    foregroundColor: value
-                                                            .getAllNotes()[
-                                                                index]
-                                                            .isPinned
-                                                        ? Colors.grey
-                                                        : Colors.black,
-                                                  ),
-                                                ],
-                                              ),
-                                              child: NoteGrid(
-                                                title: value
-                                                    .getAllNotes()[index]
-                                                    .title,
-                                                text: jsonDecode(value
-                                                                .getAllNotes()[
-                                                                    index]
-                                                                .text)[0]
-                                                            ['insert'] !=
-                                                        '\n'
-                                                    ? jsonDecode(value
-                                                        .getAllNotes()[index]
-                                                        .text)[0]['insert']
-                                                    : '',
-                                                date: value
-                                                    .getAllNotes()[index]
-                                                    .updatedAt,
-                                                backgroundColor: value
-                                                    .getAllNotes()[index]
-                                                    .backgroundColor,
-                                                isPinned: value
-                                                    .getAllNotes()[index]
-                                                    .isPinned,
-                                                tags: noteTags,
-                                                folder: 'folder',
-                                                onTap: () => goToNotePage(
-                                                    value.getAllNotes()[index],
-                                                    false),
-                                                onLongPress: () {
-                                                  // delete or pin
-                                                  showCupertinoModalPopup(
-                                                    context: context,
-                                                    builder: (context) =>
-                                                        CupertinoActionSheet(
-                                                      actions: [
-                                                        CupertinoActionSheetAction(
-                                                          onPressed: () {
-                                                            value.deleteNote(
-                                                              value.getAllNotes()[
-                                                                  index],
-                                                            );
-                                                            Navigator.pop(
-                                                                context);
-                                                          },
-                                                          isDestructiveAction:
-                                                              true,
-                                                          child: const Text(
-                                                              'Delete'),
-                                                        ),
-                                                        CupertinoActionSheetAction(
-                                                          onPressed: () {
-                                                            value
-                                                                    .getAllNotes()[
-                                                                        index]
-                                                                    .isPinned =
-                                                                !value
-                                                                    .getAllNotes()[
-                                                                        index]
-                                                                    .isPinned;
-                                                            value.saveNotes(value
-                                                                .getAllNotes());
-                                                            sort(
-                                                                sortNotifier
-                                                                    .value,
-                                                                isSorted);
-                                                            Navigator.pop(
-                                                                context);
-                                                          },
-                                                          child: Text(value
-                                                                  .getAllNotes()[
-                                                                      index]
-                                                                  .isPinned
-                                                              ? 'Unpin'
-                                                              : 'Pin'),
-                                                        ),
-                                                      ],
-                                                      cancelButton:
-                                                          CupertinoActionSheetAction(
+                                            return NoteGrid(
+                                              title: value
+                                                  .getAllNotes()[index]
+                                                  .title,
+                                              text: jsonDecode(value
+                                                          .getAllNotes()[index]
+                                                          .text)[0]['insert'] !=
+                                                      '\n'
+                                                  ? jsonDecode(value
+                                                      .getAllNotes()[index]
+                                                      .text)[0]['insert']
+                                                  : '',
+                                              date: value
+                                                  .getAllNotes()[index]
+                                                  .updatedAt,
+                                              backgroundColor: value
+                                                  .getAllNotes()[index]
+                                                  .backgroundColor,
+                                              isPinned: value
+                                                  .getAllNotes()[index]
+                                                  .isPinned,
+                                              tags: noteTags,
+                                              folder: 'folder',
+                                              onTap: () => goToNotePage(
+                                                  value.getAllNotes()[index],
+                                                  false),
+                                              onLongPress: () {
+                                                // delete or pin
+                                                showCupertinoModalPopup(
+                                                  context: context,
+                                                  builder: (context) =>
+                                                      CupertinoActionSheet(
+                                                    actions: [
+                                                      CupertinoActionSheetAction(
                                                         onPressed: () {
+                                                          value.deleteNote(
+                                                            value.getAllNotes()[
+                                                                index],
+                                                          );
                                                           Navigator.pop(
                                                               context);
                                                         },
+                                                        isDestructiveAction:
+                                                            true,
                                                         child: const Text(
-                                                            'Cancel'),
+                                                            'Delete'),
                                                       ),
+                                                      CupertinoActionSheetAction(
+                                                        onPressed: () {
+                                                          value.pinHandler(value
+                                                                  .getAllNotes()[
+                                                              index]);
+                                                          sort(
+                                                              sortNotifier
+                                                                  .value,
+                                                              isSorted);
+                                                          Navigator.pop(
+                                                              context);
+                                                        },
+                                                        child: Text(value
+                                                                .getAllNotes()[
+                                                                    index]
+                                                                .isPinned
+                                                            ? 'Unpin'
+                                                            : 'Pin'),
+                                                      ),
+                                                    ],
+                                                    cancelButton:
+                                                        CupertinoActionSheetAction(
+                                                      onPressed: () {
+                                                        Navigator.pop(context);
+                                                      },
+                                                      child:
+                                                          const Text('Cancel'),
                                                     ),
-                                                  );
-                                                },
-                                              ),
+                                                  ),
+                                                );
+                                              },
                                             );
                                           },
                                         ),

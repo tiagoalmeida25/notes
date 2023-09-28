@@ -13,12 +13,13 @@ class TagData extends ChangeNotifier {
 
   void initializeTags() {
     _allTags = db.loadTags();
-    notifyListeners();
   }
 
   void setAllTags(List<Tag> tags) {
     _allTags = tags;
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
     notifyListeners();
+  });
   }
 
   List<Tag> searchTags(String query) {
@@ -40,13 +41,17 @@ class TagData extends ChangeNotifier {
     allTags.add(tag);
 
     saveTags(allTags);
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
     notifyListeners();
+  });
   }
 
   void deleteTag(Tag tag) {
     _allTags.remove(tag);
     saveTags(_allTags);
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
     notifyListeners();
+  });
   }
 
   void updateTag(Tag tag, String text, DateTime updatedAt,
@@ -59,7 +64,9 @@ class TagData extends ChangeNotifier {
       }
     }
     saveTags(_allTags);
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
     notifyListeners();
+  });
   }
 
   List<Note> getNotesWithTag(Tag tag) {
@@ -122,7 +129,9 @@ class TagData extends ChangeNotifier {
 
     _allTags = sorted;
     saveTags(_allTags);
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
     notifyListeners();
+  });
   }
 
   void sortTags(String sortBy, bool isSorted) {
@@ -144,6 +153,8 @@ class TagData extends ChangeNotifier {
 
     _allTags = sortedTags;
     saveTags(_allTags);
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
     notifyListeners();
+  });
   }
 }

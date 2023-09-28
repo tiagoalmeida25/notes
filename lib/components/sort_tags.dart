@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 class SortTag extends StatefulWidget {
   final ValueNotifier<String> sortNotifier;
   final void Function(String, bool) sort;
-  final isSorted;
+  final bool isSorted;
 
   const SortTag(
       {Key? key,
@@ -33,7 +33,7 @@ class _SortTagState extends State<SortTag> {
   Widget build(BuildContext context) {
     return DropdownButtonHideUnderline(
       child: DropdownButton<String>(
-        alignment: Alignment.centerLeft,
+        alignment: Alignment.centerRight,
         style: const TextStyle(
           color: CupertinoColors.systemGrey,
           fontSize: 16,

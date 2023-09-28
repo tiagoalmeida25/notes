@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:notes/app_colors.dart';
-import 'package:notes/components/sort_dropdown.dart';
 import 'package:notes/components/sort_tags.dart';
 import 'package:notes/models/note_data.dart';
 import 'package:notes/models/tag.dart';
@@ -53,7 +52,6 @@ class _TagsState extends State<Tags> with WidgetsBindingObserver {
     }
   }
 
-  
   void saveToPrefs(String sortBy, bool isSorted, bool isListView) async {
     final prefs = await SharedPreferences.getInstance();
 
@@ -102,7 +100,30 @@ class _TagsState extends State<Tags> with WidgetsBindingObserver {
   }
 
   void deleteTag(Tag tag) {
-    Provider.of<TagData>(context, listen: false).deleteTag(tag);
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirm Deletion'),
+          content: const Text('Are you sure you want to delete this tag?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                Provider.of<TagData>(context, listen: false).deleteTag(tag);
+                Navigator.of(context).pop();
+              },
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void sort(String sortBy, bool isSorted) {
@@ -112,8 +133,6 @@ class _TagsState extends State<Tags> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     allTags = Provider.of<TagData>(context).getAllTags();
-
-
 
     return Consumer<TagData>(
         builder: (BuildContext context, TagData value, Widget? child) {
@@ -155,6 +174,43 @@ class _TagsState extends State<Tags> with WidgetsBindingObserver {
                               children: [
                                 Row(
                                   children: [
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: [
+                                        SizedBox(
+                                          width: MediaQuery.of(context)
+                                                  .size
+                                                  .width *
+                                              0.3,
+                                          child: CupertinoTextField(
+                                            controller: _searchController,
+                                            placeholder: 'Search tags',
+                                            onChanged: (query) {
+                                              allTags = value.searchTags(query);
+                                              setState(() {
+                                                allTags = allTags;
+                                              });
+                                            },
+                                          ),
+                                        ),
+                                        IconButton(
+                                          icon: const Icon(Icons.clear,
+                                              color: Colors.grey),
+                                          onPressed: () {
+                                            setState(() {
+                                              isSearching = !isSearching;
+                                              _searchController.clear();
+                                              allTags;
+                                            });
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                    SortTag(
+                                      sortNotifier: sortNotifier,
+                                      isSorted: isSorted,
+                                      sort: sort,
+                                    ),
                                     IconButton(
                                       onPressed: () {
                                         setState(() {
@@ -174,64 +230,8 @@ class _TagsState extends State<Tags> with WidgetsBindingObserver {
                                               size: 20,
                                             ),
                                     ),
-                                    SortTag(
-                                      sortNotifier: sortNotifier,
-                                      isSorted: isSorted,
-                                      sort: sort,
-                                    ),
                                   ],
                                 ),
-                                isSearching
-                                    ? Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.end,
-                                        children: [
-                                          SizedBox(
-                                            width: MediaQuery.of(context)
-                                                    .size
-                                                    .width *
-                                                0.3,
-                                            child:
-                                                CupertinoTextField.borderless(
-                                              controller: _searchController,
-                                              placeholder: 'Search tags',
-                                              onChanged: (query) {
-                                                allTags =
-                                                    value.searchTags(query);
-                                                setState(() {
-                                                  allTags = allTags;
-                                                });
-                                              },
-                                            ),
-                                          ),
-                                          IconButton(
-                                            icon: const Icon(Icons.clear,
-                                                color: Colors.grey),
-                                            onPressed: () {
-                                              setState(() {
-                                                isSearching = !isSearching;
-                                                _searchController.clear();
-                                                allTags;
-                                              });
-                                            },
-                                          ),
-                                        ],
-                                      )
-                                    : IconButton(
-                                        icon: const Icon(
-                                          CupertinoIcons.search,
-                                          color: Colors.grey,
-                                        ),
-                                        onPressed: () {
-                                          setState(() {
-                                            isSearching = !isSearching;
-                                            if (!isSearching) {
-                                              _searchController.clear();
-                                              allTags;
-                                            }
-                                          });
-                                        },
-                                      ),
                               ],
                             ),
                             Flexible(

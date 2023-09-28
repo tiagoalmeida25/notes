@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:notes/app_colors.dart';
 import 'package:notes/components/note_tag.dart';
@@ -5,7 +6,6 @@ import 'package:notes/models/note.dart';
 
 class FolderGrid extends StatelessWidget {
   final String title;
-  final DateTime date;
   final String color;
   final bool isPinned;
   final List<Note> notes;
@@ -16,7 +16,6 @@ class FolderGrid extends StatelessWidget {
     super.key,
     required this.title,
     required this.color,
-    required this.date,
     required this.isPinned,
     required this.notes,
     required this.onTap,
@@ -25,18 +24,6 @@ class FolderGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String dateHour = date.hour < 10 ? '0${date.hour}' : date.hour.toString();
-    String dateMinute =
-        date.minute < 10 ? '0${date.minute}' : date.minute.toString();
-
-    String formattedDate =
-        '${date.day}/${date.month}/${date.year % 100} $dateHour:$dateMinute';
-    if (date.day == DateTime.now().day &&
-        date.month == DateTime.now().month &&
-        date.year == DateTime.now().year) {
-      formattedDate = '$dateHour:$dateMinute';
-    }
-
     String truncatedTitle = '';
 
     if (title.isEmpty) {
@@ -58,7 +45,8 @@ class FolderGrid extends StatelessWidget {
           height: 165,
           child: Card(
             elevation: 4,
-            color: getColorFromString(color),
+            color: getColorFromString(color).withOpacity(0.3),
+            // color: Colors.transparent,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10),
             ),
@@ -83,13 +71,15 @@ class FolderGrid extends StatelessWidget {
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
-                              const SizedBox(width: 4),
-                              const Icon(
-                                Icons.chevron_right,
-                                color: Colors.grey,
-                                size: 20,
-                              ),
                             ],
+                          ),
+                          const SizedBox(height: 8),
+                          Center(
+                            child: Icon(
+                              CupertinoIcons.folder_fill,
+                              color: getColorFromString(color),
+                              size: 100,
+                            ),
                           ),
                         ],
                       ),
@@ -129,20 +119,6 @@ class FolderGrid extends StatelessWidget {
                       child: const Icon(Icons.push_pin, color: Colors.grey),
                     ),
                   ),
-                Positioned(
-                  bottom: 8,
-                  right: 8,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        formattedDate,
-                        style: const TextStyle(fontSize: 12),
-                      ),
-                    ],
-                  ),
-                ),
               ],
             ),
           ),

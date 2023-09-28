@@ -67,6 +67,8 @@ class _EditingNoteState extends State<EditingNote> {
         backgroundColor: setStringFromColor(backgroundColor),
         isPinned: false,
         tags: _selectedTags.map((e) => e.id).toList(),
+        folderId: 0,
+        pin: '',
       ),
     );
   }
@@ -97,7 +99,7 @@ class _EditingNoteState extends State<EditingNote> {
     }
   }
 
-  void _handleTagSelected(Tag tag) {
+  void _handleTagSelected(Tag tag, List<Tag> allTags) {
     setState(() {
       if (_selectedTags.contains(tag)) {
         _selectedTags.remove(tag);
@@ -110,7 +112,7 @@ class _EditingNoteState extends State<EditingNote> {
   @override
   Widget build(BuildContext context) {
     double height = MediaQuery.of(context).size.height;
-    final allTags = Provider.of<TagData>(context).allTags;
+    var allTags = Provider.of<TagData>(context).allTags;
 
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
       statusBarIconBrightness: darkColors.contains(backgroundColor)
@@ -357,35 +359,53 @@ class _EditingNoteState extends State<EditingNote> {
                       color: Colors.white,
                       width: MediaQuery.of(context).size.width,
                       child: Padding(
-                        padding: const EdgeInsets.only(left:16, right: 16, bottom: 8, top: 2),
+                        padding: const EdgeInsets.only(
+                            left: 16, right: 16, bottom: 8, top: 2),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            
                             Text('Tags',
                                 style: Theme.of(context).textTheme.bodySmall),
                             const SizedBox(height: 8),
-                            Wrap(
-                              spacing: 8,
-                              runSpacing: 8,
-                              children: [
-                                for (final tag in allTags)
-                                  GestureDetector(
-                                    onTap: () => _handleTagSelected(tag),
-                                    child: SizedBox(
-                                      height: 28,
-                                      width: tag.text.length * 10.0,
-                                      child: _selectedTags.contains(tag) ?
-                                      NoteTag(
-                                        label: tag.text,
-                                        backgroundColor: getColorFromString(tag.backgroundColor),
-                                      ) : NoteTag(
-                                        label: tag.text,
-                                        backgroundColor: const Color.fromARGB(255, 148, 148, 148),
-                                      ),
-                                    ),
-                                  ),
-                              ],
+                            Positioned(
+                              bottom: 34,
+                              left: 4,
+                              right: 8,
+                              child: SizedBox(
+                                height: 25,
+                                child: ListView.builder(
+                                    scrollDirection: Axis.horizontal,
+                                    itemCount: allTags.length,
+                                    itemBuilder: (context, index) {
+                                      Tag tag = allTags[index];
+
+                                      return GestureDetector(
+                                        onTap: () =>
+                                            _handleTagSelected(tag, allTags),
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 4.0),
+                                          child: SizedBox(
+                                            height: 28,
+                                            width: tag.text.length * 12.0,
+                                            child: _selectedTags.contains(tag)
+                                                ? NoteTag(
+                                                    label: tag.text,
+                                                    backgroundColor:
+                                                        getColorFromString(tag
+                                                            .backgroundColor),
+                                                  )
+                                                : NoteTag(
+                                                    label: tag.text,
+                                                    backgroundColor:
+                                                        const Color.fromARGB(
+                                                            255, 208, 208, 208),
+                                                  ),
+                                          ),
+                                        ),
+                                      );
+                                    }),
+                              ),
                             ),
                           ],
                         ),

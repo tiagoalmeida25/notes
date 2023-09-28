@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:notes/data/hive_database_folders.dart';
 import 'package:notes/models/folder.dart';
+import 'package:notes/models/note.dart';
 
 class FolderData extends ChangeNotifier {
   final db = HiveFoldersDatabase();
@@ -10,26 +11,34 @@ class FolderData extends ChangeNotifier {
 
   void initializeFolders() {
     _allFolders = db.loadFolders();
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
     notifyListeners();
+  });
   }
 
   void setAllFolders(List<Folder> folders) {
     _allFolders = folders;
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
     notifyListeners();
+  });
   }
 
   void addNewFolder(Folder folder) {
     List<Folder> allFolders = getAllFolders();
     allFolders.add(folder);
     saveFolders(allFolders);
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
     notifyListeners();
+  });
   }
 
   void deleteFolder(Folder folder) {
     _allFolders.remove(folder);
     saveFolders(_allFolders);
 
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
     notifyListeners();
+  });
   }
 
   void updateFolder(Folder folder, String title, DateTime updatedAt,
@@ -44,7 +53,9 @@ class FolderData extends ChangeNotifier {
       }
     }
     saveFolders(_allFolders);
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
     notifyListeners();
+  });
   }
 
   List<Folder> getAllFolders() {
@@ -59,6 +70,19 @@ class FolderData extends ChangeNotifier {
       }
     }
     saveFolders(_allFolders);
+  }
+
+  void moveNoteToFolder(Note note, Folder folder){
+    for(int i = 0; i < allFolders.length; i++){
+      if(allFolders[i].id == folder.id){
+        folder.notes.add(note.id);
+      }
+    }
+
+    saveFolders(allFolders);
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
+    notifyListeners();
+  });
   }
 
   List<Folder> getPinnedFolders() {
@@ -111,6 +135,8 @@ class FolderData extends ChangeNotifier {
 
     _allFolders = sortedFolders;
     saveFolders(_allFolders);
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
     notifyListeners();
+  });
   }
 }

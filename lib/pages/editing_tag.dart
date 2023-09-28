@@ -4,6 +4,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:notes/app_colors.dart';
 import 'package:notes/components/note_card.dart';
+import 'package:notes/models/folder.dart';
+import 'package:notes/models/folder_data.dart';
 import 'package:notes/models/tag.dart';
 import 'package:notes/models/tag_data.dart';
 import 'package:notes/pages/editing_note.dart';
@@ -70,7 +72,9 @@ class _EditingTagState extends State<EditingTag> {
   Widget build(BuildContext context) {
     final tagData = Provider.of<TagData>(context);
     final notes = tagData.getNotesWithTag(widget.tag!);
+
     List<Tag> allTags = tagData.getAllTags();
+    List<Folder> allFolders = Provider.of<FolderData>(context, listen: false).getAllFolders();
 
     return Scaffold(
       appBar: CupertinoNavigationBar(
@@ -127,6 +131,14 @@ class _EditingTagState extends State<EditingTag> {
                   }
                 }
 
+                Folder? folder;
+
+                for (int i = 0; i < allFolders.length; i++) {
+                  if (note.folderId == allFolders[i].id) {
+                    folder = allFolders[i];
+                  }
+                }
+
                 return NoteCard(
                   title: note.title,
                   text: jsonDecode(note.text)[0]['insert'] != '\n'
@@ -136,7 +148,7 @@ class _EditingTagState extends State<EditingTag> {
                   backgroundColor: note.backgroundColor,
                   isPinned: note.isPinned,
                   tags: noteTags,
-                  folder: 'Folder',
+                  folder: folder,
                   onTap: () {
                     Navigator.push(
                         context,

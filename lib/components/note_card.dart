@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:notes/app_colors.dart';
 import 'package:notes/components/note_tag.dart';
+import 'package:notes/models/folder.dart';
 import 'package:notes/models/tag.dart';
 
 class NoteCard extends StatelessWidget {
@@ -11,7 +12,7 @@ class NoteCard extends StatelessWidget {
   final bool isPinned;
   final List<Tag> tags;
   final Function() onTap;
-  final String folder;
+  final Folder? folder;
 
   const NoteCard({super.key, 
     required this.title,
@@ -140,7 +141,7 @@ class NoteCard extends StatelessWidget {
                       child: const Icon(Icons.push_pin, color: Colors.grey),
                     ),
                   ),
-                if (folder.isNotEmpty)
+                if (folder != null)
                   Positioned(
                     bottom: 8,
                     left: 8,
@@ -149,15 +150,15 @@ class NoteCard extends StatelessWidget {
                         Icon(
                           Icons.folder,
                           size: 16,
-                          color: getColorFromString(backgroundColor),
+                          color: getColorFromString(folder!.color),
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          folder,
+                          folder!.title,
                           style: TextStyle(
                               fontSize: 12,
                               fontStyle: FontStyle.italic,
-                              color: getColorFromString(backgroundColor)),
+                              color: getColorFromString(folder!.color)),
                         ),
                       ],
                     ),
