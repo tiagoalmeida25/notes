@@ -245,8 +245,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                               },
                                               icon: const Icon(
                                                 CupertinoIcons.search,
-                                                color:
-                                                    Colors.grey,
+                                                color: Colors.grey,
                                               ),
                                             ),
                                           ),
@@ -382,6 +381,19 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                                               i++)
                                                             CupertinoActionSheetAction(
                                                               onPressed: () {
+                                                                // remove from current folder
+                                                                Provider.of<FolderData>(
+                                                                        context,
+                                                                        listen:
+                                                                            false)
+                                                                    .removeNoteFromFolder(
+                                                                  value
+                                                                      .getAllNotes()[
+                                                                          index]
+                                                                      .folderId,
+                                                                  value.getAllNotes()[
+                                                                      index],
+                                                                );
                                                                 value
                                                                     .moveNoteToFolder(
                                                                   value.getAllNotes()[

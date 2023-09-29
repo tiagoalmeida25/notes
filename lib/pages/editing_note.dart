@@ -347,83 +347,79 @@ class _EditingNoteState extends State<EditingNote> {
                 'Clear': '0'
               },
             ),
-            Expanded(
-              child: Column(
-                children: [
-                  ClipRRect(
-                    borderRadius: const BorderRadius.only(
-                      bottomLeft: Radius.circular(10),
-                      bottomRight: Radius.circular(10),
-                    ),
-                    child: Container(
-                      color: Colors.white,
-                      width: MediaQuery.of(context).size.width,
-                      child: Padding(
-                        padding: const EdgeInsets.only(
-                            left: 16, right: 16, bottom: 8, top: 2),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Tags',
-                                style: Theme.of(context).textTheme.bodySmall),
-                            const SizedBox(height: 8),
-                            Positioned(
-                              bottom: 34,
-                              left: 4,
-                              right: 8,
-                              child: SizedBox(
-                                height: 25,
-                                child: ListView.builder(
-                                    scrollDirection: Axis.horizontal,
-                                    itemCount: allTags.length,
-                                    itemBuilder: (context, index) {
-                                      Tag tag = allTags[index];
+            ClipRRect(
+              borderRadius: const BorderRadius.only(
+                bottomLeft: Radius.circular(10),
+                bottomRight: Radius.circular(10),
+              ),
+              child: Container(
+                color: Colors.white,
+                width: MediaQuery.of(context).size.width,
+                child: Padding(
+                  padding: const EdgeInsets.only(
+                      left: 16, right: 16, bottom: 8, top: 2),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Tags',
+                          style: Theme.of(context).textTheme.bodySmall),
+                      const SizedBox(height: 8),
+                      Positioned(
+                        bottom: 34,
+                        left: 4,
+                        right: 8,
+                        child: SizedBox(
+                          height: 25,
+                          child: ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: allTags.length,
+                              itemBuilder: (context, index) {
+                                Tag tag = allTags[index];
 
-                                      return GestureDetector(
-                                        onTap: () =>
-                                            _handleTagSelected(tag, allTags),
-                                        child: Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 4.0),
-                                          child: SizedBox(
-                                            height: 28,
-                                            width: tag.text.length * 12.0,
-                                            child: _selectedTags.contains(tag)
-                                                ? NoteTag(
-                                                    label: tag.text,
-                                                    backgroundColor:
-                                                        getColorFromString(tag
-                                                            .backgroundColor),
-                                                  )
-                                                : NoteTag(
-                                                    label: tag.text,
-                                                    backgroundColor:
-                                                        const Color.fromARGB(
-                                                            255, 208, 208, 208),
-                                                  ),
-                                          ),
-                                        ),
-                                      );
-                                    }),
-                              ),
-                            ),
-                          ],
+                                return GestureDetector(
+                                  onTap: () =>
+                                      _handleTagSelected(tag, allTags),
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 4.0),
+                                    child: SizedBox(
+                                      height: 28,
+                                      width: tag.text.length * 12.0,
+                                      child: _selectedTags.contains(tag)
+                                          ? NoteTag(
+                                              label: tag.text,
+                                              backgroundColor:
+                                                  getColorFromString(tag
+                                                      .backgroundColor),
+                                            )
+                                          : NoteTag(
+                                              label: tag.text,
+                                              backgroundColor:
+                                                  const Color.fromARGB(
+                                                      255, 208, 208, 208),
+                                            ),
+                                    ),
+                                  ),
+                                );
+                              }),
                         ),
                       ),
-                    ),
+                    ],
                   ),
-                  SizedBox(height: height * 0.01),
-                  Container(
-                    padding: const EdgeInsets.only(left: 25, right: 25),
-                    height: height * 0.5,
-                    child: QuillEditor.basic(
-                      controller: _controller,
-                      readOnly: false,
-                      autoFocus: false,
-                      placeholder: 'Start writing...',
-                    ),
-                  ),
-                ],
+                ),
+              ),
+            ),
+            SizedBox(height: height * 0.01),
+            Expanded(
+              child: Container(
+                padding: const EdgeInsets.only(left: 25, right: 25),
+                // height: height * 0.6,
+                child: QuillEditor.basic(
+                  controller: _controller,
+                  readOnly: false,
+                  autoFocus: false,
+                  placeholder: 'Start writing...',
+                ),
               ),
             ),
           ],

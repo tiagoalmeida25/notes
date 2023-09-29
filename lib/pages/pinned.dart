@@ -389,6 +389,18 @@ class _PinnedState extends State<Pinned> with WidgetsBindingObserver {
                                                               i++)
                                                             CupertinoActionSheetAction(
                                                               onPressed: () {
+                                                                Provider.of<FolderData>(
+                                                                        context,
+                                                                        listen:
+                                                                            false)
+                                                                    .removeNoteFromFolder(
+                                                                  value
+                                                                      .getAllNotes()[
+                                                                          index]
+                                                                      .folderId,
+                                                                  value.getAllNotes()[
+                                                                      index],
+                                                                );
                                                                 value
                                                                     .moveNoteToFolder(
                                                                   value.getPinnedNotes()[

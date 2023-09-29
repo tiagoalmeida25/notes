@@ -12,15 +12,15 @@ class FolderData extends ChangeNotifier {
   void initializeFolders() {
     _allFolders = db.loadFolders();
     WidgetsBinding.instance!.addPostFrameCallback((_) {
-    notifyListeners();
-  });
+      notifyListeners();
+    });
   }
 
   void setAllFolders(List<Folder> folders) {
     _allFolders = folders;
     WidgetsBinding.instance!.addPostFrameCallback((_) {
-    notifyListeners();
-  });
+      notifyListeners();
+    });
   }
 
   void addNewFolder(Folder folder) {
@@ -28,8 +28,8 @@ class FolderData extends ChangeNotifier {
     allFolders.add(folder);
     saveFolders(allFolders);
     WidgetsBinding.instance!.addPostFrameCallback((_) {
-    notifyListeners();
-  });
+      notifyListeners();
+    });
   }
 
   void deleteFolder(Folder folder) {
@@ -37,8 +37,20 @@ class FolderData extends ChangeNotifier {
     saveFolders(_allFolders);
 
     WidgetsBinding.instance!.addPostFrameCallback((_) {
-    notifyListeners();
-  });
+      notifyListeners();
+    });
+  }
+
+  void removeNoteFromFolder(int folderId, Note note){
+    for (int i = 0; i < _allFolders.length; i++) {
+      if (_allFolders[i].id == folderId) {
+        _allFolders[i].notes.remove(note.id);
+      }
+    }
+    saveFolders(_allFolders);
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
+      notifyListeners();
+    });
   }
 
   void updateFolder(Folder folder, String title, DateTime updatedAt,
@@ -54,8 +66,8 @@ class FolderData extends ChangeNotifier {
     }
     saveFolders(_allFolders);
     WidgetsBinding.instance!.addPostFrameCallback((_) {
-    notifyListeners();
-  });
+      notifyListeners();
+    });
   }
 
   List<Folder> getAllFolders() {
@@ -72,33 +84,33 @@ class FolderData extends ChangeNotifier {
     saveFolders(_allFolders);
   }
 
-  void searchFolders(String query){
+  void searchFolders(String query) {
     List<Folder> filteredFolders = [];
-    if(query.isEmpty){
+    if (query.isEmpty) {
       filteredFolders = getAllFolders();
     } else {
-      filteredFolders = getAllFolders().where((folder){
+      filteredFolders = getAllFolders().where((folder) {
         return folder.title.toLowerCase().contains(query.toLowerCase());
       }).toList();
     }
 
     _allFolders = filteredFolders;
     WidgetsBinding.instance!.addPostFrameCallback((_) {
-    notifyListeners();
-  });
+      notifyListeners();
+    });
   }
 
-  void moveNoteToFolder(Note note, Folder folder){
-    for(int i = 0; i < allFolders.length; i++){
-      if(allFolders[i].id == folder.id){
+  void moveNoteToFolder(Note note, Folder folder) {
+    for (int i = 0; i < allFolders.length; i++) {
+      if (allFolders[i].id == folder.id) {
         folder.notes.add(note.id);
       }
     }
 
     saveFolders(allFolders);
     WidgetsBinding.instance!.addPostFrameCallback((_) {
-    notifyListeners();
-  });
+      notifyListeners();
+    });
   }
 
   List<Folder> getPinnedFolders() {
@@ -152,7 +164,7 @@ class FolderData extends ChangeNotifier {
     _allFolders = sortedFolders;
     saveFolders(_allFolders);
     WidgetsBinding.instance!.addPostFrameCallback((_) {
-    notifyListeners();
-  });
+      notifyListeners();
+    });
   }
 }
