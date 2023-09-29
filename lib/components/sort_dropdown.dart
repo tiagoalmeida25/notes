@@ -64,7 +64,7 @@ class _SortDropdownState extends State<SortDropdown> {
                 Text(value,
                     style: const TextStyle(
                       fontSize: 15,
-                      color: Colors.black
+                      color: Colors.grey
                     )),
               ],
             ),

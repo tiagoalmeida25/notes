@@ -66,6 +66,7 @@ class _CreateTagState extends State<CreateTag> {
             Text('Name', style: Theme.of(context).textTheme.bodySmall),
             TextField(
               controller: _textEditingController,
+              textCapitalization: TextCapitalization.words,
               decoration: const InputDecoration(
                 hintText: 'Enter tag name',
                 border: InputBorder.none,

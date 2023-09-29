@@ -67,6 +67,7 @@ class _CreateFolderState extends State<CreateFolder> {
             Text('Name', style: Theme.of(context).textTheme.bodySmall),
             TextField(
               controller: _textEditingController,
+              textCapitalization: TextCapitalization.words,
               decoration: const InputDecoration(
                 hintText: 'Enter folder name',
                 border: InputBorder.none,

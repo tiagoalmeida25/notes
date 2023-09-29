@@ -7,6 +7,7 @@ import 'package:notes/models/folder_data.dart';
 import 'package:notes/models/note.dart';
 import 'package:notes/models/note_data.dart';
 import 'package:notes/models/tag_data.dart';
+import 'package:notes/pages/inside_folder.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -22,6 +23,10 @@ class _FoldersState extends State<Folders> with WidgetsBindingObserver {
   bool isSorted = false;
 
   ValueNotifier<String> sortNotifier = ValueNotifier("");
+
+  bool isSearching = false;
+
+  final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
@@ -146,6 +151,62 @@ class _FoldersState extends State<Folders> with WidgetsBindingObserver {
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
+                                  isSearching
+                                      ? Row(
+                                          children: [
+                                            SizedBox(
+                                              width: MediaQuery.of(context)
+                                                      .size
+                                                      .width *
+                                                  0.3,
+                                              child: TextField(
+                                                controller: _searchController,
+                                                // placeholder: 'Search',
+                                                decoration:
+                                                    const InputDecoration(
+                                                  hintText: 'Search',
+                                                  hintStyle: TextStyle(
+                                                    color: CupertinoColors
+                                                        .systemGrey,
+                                                  ),
+                                                  border: InputBorder.none,
+                                                ),
+                                                onChanged: (query) {
+                                                  value.searchFolders(query);
+                                                },
+                                              ),
+                                            ),
+                                            SizedBox(
+                                              width: 20,
+                                              child: IconButton(
+                                                onPressed: () {
+                                                  setState(() {
+                                                    isSearching = !isSearching;
+                                                  });
+                                                },
+                                                icon: const Icon(
+                                                  CupertinoIcons.xmark,
+                                                  color: CupertinoColors
+                                                      .systemGrey,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        )
+                                      : SizedBox(
+                                          width: 20,
+                                          child: IconButton(
+                                            onPressed: () {
+                                              setState(() {
+                                                isSearching = !isSearching;
+                                              });
+                                            },
+                                            icon: const Icon(
+                                              CupertinoIcons.search,
+                                              color: CupertinoColors.systemGrey,
+                                            ),
+                                          ),
+                                        ),
                                   Row(
                                     children: [
                                       SortDropdown(
@@ -185,7 +246,8 @@ class _FoldersState extends State<Folders> with WidgetsBindingObserver {
                                   itemBuilder: (context, index) {
                                     List<Note> folderNotes = [];
 
-                                    if (value.allFolders[index].notes.isNotEmpty) {
+                                    if (value
+                                        .allFolders[index].notes.isNotEmpty) {
                                       for (int i = 0;
                                           i <
                                               value.allFolders[index].notes
@@ -279,7 +341,21 @@ class _FoldersState extends State<Folders> with WidgetsBindingObserver {
                                         isPinned: value
                                             .getAllFolders()[index]
                                             .isPinned,
-                                        onTap: () {},
+                                        date: value
+                                            .getAllFolders()[index]
+                                            .createdAt,
+                                        onTap: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  InsideFolder(
+                                                folder: value
+                                                    .getAllFolders()[index],
+                                              ),
+                                            ),
+                                          );
+                                        },
                                         notes: folderNotes,
                                         folder: 'folder',
                                       ),

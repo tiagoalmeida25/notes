@@ -98,6 +98,7 @@ class FolderGrid extends StatelessWidget {
                         itemCount: notes.length,
                         itemBuilder: (context, index) {
                           final note = notes[index];
+                          
                           return Padding(
                               padding:
                                   const EdgeInsets.symmetric(horizontal: 4),

@@ -11,6 +11,7 @@ class FolderCard extends StatelessWidget {
   final List<Note> notes;
   final Function() onTap;
   final String folder;
+  final DateTime date;
 
   const FolderCard({
     super.key,
@@ -20,6 +21,7 @@ class FolderCard extends StatelessWidget {
     required this.notes,
     required this.onTap,
     required this.folder,
+    required this.date,
   });
 
   @override
@@ -35,6 +37,48 @@ class FolderCard extends StatelessWidget {
         truncatedTitle = title;
       }
     }
+
+    String month = '';
+    switch (date.month) {
+      case 1:
+        month = 'Jan';
+        break;
+      case 2:
+        month = 'Feb';
+        break;
+      case 3:
+        month = 'Mar';
+        break;
+      case 4:
+        month = 'Apr';
+        break;
+      case 5:
+        month = 'May';
+        break;
+      case 6:
+        month = 'Jun';
+        break;
+      case 7:
+        month = 'Jul';
+        break;
+      case 8:
+        month = 'Aug';
+        break;
+      case 9:
+        month = 'Sep';
+        break;
+      case 10:
+        month = 'Oct';
+        break;
+      case 11:
+        month = 'Nov';
+        break;
+      case 12:
+        month = 'Dec';
+        break;
+    }
+    String formattedDate =
+        '${date.day} $month ${date.year}';
 
     return GestureDetector(
       onTap: onTap,
@@ -103,20 +147,11 @@ class FolderCard extends StatelessWidget {
                     right: 8,
                     child: SizedBox(
                       height: 25,
-                      child: ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: notes.length,
-                        itemBuilder: (context, index) {
-                          final note = notes[index];
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 4),
-                            child: NoteTag(
-                              label: note.title,
-                              backgroundColor:
-                                  getColorFromString(note.backgroundColor),
-                            ),
-                          );
-                        },
+                      child: Text(
+                        '${notes.length} notes',
+                        style: const TextStyle(
+                          color: Colors.grey,
+                        ),
                       ),
                     ),
                   ),
@@ -142,6 +177,21 @@ class FolderCard extends StatelessWidget {
                       child: const Icon(Icons.push_pin, color: Colors.grey),
                     ),
                   ),
+
+                Positioned(
+                  bottom: 8,
+                  right: 8,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        formattedDate,
+                        style: const TextStyle(fontSize: 12, color: Colors.grey),
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),

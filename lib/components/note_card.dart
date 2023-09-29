@@ -13,8 +13,10 @@ class NoteCard extends StatelessWidget {
   final List<Tag> tags;
   final Function() onTap;
   final Folder? folder;
+  final String pin;
 
-  const NoteCard({super.key, 
+  const NoteCard({
+    super.key,
     required this.title,
     required this.text,
     required this.backgroundColor,
@@ -23,6 +25,7 @@ class NoteCard extends StatelessWidget {
     required this.tags,
     required this.onTap,
     required this.folder,
+    required this.pin,
   });
 
   @override
@@ -31,12 +34,50 @@ class NoteCard extends StatelessWidget {
     String dateMinute =
         date.minute < 10 ? '0${date.minute}' : date.minute.toString();
 
+    String month = '';
+    switch (date.month) {
+      case 1:
+        month = 'Jan';
+        break;
+      case 2:
+        month = 'Feb';
+        break;
+      case 3:
+        month = 'Mar';
+        break;
+      case 4:
+        month = 'Apr';
+        break;
+      case 5:
+        month = 'May';
+        break;
+      case 6:
+        month = 'Jun';
+        break;
+      case 7:
+        month = 'Jul';
+        break;
+      case 8:
+        month = 'Aug';
+        break;
+      case 9:
+        month = 'Sep';
+        break;
+      case 10:
+        month = 'Oct';
+        break;
+      case 11:
+        month = 'Nov';
+        break;
+      case 12:
+        month = 'Dec';
+        break;
+    }
     String formattedDate =
-        '${date.day}/${date.month}/${date.year} $dateHour:$dateMinute';
+        '${date.day} $month ${date.year%100} $dateHour:$dateMinute';
     if (date.day == DateTime.now().day &&
         date.month == DateTime.now().month &&
         date.year == DateTime.now().year) {
-          
       formattedDate = '$dateHour:$dateMinute';
     }
 
@@ -95,12 +136,14 @@ class NoteCard extends StatelessWidget {
                           ),
                           if (text.isNotEmpty) ...[
                             const SizedBox(height: 4),
-                            Text(
-                              text,
-                              style: const TextStyle(fontSize: 14),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
+                            pin == ''
+                                ? Text(
+                                    text,
+                                    style: const TextStyle(fontSize: 14),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  )
+                                : const Text(''),
                           ],
                         ],
                       ),
@@ -108,30 +151,32 @@ class NoteCard extends StatelessWidget {
                     const Spacer(),
                   ],
                 ),
-                if (tags.isNotEmpty)
-                  Positioned(
-                    bottom: 34,
-                    left: 4,
-                    right: 8,
-                    child: SizedBox(
-                      height: 25,
-                      child: ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: tags.length,
-                        itemBuilder: (context, index) {
-                          final tag = tags[index];
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 4),
-                            child: NoteTag(
-                              label: tag.text,
-                              backgroundColor:
-                                  getColorFromString(tag.backgroundColor),
-                            ),
-                          );
-                        },
+                if (pin == '')
+                  if (tags.isNotEmpty)
+                    Positioned(
+                      bottom: 30,
+                      left: 4,
+                      right: 8,
+                      child: SizedBox(
+                        height: 25,
+                        child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: tags.length,
+                          itemBuilder: (context, index) {
+                            final tag = tags[index];
+                            return Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 4),
+                              child: NoteTag(
+                                label: tag.text,
+                                backgroundColor:
+                                    getColorFromString(tag.backgroundColor),
+                              ),
+                            );
+                          },
+                        ),
                       ),
                     ),
-                  ),
                 if (isPinned)
                   Positioned(
                     top: 8,
@@ -141,28 +186,40 @@ class NoteCard extends StatelessWidget {
                       child: const Icon(Icons.push_pin, color: Colors.grey),
                     ),
                   ),
-                if (folder != null)
+                if (pin != '')
                   Positioned(
-                    bottom: 8,
-                    left: 8,
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.folder,
-                          size: 16,
-                          color: getColorFromString(folder!.color),
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          folder!.title,
-                          style: TextStyle(
-                              fontSize: 12,
-                              fontStyle: FontStyle.italic,
-                              color: getColorFromString(folder!.color)),
-                        ),
-                      ],
+                    top: 32,
+                    left: MediaQuery.of(context).size.width * 0.35,
+                    child: const Icon(
+                      Icons.lock,
+                      color: Colors.grey,
+                      size: 80,
                     ),
                   ),
+                if (pin == '')
+                  if (folder != null)
+                    Positioned(
+                      bottom: 8,
+                      left: 8,
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.folder,
+                            size: 16,
+                            color: getColorFromString(folder!.color),
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            folder!.title,
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontStyle: FontStyle.italic,
+                              color: getColorFromString(folder!.color),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                 Positioned(
                   bottom: 8,
                   right: 8,
@@ -172,7 +229,7 @@ class NoteCard extends StatelessWidget {
                     children: [
                       Text(
                         formattedDate,
-                        style: const TextStyle(fontSize: 12),
+                        style: const TextStyle(fontSize: 12, color: Colors.grey),
                       ),
                     ],
                   ),

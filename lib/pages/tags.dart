@@ -172,40 +172,63 @@ class _TagsState extends State<Tags> with WidgetsBindingObserver {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Row(
-                                  children: [
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                      children: [
-                                        SizedBox(
-                                          width: MediaQuery.of(context)
-                                                  .size
-                                                  .width *
-                                              0.3,
-                                          child: CupertinoTextField(
-                                            controller: _searchController,
-                                            placeholder: 'Search tags',
-                                            onChanged: (query) {
-                                              allTags = value.searchTags(query);
-                                              setState(() {
-                                                allTags = allTags;
-                                              });
-                                            },
+                                isSearching
+                                    ? Row(
+                                        children: [
+                                          SizedBox(
+                                            width: MediaQuery.of(context)
+                                                    .size
+                                                    .width *
+                                                0.3,
+                                            child: TextField(
+                                              controller: _searchController,
+                                              // placeholder: 'Search',
+                                              decoration: const InputDecoration(
+                                                hintText: 'Search',
+                                                hintStyle: TextStyle(
+                                                  color: CupertinoColors
+                                                      .systemGrey,
+                                                ),
+                                                border: InputBorder.none,
+                                              ),
+                                              onChanged: (query) {
+                                                value.searchTags(query);
+                                              },
+                                            ),
                                           ),
-                                        ),
-                                        IconButton(
-                                          icon: const Icon(Icons.clear,
-                                              color: Colors.grey),
+                                          SizedBox(
+                                            width: 20,
+                                            child: IconButton(
+                                              onPressed: () {
+                                                setState(() {
+                                                  isSearching = !isSearching;
+                                                });
+                                              },
+                                              icon: const Icon(
+                                                CupertinoIcons.xmark,
+                                                color:
+                                                    CupertinoColors.systemGrey,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      )
+                                    : SizedBox(
+                                        width: 20,
+                                        child: IconButton(
                                           onPressed: () {
                                             setState(() {
                                               isSearching = !isSearching;
-                                              _searchController.clear();
-                                              allTags;
                                             });
                                           },
+                                          icon: const Icon(
+                                            CupertinoIcons.search,
+                                            color: CupertinoColors.systemGrey,
+                                          ),
                                         ),
-                                      ],
-                                    ),
+                                      ),
+                                Row(
+                                  children: [
                                     SortTag(
                                       sortNotifier: sortNotifier,
                                       isSorted: isSorted,
@@ -222,12 +245,12 @@ class _TagsState extends State<Tags> with WidgetsBindingObserver {
                                           ? const Icon(
                                               CupertinoIcons.arrow_up,
                                               color: CupertinoColors.systemGrey,
-                                              size: 20,
+                                              size: 18,
                                             )
                                           : const Icon(
                                               CupertinoIcons.arrow_down,
                                               color: CupertinoColors.systemGrey,
-                                              size: 20,
+                                              size: 18,
                                             ),
                                     ),
                                   ],

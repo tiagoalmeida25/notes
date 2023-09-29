@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:notes/app_colors.dart';
 import 'package:notes/components/note_tag.dart';
+import 'package:notes/models/folder.dart';
 import 'package:notes/models/tag.dart';
 
 class NoteGrid extends StatelessWidget {
@@ -11,7 +12,8 @@ class NoteGrid extends StatelessWidget {
   final bool isPinned;
   final List<Tag> tags;
   final Function() onTap;
-  final String folder;
+  final Folder? folder;
+  final String pin;
   final Function()? onLongPress;
 
   const NoteGrid({
@@ -25,6 +27,7 @@ class NoteGrid extends StatelessWidget {
     required this.onTap,
     required this.folder,
     required this.onLongPress,
+    required this.pin,
   });
 
   @override
@@ -33,8 +36,47 @@ class NoteGrid extends StatelessWidget {
     String dateMinute =
         date.minute < 10 ? '0${date.minute}' : date.minute.toString();
 
+    String month = '';
+    switch (date.month) {
+      case 1:
+        month = 'Jan';
+        break;
+      case 2:
+        month = 'Feb';
+        break;
+      case 3:
+        month = 'Mar';
+        break;
+      case 4:
+        month = 'Apr';
+        break;
+      case 5:
+        month = 'May';
+        break;
+      case 6:
+        month = 'Jun';
+        break;
+      case 7:
+        month = 'Jul';
+        break;
+      case 8:
+        month = 'Aug';
+        break;
+      case 9:
+        month = 'Sep';
+        break;
+      case 10:
+        month = 'Oct';
+        break;
+      case 11:
+        month = 'Nov';
+        break;
+      case 12:
+        month = 'Dec';
+        break;
+    }
     String formattedDate =
-        '${date.day}/${date.month}/${date.year % 100} $dateHour:$dateMinute';
+        '${date.day} $month ${date.year % 100} $dateHour:$dateMinute';
     if (date.day == DateTime.now().day &&
         date.month == DateTime.now().month &&
         date.year == DateTime.now().year) {
@@ -95,45 +137,46 @@ class NoteGrid extends StatelessWidget {
                               ),
                             ],
                           ),
-                          if (text.isNotEmpty) ...[
-                            const SizedBox(height: 8),
-                            Text(
-                              text,
-                              style: const TextStyle(fontSize: 14),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ],
+                          if (pin == '')
+                            if (text.isNotEmpty) ...[
+                              const SizedBox(height: 8),
+                              Text(
+                                text,
+                                style: const TextStyle(fontSize: 14),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
                         ],
                       ),
                     ),
                   ],
                 ),
-                if (tags.isNotEmpty)
-                  Positioned(
-                    bottom: 34,
-                    left: 4,
-                    right: 8,
-                    child: SizedBox(
-                      height: 25,
-                      child: ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: tags.length,
-                        itemBuilder: (context, index) {
-                          final tag = tags[index];
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 4),
-                            child: NoteTag(
-                              label: tag.text,
-                              backgroundColor:
-                                  getColorFromString(tag.backgroundColor),
-                              
-                            )
-                          );
-                        },
+                if (pin == '')
+                  if (tags.isNotEmpty)
+                    Positioned(
+                      bottom: 34,
+                      left: 4,
+                      right: 8,
+                      child: SizedBox(
+                        height: 25,
+                        child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: tags.length,
+                          itemBuilder: (context, index) {
+                            final tag = tags[index];
+                            return Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 4),
+                                child: NoteTag(
+                                  label: tag.text,
+                                  backgroundColor:
+                                      getColorFromString(tag.backgroundColor),
+                                ));
+                          },
+                        ),
                       ),
                     ),
-                  ),
                 if (isPinned)
                   Positioned(
                     top: 8,
@@ -179,21 +222,33 @@ class NoteGrid extends StatelessWidget {
                     ],
                   ),
                 ),
-                Positioned(
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  child: ClipRRect(
-                    borderRadius: const BorderRadius.only(
-                      bottomLeft: Radius.circular(10),
-                      bottomRight: Radius.circular(10),
-                    ),
-                    child: Container(
-                      height: 6,
-                      color: getColorFromString(backgroundColor),
+                if (pin != '')
+                  Positioned(
+                    top: 40,
+                    left: MediaQuery.of(context).size.width * 0.1,
+                    child: const Icon(
+                      Icons.lock,
+                      color: Colors.grey,
+                      size: 80,
                     ),
                   ),
-                ),
+                if (pin == '')
+                  if (folder != null)
+                    Positioned(
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      child: ClipRRect(
+                        borderRadius: const BorderRadius.only(
+                          bottomLeft: Radius.circular(10),
+                          bottomRight: Radius.circular(10),
+                        ),
+                        child: Container(
+                          height: 6,
+                          color: getColorFromString(folder!.color),
+                        ),
+                      ),
+                    ),
               ],
             ),
           ),

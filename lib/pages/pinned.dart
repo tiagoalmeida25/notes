@@ -11,6 +11,7 @@ import 'package:notes/models/note_data.dart';
 import 'package:notes/models/tag.dart';
 import 'package:notes/models/tag_data.dart';
 import 'package:notes/pages/editing_note.dart';
+import 'package:pinput/pinput.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -98,7 +99,8 @@ class _PinnedState extends State<Pinned> with WidgetsBindingObserver {
   }
 
   void createNewNote() {
-    int id = Provider.of<NoteData>(context, listen: false).getPinnedNotes().length;
+    int id =
+        Provider.of<NoteData>(context, listen: false).getPinnedNotes().length;
     Note newNote = Note(
       id: id,
       text: '',
@@ -320,7 +322,8 @@ class _PinnedState extends State<Pinned> with WidgetsBindingObserver {
                                   ? Flexible(
                                       child: ListView.builder(
                                         shrinkWrap: true,
-                                        itemCount: value.getPinnedNotes().length,
+                                        itemCount:
+                                            value.getPinnedNotes().length,
                                         itemBuilder: (context, index) {
                                           List<Tag> noteTags = [];
 
@@ -360,8 +363,8 @@ class _PinnedState extends State<Pinned> with WidgetsBindingObserver {
                                                 SlidableAction(
                                                   onPressed: (context) {
                                                     deleteNote(
-                                                      value
-                                                          .getPinnedNotes()[index],
+                                                      value.getPinnedNotes()[
+                                                          index],
                                                     );
                                                   },
                                                   backgroundColor:
@@ -439,8 +442,9 @@ class _PinnedState extends State<Pinned> with WidgetsBindingObserver {
                                               children: [
                                                 SlidableAction(
                                                   onPressed: (context) {
-                                                    value.pinHandler(value
-                                                        .getPinnedNotes()[index]);
+                                                    value.pinHandler(
+                                                        value.getPinnedNotes()[
+                                                            index]);
                                                     sort(
                                                       sortNotifier.value,
                                                       isSorted,
@@ -448,7 +452,8 @@ class _PinnedState extends State<Pinned> with WidgetsBindingObserver {
                                                     value.getPinnedNotes();
                                                   },
                                                   icon: value
-                                                          .getPinnedNotes()[index]
+                                                          .getPinnedNotes()[
+                                                              index]
                                                           .isPinned
                                                       ? CupertinoIcons
                                                           .pin_slash_fill
@@ -460,7 +465,8 @@ class _PinnedState extends State<Pinned> with WidgetsBindingObserver {
                                                   backgroundColor:
                                                       Colors.transparent,
                                                   foregroundColor: value
-                                                          .getPinnedNotes()[index]
+                                                          .getPinnedNotes()[
+                                                              index]
                                                           .isPinned
                                                       ? Colors.grey
                                                       : Colors.black,
@@ -496,7 +502,8 @@ class _PinnedState extends State<Pinned> with WidgetsBindingObserver {
                                                   .getPinnedNotes()[index]
                                                   .title,
                                               text: jsonDecode(value
-                                                          .getPinnedNotes()[index]
+                                                          .getPinnedNotes()[
+                                                              index]
                                                           .text)[0]['insert'] !=
                                                       '\n'
                                                   ? jsonDecode(value
@@ -517,6 +524,9 @@ class _PinnedState extends State<Pinned> with WidgetsBindingObserver {
                                                   false),
                                               tags: noteTags,
                                               folder: folder,
+                                              pin: value
+                                                  .getPinnedNotes()[index]
+                                                  .pin,
                                             ),
                                           );
                                         },
@@ -532,7 +542,8 @@ class _PinnedState extends State<Pinned> with WidgetsBindingObserver {
                                               const SliverGridDelegateWithFixedCrossAxisCount(
                                             crossAxisCount: 2,
                                           ),
-                                          itemCount: value.getPinnedNotes().length,
+                                          itemCount:
+                                              value.getPinnedNotes().length,
                                           itemBuilder: (context, index) {
                                             List<Tag> noteTags = [];
 
@@ -551,12 +562,26 @@ class _PinnedState extends State<Pinned> with WidgetsBindingObserver {
                                                 }
                                               }
                                             }
+
+                                            Folder? folder;
+
+                                            for (int i = 0;
+                                                i < allFolders.length;
+                                                i++) {
+                                              if (value.allNotes[index]
+                                                      .folderId ==
+                                                  allFolders[i].id) {
+                                                folder = allFolders[i];
+                                              }
+                                            }
+
                                             return NoteGrid(
                                               title: value
                                                   .getPinnedNotes()[index]
                                                   .title,
                                               text: jsonDecode(value
-                                                          .getPinnedNotes()[index]
+                                                          .getPinnedNotes()[
+                                                              index]
                                                           .text)[0]['insert'] !=
                                                       '\n'
                                                   ? jsonDecode(value
@@ -573,7 +598,10 @@ class _PinnedState extends State<Pinned> with WidgetsBindingObserver {
                                                   .getPinnedNotes()[index]
                                                   .isPinned,
                                               tags: noteTags,
-                                              folder: 'folder',
+                                              folder: folder,
+                                              pin: value
+                                                  .getPinnedNotes()[index]
+                                                  .pin,
                                               onTap: () => goToNotePage(
                                                   value.getPinnedNotes()[index],
                                                   false),
@@ -616,6 +644,127 @@ class _PinnedState extends State<Pinned> with WidgetsBindingObserver {
                                                                 .isPinned
                                                             ? 'Unpin'
                                                             : 'Pin'),
+                                                      ),
+                                                      CupertinoActionSheetAction(
+                                                        onPressed: () {
+                                                          Navigator.pop(
+                                                              context);
+                                                          value
+                                                                      .getAllNotes()[
+                                                                          index]
+                                                                      .pin ==
+                                                                  ''
+                                                              ? showDialog(
+                                                                  context:
+                                                                      context,
+                                                                  builder:
+                                                                      (BuildContext
+                                                                          context) {
+                                                                    String
+                                                                        notePin =
+                                                                        '';
+                                                                    return AlertDialog(
+                                                                      title: const Text(
+                                                                          'Lock Note'),
+                                                                      content:
+                                                                          Column(
+                                                                        mainAxisSize:
+                                                                            MainAxisSize.min,
+                                                                        children: [
+                                                                          const Text(
+                                                                              'Enter a pin to lock this note:'),
+                                                                          const SizedBox(
+                                                                              height: 12),
+                                                                          Pinput(
+                                                                            obscureText:
+                                                                                true,
+                                                                            onCompleted:
+                                                                                (pin) {
+                                                                              notePin = pin;
+                                                                            },
+                                                                          ),
+                                                                        ],
+                                                                      ),
+                                                                      actions: [
+                                                                        TextButton(
+                                                                          onPressed:
+                                                                              () {
+                                                                            Navigator.of(context).pop();
+                                                                          },
+                                                                          child:
+                                                                              const Text('Cancel'),
+                                                                        ),
+                                                                        TextButton(
+                                                                          onPressed:
+                                                                              () {
+                                                                            Provider.of<NoteData>(context, listen: false).lockNote(value.getPinnedNotes()[index],
+                                                                                notePin);
+                                                                            Navigator.of(context).pop();
+                                                                          },
+                                                                          child:
+                                                                              const Text('Lock'),
+                                                                        ),
+                                                                      ],
+                                                                    );
+                                                                  },
+                                                                )
+                                                              : showDialog(
+                                                                  context:
+                                                                      context,
+                                                                  builder:
+                                                                      (BuildContext
+                                                                          context) {
+                                                                    String
+                                                                        notePin =
+                                                                        value
+                                                                            .getAllNotes()[index]
+                                                                            .pin;
+                                                                    return AlertDialog(
+                                                                      title: const Text(
+                                                                          'Unlocked Note'),
+                                                                      content:
+                                                                          Column(
+                                                                        mainAxisSize:
+                                                                            MainAxisSize.min,
+                                                                        children: [
+                                                                          const Text(
+                                                                              'Enter the pin to unlock this note:'),
+                                                                          const SizedBox(
+                                                                              height: 12),
+                                                                          Pinput(
+                                                                            obscureText:
+                                                                                true,
+                                                                            onCompleted:
+                                                                                (pin) {
+                                                                              if (pin == notePin) {
+                                                                                Provider.of<NoteData>(context, listen: false).lockNote(value.getPinnedNotes()[index], '');
+                                                                                Navigator.of(context).pop();
+                                                                              }
+                                                                            },
+                                                                          ),
+                                                                        ],
+                                                                      ),
+                                                                      actions: [
+                                                                        TextButton(
+                                                                          onPressed:
+                                                                              () {
+                                                                            Navigator.of(context).pop();
+                                                                          },
+                                                                          child:
+                                                                              const Text('Cancel'),
+                                                                        ),
+                                                                      ],
+                                                                    );
+                                                                  },
+                                                                );
+                                                        },
+                                                        child: Text(value
+                                                                    .getPinnedNotes()[
+                                                                        index]
+                                                                    .pin !=
+                                                                ''
+                                                            ? 'Unlock'
+                                                            : 'Lock'),
                                                       ),
                                                     ],
                                                     cancelButton:

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:notes/app_colors.dart';
 import 'package:notes/components/grid_note.dart';
 import 'package:notes/components/note_card.dart';
 import 'package:notes/components/sort_dropdown.dart';
@@ -156,7 +157,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     return Consumer<NoteData>(
       builder: (context, value, child) {
         return Scaffold(
-          backgroundColor: CupertinoColors.systemBackground,
+          backgroundColor: Colors.white,
           body: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -208,8 +209,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                                       const InputDecoration(
                                                     hintText: 'Search',
                                                     hintStyle: TextStyle(
-                                                      color: CupertinoColors
-                                                          .systemGrey,
+                                                      color: Colors.white,
                                                     ),
                                                     border: InputBorder.none,
                                                   ),
@@ -229,8 +229,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                                   },
                                                   icon: const Icon(
                                                     CupertinoIcons.xmark,
-                                                    color: CupertinoColors
-                                                        .systemGrey,
+                                                    color: Colors.grey,
                                                   ),
                                                 ),
                                               ),
@@ -247,7 +246,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                               icon: const Icon(
                                                 CupertinoIcons.search,
                                                 color:
-                                                    CupertinoColors.systemGrey,
+                                                    Colors.grey,
                                               ),
                                             ),
                                           ),
@@ -271,14 +270,12 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                             icon: isSorted
                                                 ? const Icon(
                                                     CupertinoIcons.arrow_up,
-                                                    color: CupertinoColors
-                                                        .systemGrey,
+                                                    color: Colors.grey,
                                                     size: 18,
                                                   )
                                                 : const Icon(
                                                     CupertinoIcons.arrow_down,
-                                                    color: CupertinoColors
-                                                        .systemGrey,
+                                                    color: Colors.grey,
                                                     size: 18,
                                                   ),
                                           ),
@@ -295,8 +292,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                                   icon: const Icon(
                                                     CupertinoIcons
                                                         .rectangle_grid_2x2_fill,
-                                                    color: CupertinoColors
-                                                        .systemGrey,
+                                                    color: Colors.grey,
                                                   ),
                                                 )
                                               : IconButton(
@@ -307,8 +303,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                                   },
                                                   icon: const Icon(
                                                     CupertinoIcons.list_bullet,
-                                                    color: CupertinoColors
-                                                        .systemGrey,
+                                                    color: Colors.grey,
                                                   ),
                                                 ),
                                         ),
@@ -409,6 +404,10 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                                               child: Text(
                                                                 allFolders[i]
                                                                     .title,
+                                                                style: TextStyle(
+                                                                    color: getColorFromString(
+                                                                        allFolders[i]
+                                                                            .color)),
                                                               ),
                                                             ),
                                                         ],
@@ -468,87 +467,105 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                                 ),
                                                 SlidableAction(
                                                   onPressed: (context) {
-
-                                                    value.getAllNotes()[
-                                                                            index].pin == '' ?
-                                                    showDialog(
-                                                      context: context,
-                                                      builder: (BuildContext
-                                                          context) {
-                                                        String notePin = '';
-                                                        return AlertDialog(
-                                                          title: const Text(
-                                                              'Lock Note'),
-                                                          content: Column(
-                                                            mainAxisSize:
-                                                                MainAxisSize
-                                                                    .min,
-                                                            children: [
-                                                              const Text(
-                                                                  'Enter a pin to lock this note:'),
-                                                              Pinput(
-                                                                onCompleted:
-                                                                    (pin) {
-                                                                  notePin = pin;
-                                                                },
-                                                              ),
-                                                            ],
-                                                          ),
-                                                          actions: [
-                                                            TextButton(
-                                                              onPressed: () {
-                                                                Navigator.of(
-                                                                        context)
-                                                                    .pop();
-                                                              },
-                                                              child: const Text(
-                                                                  'Cancel'),
-                                                            ),
-                                                            TextButton(
-                                                              onPressed: () {
-                                                                Provider.of<NoteData>(
-                                                                        context,
-                                                                        listen:
-                                                                            false)
-                                                                    .lockNote(
-                                                                        value.getAllNotes()[
-                                                                            index],
-                                                                        notePin);
-                                                                Navigator.of(
-                                                                        context)
-                                                                    .pop();
-                                                              },
-                                                              child: const Text(
-                                                                  'Lock'),
-                                                            ),
-                                                          ],
-                                                        );
-                                                      },
-                                                    ) : showDialog(
+                                                    value
+                                                                .getAllNotes()[
+                                                                    index]
+                                                                .pin ==
+                                                            ''
+                                                        ? showDialog(
                                                             context: context,
                                                             builder:
                                                                 (BuildContext
                                                                     context) {
-                                                              String notePin = value.getAllNotes()[index].pin;
+                                                              String notePin =
+                                                                  '';
                                                               return AlertDialog(
                                                                 title: const Text(
-                                                                    'Open Locked Note'),
+                                                                    'Lock Note'),
                                                                 content: Column(
                                                                   mainAxisSize:
                                                                       MainAxisSize
                                                                           .min,
                                                                   children: [
                                                                     const Text(
-                                                                        'Enter the pin to lock this note:'),
+                                                                        'Enter a pin to lock this note:'),
+                                                                    const SizedBox(
+                                                                        height:
+                                                                            12),
                                                                     Pinput(
+                                                                      obscureText:
+                                                                          true,
+                                                                      onCompleted:
+                                                                          (pin) {
+                                                                        notePin =
+                                                                            pin;
+                                                                      },
+                                                                    ),
+                                                                  ],
+                                                                ),
+                                                                actions: [
+                                                                  TextButton(
+                                                                    onPressed:
+                                                                        () {
+                                                                      Navigator.of(
+                                                                              context)
+                                                                          .pop();
+                                                                    },
+                                                                    child: const Text(
+                                                                        'Cancel'),
+                                                                  ),
+                                                                  TextButton(
+                                                                    onPressed:
+                                                                        () {
+                                                                      Provider.of<NoteData>(context, listen: false).lockNote(
+                                                                          value.getAllNotes()[
+                                                                              index],
+                                                                          notePin);
+                                                                      Navigator.of(
+                                                                              context)
+                                                                          .pop();
+                                                                    },
+                                                                    child: const Text(
+                                                                        'Lock'),
+                                                                  ),
+                                                                ],
+                                                              );
+                                                            },
+                                                          )
+                                                        : showDialog(
+                                                            context: context,
+                                                            builder:
+                                                                (BuildContext
+                                                                    context) {
+                                                              String notePin = value
+                                                                  .getAllNotes()[
+                                                                      index]
+                                                                  .pin;
+                                                              return AlertDialog(
+                                                                title: const Text(
+                                                                    'Unlocked Note'),
+                                                                content: Column(
+                                                                  mainAxisSize:
+                                                                      MainAxisSize
+                                                                          .min,
+                                                                  children: [
+                                                                    const Text(
+                                                                        'Enter the pin to unlock this note:'),
+                                                                    const SizedBox(
+                                                                        height:
+                                                                            12),
+                                                                    Pinput(
+                                                                      obscureText:
+                                                                          true,
                                                                       onCompleted:
                                                                           (pin) {
                                                                         if (pin ==
                                                                             notePin) {
-                                                                          Navigator.of(context).pop();
-                                                                          goToNotePage(
+                                                                          Provider.of<NoteData>(context, listen: false).lockNote(
                                                                               value.getAllNotes()[index],
-                                                                              false);
+                                                                              '');
+                                                                          Navigator.of(context)
+                                                                              .pop();
                                                                         }
                                                                       },
                                                                     ),
@@ -615,11 +632,73 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                               isPinned: value
                                                   .getAllNotes()[index]
                                                   .isPinned,
-                                              onTap: () => goToNotePage(
-                                                  value.getAllNotes()[index],
-                                                  false),
+                                              onTap: () {
+                                                if (value
+                                                        .getAllNotes()[index]
+                                                        .pin ==
+                                                    '') {
+                                                  goToNotePage(
+                                                      value
+                                                          .getAllNotes()[index],
+                                                      false);
+                                                } else {
+                                                  showDialog(
+                                                    context: context,
+                                                    builder:
+                                                        (BuildContext context) {
+                                                      String notePin = value
+                                                          .getAllNotes()[index]
+                                                          .pin;
+                                                      return AlertDialog(
+                                                        title: const Text(
+                                                            'Open Locked Note'),
+                                                        content: Column(
+                                                          mainAxisSize:
+                                                              MainAxisSize.min,
+                                                          children: [
+                                                            const Text(
+                                                                'Enter the pin to lock this note:'),
+                                                            const SizedBox(
+                                                                height: 12),
+                                                            Pinput(
+                                                              obscureText: true,
+                                                              onCompleted:
+                                                                  (pin) {
+                                                                if (pin ==
+                                                                    notePin) {
+                                                                  Navigator.of(
+                                                                          context)
+                                                                      .pop();
+                                                                  goToNotePage(
+                                                                      value.getAllNotes()[
+                                                                          index],
+                                                                      false);
+                                                                }
+                                                              },
+                                                            ),
+                                                          ],
+                                                        ),
+                                                        actions: [
+                                                          TextButton(
+                                                            onPressed: () {
+                                                              Navigator.of(
+                                                                      context)
+                                                                  .pop();
+                                                            },
+                                                            child: const Text(
+                                                                'Cancel'),
+                                                          ),
+                                                        ],
+                                                      );
+                                                    },
+                                                  );
+                                                }
+                                              },
                                               tags: noteTags,
                                               folder: folder,
+                                              pin: value
+                                                  .getAllNotes()[index]
+                                                  .pin,
                                             ),
                                           );
                                         },
@@ -654,6 +733,18 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                                 }
                                               }
                                             }
+
+                                            Folder? folder;
+
+                                            for (int i = 0;
+                                                i < allFolders.length;
+                                                i++) {
+                                              if (value.allNotes[index]
+                                                      .folderId ==
+                                                  allFolders[i].id) {
+                                                folder = allFolders[i];
+                                              }
+                                            }
                                             return NoteGrid(
                                               title: value
                                                   .getAllNotes()[index]
@@ -676,7 +767,10 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                                   .getAllNotes()[index]
                                                   .isPinned,
                                               tags: noteTags,
-                                              folder: 'folder',
+                                              folder: folder,
+                                              pin: value
+                                                  .getAllNotes()[index]
+                                                  .pin,
                                               onTap: () => goToNotePage(
                                                   value.getAllNotes()[index],
                                                   false),
@@ -719,6 +813,127 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                                                 .isPinned
                                                             ? 'Unpin'
                                                             : 'Pin'),
+                                                      ),
+                                                      CupertinoActionSheetAction(
+                                                        onPressed: () {
+                                                          Navigator.pop(
+                                                              context);
+                                                          value
+                                                                      .getAllNotes()[
+                                                                          index]
+                                                                      .pin ==
+                                                                  ''
+                                                              ? showDialog(
+                                                                  context:
+                                                                      context,
+                                                                  builder:
+                                                                      (BuildContext
+                                                                          context) {
+                                                                    String
+                                                                        notePin =
+                                                                        '';
+                                                                    return AlertDialog(
+                                                                      title: const Text(
+                                                                          'Lock Note'),
+                                                                      content:
+                                                                          Column(
+                                                                        mainAxisSize:
+                                                                            MainAxisSize.min,
+                                                                        children: [
+                                                                          const Text(
+                                                                              'Enter a pin to lock this note:'),
+                                                                          const SizedBox(
+                                                                              height: 12),
+                                                                          Pinput(
+                                                                            obscureText:
+                                                                                true,
+                                                                            onCompleted:
+                                                                                (pin) {
+                                                                              notePin = pin;
+                                                                            },
+                                                                          ),
+                                                                        ],
+                                                                      ),
+                                                                      actions: [
+                                                                        TextButton(
+                                                                          onPressed:
+                                                                              () {
+                                                                            Navigator.of(context).pop();
+                                                                          },
+                                                                          child:
+                                                                              const Text('Cancel'),
+                                                                        ),
+                                                                        TextButton(
+                                                                          onPressed:
+                                                                              () {
+                                                                            Provider.of<NoteData>(context, listen: false).lockNote(value.getAllNotes()[index],
+                                                                                notePin);
+                                                                            Navigator.of(context).pop();
+                                                                          },
+                                                                          child:
+                                                                              const Text('Lock'),
+                                                                        ),
+                                                                      ],
+                                                                    );
+                                                                  },
+                                                                )
+                                                              : showDialog(
+                                                                  context:
+                                                                      context,
+                                                                  builder:
+                                                                      (BuildContext
+                                                                          context) {
+                                                                    String
+                                                                        notePin =
+                                                                        value
+                                                                            .getAllNotes()[index]
+                                                                            .pin;
+                                                                    return AlertDialog(
+                                                                      title: const Text(
+                                                                          'Unlocked Note'),
+                                                                      content:
+                                                                          Column(
+                                                                        mainAxisSize:
+                                                                            MainAxisSize.min,
+                                                                        children: [
+                                                                          const Text(
+                                                                              'Enter the pin to unlock this note:'),
+                                                                          const SizedBox(
+                                                                              height: 12),
+                                                                          Pinput(
+                                                                            obscureText:
+                                                                                true,
+                                                                            onCompleted:
+                                                                                (pin) {
+                                                                              if (pin == notePin) {
+                                                                                Provider.of<NoteData>(context, listen: false).lockNote(value.getAllNotes()[index], '');
+                                                                                Navigator.of(context).pop();
+                                                                              }
+                                                                            },
+                                                                          ),
+                                                                        ],
+                                                                      ),
+                                                                      actions: [
+                                                                        TextButton(
+                                                                          onPressed:
+                                                                              () {
+                                                                            Navigator.of(context).pop();
+                                                                          },
+                                                                          child:
+                                                                              const Text('Cancel'),
+                                                                        ),
+                                                                      ],
+                                                                    );
+                                                                  },
+                                                                );
+                                                        },
+                                                        child: Text(value
+                                                                    .getAllNotes()[
+                                                                        index]
+                                                                    .pin !=
+                                                                ''
+                                                            ? 'Unlock'
+                                                            : 'Lock'),
                                                       ),
                                                     ],
                                                     cancelButton:

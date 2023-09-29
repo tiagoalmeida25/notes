@@ -415,11 +415,12 @@ class _EditingNoteState extends State<EditingNote> {
                   SizedBox(height: height * 0.01),
                   Container(
                     padding: const EdgeInsets.only(left: 25, right: 25),
-                    height: height * 0.63,
+                    height: height * 0.5,
                     child: QuillEditor.basic(
                       controller: _controller,
                       readOnly: false,
                       autoFocus: false,
+                      placeholder: 'Start writing...',
                     ),
                   ),
                 ],

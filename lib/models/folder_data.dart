@@ -72,6 +72,22 @@ class FolderData extends ChangeNotifier {
     saveFolders(_allFolders);
   }
 
+  void searchFolders(String query){
+    List<Folder> filteredFolders = [];
+    if(query.isEmpty){
+      filteredFolders = getAllFolders();
+    } else {
+      filteredFolders = getAllFolders().where((folder){
+        return folder.title.toLowerCase().contains(query.toLowerCase());
+      }).toList();
+    }
+
+    _allFolders = filteredFolders;
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
+    notifyListeners();
+  });
+  }
+
   void moveNoteToFolder(Note note, Folder folder){
     for(int i = 0; i < allFolders.length; i++){
       if(allFolders[i].id == folder.id){

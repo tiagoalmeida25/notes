@@ -6,22 +6,24 @@ import 'package:notes/app_colors.dart';
 import 'package:notes/components/note_card.dart';
 import 'package:notes/models/folder.dart';
 import 'package:notes/models/folder_data.dart';
+import 'package:notes/models/note.dart';
+import 'package:notes/models/note_data.dart';
 import 'package:notes/models/tag.dart';
 import 'package:notes/models/tag_data.dart';
 import 'package:notes/pages/editing_note.dart';
 import 'package:provider/provider.dart';
 
-class EditingTag extends StatefulWidget {
-  final Tag? tag;
+class InsideFolder extends StatefulWidget {
+  final Folder? folder;
 
-  const EditingTag({Key? key, this.tag}) : super(key: key);
+  const InsideFolder({Key? key, this.folder}) : super(key: key);
 
   @override
   // ignore: library_private_types_in_public_api
-  _EditingTagState createState() => _EditingTagState();
+  _InsideFolderState createState() => _InsideFolderState();
 }
 
-class _EditingTagState extends State<EditingTag> {
+class _InsideFolderState extends State<InsideFolder> {
   late TextEditingController _textEditingController;
   late Color _color;
 
@@ -29,9 +31,9 @@ class _EditingTagState extends State<EditingTag> {
   void initState() {
     super.initState();
     _textEditingController =
-        TextEditingController(text: widget.tag?.text ?? '');
-    _color = widget.tag != null
-        ? getColorFromString(widget.tag!.backgroundColor)
+        TextEditingController(text: widget.folder?.title ?? '');
+    _color = widget.folder != null
+        ? getColorFromString(widget.folder!.color)
         : AppColors.tagColors.first;
   }
 
@@ -48,20 +50,21 @@ class _EditingTagState extends State<EditingTag> {
   }
 
   void _handleSave() {
-    final tagData = Provider.of<TagData>(context, listen: false);
-    final tag = widget.tag;
-    if (tag != null) {
-      tagData.updateTag(tag, _textEditingController.text, DateTime.now(),
-          setStringFromColor(_color), false);
+    final folderData = Provider.of<FolderData>(context, listen: false);
+    final folder = widget.folder;
+    if (folder != null) {
+      folderData.updateFolder(folder, _textEditingController.text,
+          DateTime.now(), setStringFromColor(_color), false, folder.notes);
     } else {
-      tagData.addNewTag(
-        Tag(
+      folderData.addNewFolder(
+        Folder(
           id: DateTime.now().millisecondsSinceEpoch,
-          text: _textEditingController.text,
+          title: _textEditingController.text,
           createdAt: DateTime.now(),
           updatedAt: DateTime.now(),
-          backgroundColor: setStringFromColor(_color),
-          order: tagData.getAllTags().length,
+          color: setStringFromColor(_color),
+          isPinned: false,
+          notes: [],
         ),
       );
     }
@@ -70,11 +73,20 @@ class _EditingTagState extends State<EditingTag> {
 
   @override
   Widget build(BuildContext context) {
-    final tagData = Provider.of<TagData>(context);
-    final notes = tagData.getNotesWithTag(widget.tag!);
+    final folderData = Provider.of<FolderData>(context);
 
-    List<Tag> allTags = tagData.getAllTags();
-    List<Folder> allFolders = Provider.of<FolderData>(context, listen: false).getAllFolders();
+    List<Note> allNotes =
+        Provider.of<NoteData>(context, listen: false).getAllNotes();
+    List<Tag> allTags = Provider.of<TagData>(context, listen: false).getAllTags();
+
+    List<Note> notes = [];
+
+    for (int i = 0; i < allNotes.length; i++) {
+      if (allNotes[i].folderId == widget.folder!.id) {
+        notes.add(allNotes[i]);
+      }
+    }
+    
 
     return Scaffold(
       appBar: CupertinoNavigationBar(
@@ -85,11 +97,11 @@ class _EditingTagState extends State<EditingTag> {
             color: Colors.black,
           ),
         ),
-        backgroundColor: getColorFromString(widget.tag!.backgroundColor),
+        backgroundColor: getColorFromString(widget.folder!.color),
         middle: TextField(
           controller: _textEditingController,
           decoration: const InputDecoration(
-            hintText: 'Enter tag name',
+            hintText: 'Enter folder name',
             border: InputBorder.none,
           ),
         ),
@@ -106,7 +118,8 @@ class _EditingTagState extends State<EditingTag> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Tag Color', style: Theme.of(context).textTheme.bodySmall),
+                Text('Folder Color',
+                    style: Theme.of(context).textTheme.bodySmall),
                 const SizedBox(height: 8),
                 ColorPicker(
                   initialColor: _color,
@@ -120,24 +133,17 @@ class _EditingTagState extends State<EditingTag> {
             child: ListView.builder(
               itemCount: notes.length,
               itemBuilder: (context, index) {
-                final note = notes[index];
                 List<Tag> noteTags = [];
 
-                for (int i = 0; i < note.tags.length; i++) {
-                  for (int j = 0; j < allTags.length; j++) {
-                    if (note.tags[i] == allTags[j].id) {
+                for(int i = 0; i < notes[index].tags.length; i++) {
+                  for(int j = 0; j < allTags.length; j++) {
+                    if(notes[index].tags[i] == allTags[j].id) {
                       noteTags.add(allTags[j]);
                     }
                   }
                 }
 
-                Folder? folder;
-
-                for (int i = 0; i < allFolders.length; i++) {
-                  if (note.folderId == allFolders[i].id) {
-                    folder = allFolders[i];
-                  }
-                }
+                Note note = notes[index];
 
                 return NoteCard(
                   title: note.title,
@@ -147,8 +153,8 @@ class _EditingTagState extends State<EditingTag> {
                   date: note.updatedAt,
                   backgroundColor: note.backgroundColor,
                   isPinned: note.isPinned,
+                  folder: widget.folder,
                   tags: noteTags,
-                  folder: folder,
                   onTap: () {
                     Navigator.push(
                         context,
