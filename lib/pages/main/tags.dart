@@ -24,9 +24,9 @@ class _TagsState extends State<Tags> with WidgetsBindingObserver {
   ValueNotifier<String> sortNotifier = ValueNotifier('Title');
 
   bool isSorted = false;
-  bool isSearching = false;
+  // bool isSearching = false;
 
-  final _searchController = TextEditingController();
+  // final _searchController = TextEditingController();
 
   @override
   void initState() {
@@ -172,61 +172,61 @@ class _TagsState extends State<Tags> with WidgetsBindingObserver {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                isSearching
-                                    ? Row(
-                                        children: [
-                                          SizedBox(
-                                            width: MediaQuery.of(context)
-                                                    .size
-                                                    .width *
-                                                0.3,
-                                            child: TextField(
-                                              controller: _searchController,
-                                              // placeholder: 'Search',
-                                              decoration: const InputDecoration(
-                                                hintText: 'Search',
-                                                hintStyle: TextStyle(
-                                                  color: CupertinoColors
-                                                      .systemGrey,
-                                                ),
-                                                border: InputBorder.none,
-                                              ),
-                                              onChanged: (query) {
-                                                value.searchTags(query);
-                                              },
-                                            ),
-                                          ),
-                                          SizedBox(
-                                            width: 20,
-                                            child: IconButton(
-                                              onPressed: () {
-                                                setState(() {
-                                                  isSearching = !isSearching;
-                                                });
-                                              },
-                                              icon: const Icon(
-                                                CupertinoIcons.xmark,
-                                                color:
-                                                    CupertinoColors.systemGrey,
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      )
-                                    : SizedBox(
-                                        width: 20,
-                                        child: IconButton(
-                                          onPressed: () {
-                                            setState(() {
-                                              isSearching = !isSearching;
-                                            });
-                                          },
-                                          icon: const Icon(
-                                            CupertinoIcons.search,
-                                            color: CupertinoColors.systemGrey,
-                                          ),
-                                        ),
-                                      ),
+                                // isSearching
+                                //     ? Row(
+                                //         children: [
+                                //           SizedBox(
+                                //             width: MediaQuery.of(context)
+                                //                     .size
+                                //                     .width *
+                                //                 0.3,
+                                //             child: TextField(
+                                //               controller: _searchController,
+                                //               // placeholder: 'Search',
+                                //               decoration: const InputDecoration(
+                                //                 hintText: 'Search',
+                                //                 hintStyle: TextStyle(
+                                //                   color: CupertinoColors
+                                //                       .systemGrey,
+                                //                 ),
+                                //                 border: InputBorder.none,
+                                //               ),
+                                //               onChanged: (query) {
+                                //                 value.searchTags(query);
+                                //               },
+                                //             ),
+                                //           ),
+                                //           SizedBox(
+                                //             width: 20,
+                                //             child: IconButton(
+                                //               onPressed: () {
+                                //                 setState(() {
+                                //                   isSearching = !isSearching;
+                                //                 });
+                                //               },
+                                //               icon: const Icon(
+                                //                 CupertinoIcons.xmark,
+                                //                 color:
+                                //                     CupertinoColors.systemGrey,
+                                //               ),
+                                //             ),
+                                //           ),
+                                //         ],
+                                //       )
+                                //     : SizedBox(
+                                //         width: 20,
+                                //         child: IconButton(
+                                //           onPressed: () {
+                                //             setState(() {
+                                //               isSearching = !isSearching;
+                                //             });
+                                //           },
+                                //           icon: const Icon(
+                                //             CupertinoIcons.search,
+                                //             color: CupertinoColors.systemGrey,
+                                //           ),
+                                //         ),
+                                //       ),
                                 Row(
                                   children: [
                                     SortTag(

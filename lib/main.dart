@@ -10,10 +10,10 @@ import 'package:notes/models/tag_data.dart';
 import 'package:notes/pages/create_folder.dart';
 import 'package:notes/pages/create_tag.dart';
 import 'package:notes/pages/editing_note.dart';
-import 'package:notes/pages/folders.dart';
-import 'package:notes/pages/home_page.dart';
-import 'package:notes/pages/pinned.dart';
-import 'package:notes/pages/tags.dart';
+import 'package:notes/pages/main/folders.dart';
+import 'package:notes/pages/main/home_page.dart';
+import 'package:notes/pages/main/pinned.dart';
+import 'package:notes/pages/main/tags.dart';
 import 'package:provider/provider.dart';
 
 void main() async {

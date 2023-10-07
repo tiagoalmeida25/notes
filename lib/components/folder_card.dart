@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:notes/app_colors.dart';
-import 'package:notes/components/note_tag.dart';
 import 'package:notes/models/note.dart';
 
 class FolderCard extends StatelessWidget {

@@ -11,14 +11,14 @@ class FolderData extends ChangeNotifier {
 
   void initializeFolders() {
     _allFolders = db.loadFolders();
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       notifyListeners();
     });
   }
 
   void setAllFolders(List<Folder> folders) {
     _allFolders = folders;
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       notifyListeners();
     });
   }
@@ -27,7 +27,7 @@ class FolderData extends ChangeNotifier {
     List<Folder> allFolders = getAllFolders();
     allFolders.add(folder);
     saveFolders(allFolders);
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       notifyListeners();
     });
   }
@@ -36,7 +36,7 @@ class FolderData extends ChangeNotifier {
     _allFolders.remove(folder);
     saveFolders(_allFolders);
 
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       notifyListeners();
     });
   }
@@ -48,7 +48,7 @@ class FolderData extends ChangeNotifier {
       }
     }
     saveFolders(_allFolders);
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       notifyListeners();
     });
   }
@@ -65,7 +65,7 @@ class FolderData extends ChangeNotifier {
       }
     }
     saveFolders(_allFolders);
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       notifyListeners();
     });
   }
@@ -95,7 +95,7 @@ class FolderData extends ChangeNotifier {
     }
 
     _allFolders = filteredFolders;
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       notifyListeners();
     });
   }
@@ -108,7 +108,7 @@ class FolderData extends ChangeNotifier {
     }
 
     saveFolders(allFolders);
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       notifyListeners();
     });
   }
@@ -163,7 +163,7 @@ class FolderData extends ChangeNotifier {
 
     _allFolders = sortedFolders;
     saveFolders(_allFolders);
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       notifyListeners();
     });
   }

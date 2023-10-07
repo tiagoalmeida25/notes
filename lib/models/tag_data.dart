@@ -17,7 +17,7 @@ class TagData extends ChangeNotifier {
 
   void setAllTags(List<Tag> tags) {
     _allTags = tags;
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
     notifyListeners();
   });
   }
@@ -41,7 +41,7 @@ class TagData extends ChangeNotifier {
     allTags.add(tag);
 
     saveTags(allTags);
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
     notifyListeners();
   });
   }
@@ -49,7 +49,7 @@ class TagData extends ChangeNotifier {
   void deleteTag(Tag tag) {
     _allTags.remove(tag);
     saveTags(_allTags);
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
     notifyListeners();
   });
   }
@@ -64,7 +64,7 @@ class TagData extends ChangeNotifier {
       }
     }
     saveTags(_allTags);
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
     notifyListeners();
   });
   }
@@ -129,7 +129,7 @@ class TagData extends ChangeNotifier {
 
     _allTags = sorted;
     saveTags(_allTags);
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
     notifyListeners();
   });
   }
@@ -153,7 +153,7 @@ class TagData extends ChangeNotifier {
 
     _allTags = sortedTags;
     saveTags(_allTags);
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
     notifyListeners();
   });
   }

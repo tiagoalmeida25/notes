@@ -24,9 +24,9 @@ class _FoldersState extends State<Folders> with WidgetsBindingObserver {
 
   ValueNotifier<String> sortNotifier = ValueNotifier("");
 
-  bool isSearching = false;
+  // bool isSearching = false;
 
-  final TextEditingController _searchController = TextEditingController();
+  // final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
@@ -151,62 +151,62 @@ class _FoldersState extends State<Folders> with WidgetsBindingObserver {
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
-                                  isSearching
-                                      ? Row(
-                                          children: [
-                                            SizedBox(
-                                              width: MediaQuery.of(context)
-                                                      .size
-                                                      .width *
-                                                  0.3,
-                                              child: TextField(
-                                                controller: _searchController,
-                                                // placeholder: 'Search',
-                                                decoration:
-                                                    const InputDecoration(
-                                                  hintText: 'Search',
-                                                  hintStyle: TextStyle(
-                                                    color: CupertinoColors
-                                                        .systemGrey,
-                                                  ),
-                                                  border: InputBorder.none,
-                                                ),
-                                                onChanged: (query) {
-                                                  value.searchFolders(query);
-                                                },
-                                              ),
-                                            ),
-                                            SizedBox(
-                                              width: 20,
-                                              child: IconButton(
-                                                onPressed: () {
-                                                  setState(() {
-                                                    isSearching = !isSearching;
-                                                  });
-                                                },
-                                                icon: const Icon(
-                                                  CupertinoIcons.xmark,
-                                                  color: CupertinoColors
-                                                      .systemGrey,
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        )
-                                      : SizedBox(
-                                          width: 20,
-                                          child: IconButton(
-                                            onPressed: () {
-                                              setState(() {
-                                                isSearching = !isSearching;
-                                              });
-                                            },
-                                            icon: const Icon(
-                                              CupertinoIcons.search,
-                                              color: CupertinoColors.systemGrey,
-                                            ),
-                                          ),
-                                        ),
+                                  // isSearching
+                                  //     ? Row(
+                                  //         children: [
+                                  //           SizedBox(
+                                  //             width: MediaQuery.of(context)
+                                  //                     .size
+                                  //                     .width *
+                                  //                 0.3,
+                                  //             child: TextField(
+                                  //               controller: _searchController,
+                                  //               // placeholder: 'Search',
+                                  //               decoration:
+                                  //                   const InputDecoration(
+                                  //                 hintText: 'Search',
+                                  //                 hintStyle: TextStyle(
+                                  //                   color: CupertinoColors
+                                  //                       .systemGrey,
+                                  //                 ),
+                                  //                 border: InputBorder.none,
+                                  //               ),
+                                  //               onChanged: (query) {
+                                  //                 value.searchFolders(query);
+                                  //               },
+                                  //             ),
+                                  //           ),
+                                  //           SizedBox(
+                                  //             width: 20,
+                                  //             child: IconButton(
+                                  //               onPressed: () {
+                                  //                 setState(() {
+                                  //                   isSearching = !isSearching;
+                                  //                 });
+                                  //               },
+                                  //               icon: const Icon(
+                                  //                 CupertinoIcons.xmark,
+                                  //                 color: CupertinoColors
+                                  //                     .systemGrey,
+                                  //               ),
+                                  //             ),
+                                  //           ),
+                                  //         ],
+                                  //       )
+                                  //     : SizedBox(
+                                  //         width: 20,
+                                  //         child: IconButton(
+                                  //           onPressed: () {
+                                  //             setState(() {
+                                  //               isSearching = !isSearching;
+                                  //             });
+                                  //           },
+                                  //           icon: const Icon(
+                                  //             CupertinoIcons.search,
+                                  //             color: CupertinoColors.systemGrey,
+                                  //           ),
+                                  //         ),
+                                  //       ),
                                   Row(
                                     children: [
                                       SortDropdown(
@@ -322,15 +322,15 @@ class _FoldersState extends State<Folders> with WidgetsBindingObserver {
                                             backgroundColor: Colors.transparent,
                                             foregroundColor: Colors.black,
                                           ),
-                                          SlidableAction(
-                                            onPressed: (context) {},
-                                            icon: CupertinoIcons.bell_fill,
-                                            borderRadius: BorderRadius.circular(
-                                              16,
-                                            ),
-                                            backgroundColor: Colors.transparent,
-                                            foregroundColor: Colors.black,
-                                          ),
+                                          // SlidableAction(
+                                          //   onPressed: (context) {},
+                                          //   icon: CupertinoIcons.bell_fill,
+                                          //   borderRadius: BorderRadius.circular(
+                                          //     16,
+                                          //   ),
+                                          //   backgroundColor: Colors.transparent,
+                                          //   foregroundColor: Colors.black,
+                                          // ),
                                         ],
                                       ),
                                       child: FolderCard(
