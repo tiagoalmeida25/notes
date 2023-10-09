@@ -170,7 +170,7 @@ class _TagsState extends State<Tags> with WidgetsBindingObserver {
                       : Column(
                           children: [
                             Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              mainAxisAlignment: MainAxisAlignment.end,
                               children: [
                                 // isSearching
                                 //     ? Row(

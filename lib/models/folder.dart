@@ -6,6 +6,8 @@ class Folder {
   String color;
   List<int> notes;
   bool isPinned;
+  int? subfolderId;
+  String pin;
 
   Folder({
     required this.id,
@@ -15,5 +17,7 @@ class Folder {
     required this.color,
     required this.notes,
     required this.isPinned,
+    this.subfolderId,
+    required this.pin,
   });
 }

@@ -65,6 +65,7 @@ class _InsideFolderState extends State<InsideFolder> {
           color: setStringFromColor(_color),
           isPinned: false,
           notes: [],
+          pin: '',
         ),
       );
     }

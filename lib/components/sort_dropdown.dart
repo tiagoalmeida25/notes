@@ -14,13 +14,12 @@ class SortDropdown extends StatefulWidget {
 
 class _SortDropdownState extends State<SortDropdown> {
   String _selectedSort = '';
-  bool isSorted = false;
   void Function(String, bool) get sort => widget.sort;
+  bool get isSorted => widget.isSorted;
   
   @override
   void initState() {
     super.initState();
-    isSorted = widget.isSorted;
     _selectedSort = widget.sortNotifier.value;
   }
 

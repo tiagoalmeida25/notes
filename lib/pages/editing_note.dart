@@ -24,11 +24,10 @@ class EditingNote extends StatefulWidget {
 }
 
 class _EditingNoteState extends State<EditingNote> {
+  Color backgroundColor = Colors.white;
   QuillController _controller = QuillController.basic();
 
   final TextEditingController _titleController = TextEditingController();
-
-  Color backgroundColor = Colors.white;
 
   late List<Tag> _selectedTags;
 
@@ -111,7 +110,6 @@ class _EditingNoteState extends State<EditingNote> {
 
   @override
   Widget build(BuildContext context) {
-    double height = MediaQuery.of(context).size.height;
     var allTags = Provider.of<TagData>(context).allTags;
 
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
@@ -199,6 +197,7 @@ class _EditingNoteState extends State<EditingNote> {
                                                                       ? Colors.pink[200]
                                                                       : Colors.white,
           middle: TextField(
+            autofocus: false,
             controller: _titleController,
             decoration: InputDecoration(
               hintText: widget.isNewNote
@@ -284,141 +283,149 @@ class _EditingNoteState extends State<EditingNote> {
             ),
           ),
         ),
-        body: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        body: Stack(
           children: [
-            QuillToolbar.basic(
-              sectionDividerSpace: 0,
-              controller: _controller,
-              multiRowsDisplay: false,
-              showDividers: true,
-              showFontFamily: false,
-              showFontSize: false,
-              showBoldButton: true,
-              showItalicButton: true,
-              showSmallButton: false,
-              showUnderLineButton: true,
-              showStrikeThrough: false,
-              showInlineCode: true,
-              showColorButton: true,
-              showBackgroundColorButton: true,
-              showClearFormat: false,
-              showAlignmentButtons: false,
-              showLeftAlignment: true,
-              showCenterAlignment: true,
-              showRightAlignment: true,
-              showJustifyAlignment: true,
-              showHeaderStyle: true,
-              showListNumbers: true,
-              showListBullets: true,
-              showListCheck: true,
-              showCodeBlock: false,
-              showQuote: true,
-              showIndent: true,
-              showLink: true,
-              showUndo: true,
-              showRedo: true,
-              showDirection: false,
-              showSearchButton: true,
-              showSubscript: false,
-              showSuperscript: false,
-              toolbarIconSize: 18,
-              fontSizeValues: const {
-                '5': '5',
-                '6': '6',
-                '7': '7',
-                '8': '8',
-                '9': '9',
-                '10': '10',
-                '11': '11',
-                '12': '12',
-                '13': '13',
-                '14': '14',
-                '15': '15',
-                '16': '16',
-                '18': '18',
-                '20': '20',
-                '22': '22',
-                '24': '24',
-                '28': '28',
-                '32': '32',
-                '36': '36',
-                '40': '40',
-                'Clear': '0'
-              },
-            ),
-            ClipRRect(
-              borderRadius: const BorderRadius.only(
-                bottomLeft: Radius.circular(10),
-                bottomRight: Radius.circular(10),
-              ),
-              child: Container(
-                color: Colors.white,
-                width: MediaQuery.of(context).size.width,
-                child: Padding(
-                  padding: const EdgeInsets.only(
-                      left: 16, right: 16, bottom: 8, top: 2),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Tags',
-                          style: Theme.of(context).textTheme.bodySmall),
-                      const SizedBox(height: 8),
-                      Positioned(
-                        bottom: 34,
-                        left: 4,
-                        right: 8,
-                        child: SizedBox(
-                          height: 25,
-                          child: ListView.builder(
-                              scrollDirection: Axis.horizontal,
-                              itemCount: allTags.length,
-                              itemBuilder: (context, index) {
-                                Tag tag = allTags[index];
+            Column(children: [
+              ClipRRect(
+                borderRadius: const BorderRadius.only(
+                  bottomLeft: Radius.circular(10),
+                  bottomRight: Radius.circular(10),
+                ),
+                child: Container(
+                  color: backgroundColor,
+                  width: MediaQuery.of(context).size.width,
+                  height: 58,
+                  child: Padding(
+                    padding: const EdgeInsets.only(
+                        left: 16, right: 16, bottom: 8, top: 2),
+                    child: allTags.isEmpty
+                        ? Center(
+                          child: Text('No Tags created yet...',
+                              style: Theme.of(context).textTheme.bodyMedium),
+                        )
+                        : Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('Tags',
+                                  style: Theme.of(context).textTheme.bodySmall),
+                              const SizedBox(height: 8),
+                              SizedBox(
+                                height: 25,
+                                child: ListView.builder(
+                                    scrollDirection: Axis.horizontal,
+                                    itemCount: allTags.length,
+                                    itemBuilder: (context, index) {
+                                      Tag tag = allTags[index];
 
-                                return GestureDetector(
-                                  onTap: () =>
-                                      _handleTagSelected(tag, allTags),
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 4.0),
-                                    child: SizedBox(
-                                      height: 28,
-                                      width: tag.text.length * 12.0,
-                                      child: _selectedTags.contains(tag)
-                                          ? NoteTag(
-                                              label: tag.text,
-                                              backgroundColor:
-                                                  getColorFromString(tag
-                                                      .backgroundColor),
-                                            )
-                                          : NoteTag(
-                                              label: tag.text,
-                                              backgroundColor:
-                                                  const Color.fromARGB(
-                                                      255, 208, 208, 208),
-                                            ),
-                                    ),
-                                  ),
-                                );
-                              }),
-                        ),
-                      ),
-                    ],
+                                      return GestureDetector(
+                                        onTap: () =>
+                                            _handleTagSelected(tag, allTags),
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 4.0),
+                                          child: SizedBox(
+                                            height: 28,
+                                            width: tag.text.length * 12.0,
+                                            child: _selectedTags.contains(tag)
+                                                ? NoteTag(
+                                                    label: tag.text,
+                                                    backgroundColor:
+                                                        getColorFromString(tag
+                                                            .backgroundColor),
+                                                  )
+                                                : NoteTag(
+                                                    label: tag.text,
+                                                    backgroundColor:
+                                                        const Color.fromARGB(
+                                                            255, 208, 208, 208),
+                                                  ),
+                                          ),
+                                        ),
+                                      );
+                                    }),
+                              ),
+                            ],
+                          ),
                   ),
                 ),
               ),
-            ),
-            SizedBox(height: height * 0.01),
-            Expanded(
-              child: Container(
-                padding: const EdgeInsets.only(left: 25, right: 25),
-                // height: height * 0.6,
-                child: QuillEditor.basic(
-                  controller: _controller,
-                  readOnly: false,
-                  autoFocus: false,
-                  placeholder: 'Start writing...',
+              const Divider(),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: QuillEditor.basic(
+                    controller: _controller,
+                    readOnly: false,
+                    autoFocus: false,
+                    placeholder: 'Start writing...',
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                  ),
+                ),
+              ),
+            ]),
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: SingleChildScrollView(
+                child: SafeArea(
+                  child: QuillToolbar.basic(
+                    sectionDividerSpace: 0,
+                    controller: _controller,
+                    multiRowsDisplay: false,
+                    showDividers: true,
+                    showFontFamily: false,
+                    showFontSize: false,
+                    showBoldButton: true,
+                    showItalicButton: true,
+                    showSmallButton: false,
+                    showUnderLineButton: true,
+                    showStrikeThrough: false,
+                    showInlineCode: true,
+                    showColorButton: true,
+                    showBackgroundColorButton: true,
+                    showClearFormat: false,
+                    showAlignmentButtons: false,
+                    showLeftAlignment: true,
+                    showCenterAlignment: true,
+                    showRightAlignment: true,
+                    showJustifyAlignment: true,
+                    showHeaderStyle: true,
+                    showListNumbers: true,
+                    showListBullets: true,
+                    showListCheck: true,
+                    showCodeBlock: false,
+                    showQuote: true,
+                    showIndent: true,
+                    showLink: true,
+                    showUndo: true,
+                    showRedo: true,
+                    showDirection: false,
+                    showSearchButton: true,
+                    showSubscript: false,
+                    showSuperscript: false,
+                    toolbarIconSize: 18,
+                    fontSizeValues: const {
+                      '5': '5',
+                      '6': '6',
+                      '7': '7',
+                      '8': '8',
+                      '9': '9',
+                      '10': '10',
+                      '11': '11',
+                      '12': '12',
+                      '13': '13',
+                      '14': '14',
+                      '15': '15',
+                      '16': '16',
+                      '18': '18',
+                      '20': '20',
+                      '22': '22',
+                      '24': '24',
+                      '28': '28',
+                      '32': '32',
+                      '36': '36',
+                      '40': '40',
+                      'Clear': '0'
+                    },
+                  ),
                 ),
               ),
             ),

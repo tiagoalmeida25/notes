@@ -18,25 +18,25 @@ class NoteData extends ChangeNotifier {
   void setAllNotes(List<Note> notes) {
     _allNotes = notes;
     WidgetsBinding.instance.addPostFrameCallback((_) {
-    notifyListeners();
-  });
+      notifyListeners();
+    });
   }
 
   void addNewNote(Note note) {
     _allNotes.add(note);
     saveNotes(_allNotes);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-    notifyListeners();
-  });
+      notifyListeners();
+    });
   }
 
   void deleteNote(Note note) {
     _allNotes.remove(note);
     saveNotes(_allNotes);
-    
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
-    notifyListeners();
-  });
+      notifyListeners();
+    });
   }
 
   List<Note> searchNotes(String query) {
@@ -52,8 +52,8 @@ class NoteData extends ChangeNotifier {
     }
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-    notifyListeners();
-  });
+      notifyListeners();
+    });
     return filteredNotes;
   }
 
@@ -71,8 +71,8 @@ class NoteData extends ChangeNotifier {
     }
     saveNotes(_allNotes);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-    notifyListeners();
-  });
+      notifyListeners();
+    });
   }
 
   List<Note> getAllNotes() {
@@ -80,16 +80,18 @@ class NoteData extends ChangeNotifier {
     return _allNotes;
   }
 
-  void lockNote(Note note, String pin){
+  void lockNote(Note note, String pin) {
     for (int i = 0; i < _allNotes.length; i++) {
       if (_allNotes[i].id == note.id) {
         _allNotes[i].pin = pin;
       }
     }
     saveNotes(_allNotes);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-    notifyListeners();
-  });
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) {
+        notifyListeners();
+      },
+    );
   }
 
   void pinHandler(Note note) {
@@ -110,8 +112,8 @@ class NoteData extends ChangeNotifier {
 
     saveNotes(_allNotes);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-    notifyListeners();
-  });
+      notifyListeners();
+    });
   }
 
   List<Note> getPinnedNotes() {
@@ -122,7 +124,8 @@ class NoteData extends ChangeNotifier {
     db.saveNotes(allNotes);
   }
 
-  List<Note> _sortInternally(String sortBy, bool isSorted, List<Note> sortedNotes){
+  List<Note> _sortInternally(
+      String sortBy, bool isSorted, List<Note> sortedNotes) {
     if (sortBy == 'Title') {
       if (isSorted) {
         sortedNotes.sort(
@@ -147,6 +150,7 @@ class NoteData extends ChangeNotifier {
 
     return sortedNotes;
   }
+
   void sortNotes(String sortBy, bool isSorted) {
     List<Note> sortedNotes = getAllNotes();
     List<Note> pinnedNotes =
@@ -155,14 +159,14 @@ class NoteData extends ChangeNotifier {
         sortedNotes.where((note) => !note.isPinned).toList();
 
     pinnedNotes = _sortInternally(sortBy, isSorted, pinnedNotes);
-    unpinnedNotes = _sortInternally(sortBy, isSorted, unpinnedNotes);    
-    
+    unpinnedNotes = _sortInternally(sortBy, isSorted, unpinnedNotes);
+
     sortedNotes = [...pinnedNotes, ...unpinnedNotes];
 
     _allNotes = sortedNotes;
     saveNotes(_allNotes);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-    notifyListeners();
-  });
+      notifyListeners();
+    });
   }
 }

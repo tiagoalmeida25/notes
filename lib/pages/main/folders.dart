@@ -8,6 +8,7 @@ import 'package:notes/models/note.dart';
 import 'package:notes/models/note_data.dart';
 import 'package:notes/models/tag_data.dart';
 import 'package:notes/pages/inside_folder.dart';
+import 'package:pinput/pinput.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -74,6 +75,17 @@ class _FoldersState extends State<Folders> with WidgetsBindingObserver {
     if (isSorted != null) {
       this.isSorted = isSorted;
     }
+  }
+
+  void goInsideFolder(value, index) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => InsideFolder(
+          folder: value.getAllFolders()[index],
+        ),
+      ),
+    );
   }
 
   void deleteFolder(Folder folder) {
@@ -148,8 +160,7 @@ class _FoldersState extends State<Folders> with WidgetsBindingObserver {
                         : Column(
                             children: [
                               Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
                                   // isSearching
                                   //     ? Row(
@@ -314,7 +325,128 @@ class _FoldersState extends State<Folders> with WidgetsBindingObserver {
                                                 : Colors.black,
                                           ),
                                           SlidableAction(
-                                            onPressed: (context) {},
+                                            onPressed: (context) {
+                                              value
+                                                          .getAllFolders()[
+                                                              index]
+                                                          .pin ==
+                                                      ''
+                                                  ? showDialog(
+                                                      context: context,
+                                                      builder: (BuildContext
+                                                          context) {
+                                                        String folderPin = '';
+                                                        return AlertDialog(
+                                                          title: const Text(
+                                                              'Lock Folder'),
+                                                          content: Column(
+                                                            mainAxisSize:
+                                                                MainAxisSize
+                                                                    .min,
+                                                            children: [
+                                                              const Text(
+                                                                  'Enter a pin to lock this folder:'),
+                                                              const SizedBox(
+                                                                  height: 12),
+                                                              Pinput(
+                                                                obscureText:
+                                                                    true,
+                                                                onCompleted:
+                                                                    (pin) {
+                                                                  folderPin =
+                                                                      pin;
+                                                                },
+                                                              ),
+                                                            ],
+                                                          ),
+                                                          actions: [
+                                                            TextButton(
+                                                              onPressed: () {
+                                                                Navigator.of(
+                                                                        context)
+                                                                    .pop();
+                                                              },
+                                                              child: const Text(
+                                                                  'Cancel'),
+                                                            ),
+                                                            TextButton(
+                                                              onPressed: () {
+                                                                Provider.of<FolderData>(
+                                                                        context,
+                                                                        listen:
+                                                                            false)
+                                                                    .lockFolder(
+                                                                        value.getAllFolders()[
+                                                                            index],
+                                                                        folderPin);
+                                                                Navigator.of(
+                                                                        context)
+                                                                    .pop();
+                                                              },
+                                                              child: const Text(
+                                                                  'Lock'),
+                                                            ),
+                                                          ],
+                                                        );
+                                                      },
+                                                    )
+                                                  : showDialog(
+                                                      context: context,
+                                                      builder: (BuildContext
+                                                          context) {
+                                                        String folderPin = value
+                                                            .getAllFolders()[
+                                                                index]
+                                                            .pin;
+                                                        return AlertDialog(
+                                                          title: const Text(
+                                                              'Unlocked Note'),
+                                                          content: Column(
+                                                            mainAxisSize:
+                                                                MainAxisSize
+                                                                    .min,
+                                                            children: [
+                                                              const Text(
+                                                                  'Enter the pin to unlock this note:'),
+                                                              const SizedBox(
+                                                                  height: 12),
+                                                              Pinput(
+                                                                obscureText:
+                                                                    true,
+                                                                onCompleted:
+                                                                    (pin) {
+                                                                  if (pin ==
+                                                                      folderPin) {
+                                                                    Provider.of<FolderData>(
+                                                                            context,
+                                                                            listen:
+                                                                                false)
+                                                                        .lockFolder(
+                                                                            value.getAllFolders()[index],
+                                                                            '');
+                                                                    Navigator.of(
+                                                                            context)
+                                                                        .pop();
+                                                                  }
+                                                                },
+                                                              ),
+                                                            ],
+                                                          ),
+                                                          actions: [
+                                                            TextButton(
+                                                              onPressed: () {
+                                                                Navigator.of(
+                                                                        context)
+                                                                    .pop();
+                                                              },
+                                                              child: const Text(
+                                                                  'Cancel'),
+                                                            ),
+                                                          ],
+                                                        );
+                                                      },
+                                                    );
+                                            },
                                             icon: CupertinoIcons.lock_fill,
                                             borderRadius: BorderRadius.circular(
                                               16,
@@ -345,19 +477,61 @@ class _FoldersState extends State<Folders> with WidgetsBindingObserver {
                                             .getAllFolders()[index]
                                             .createdAt,
                                         onTap: () {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  InsideFolder(
-                                                folder: value
-                                                    .getAllFolders()[index],
-                                              ),
-                                            ),
-                                          );
+                                          if (value
+                                                  .getAllFolders()[index]
+                                                  .pin ==
+                                              '') {
+                                            goInsideFolder(value, index);
+                                          } else {
+                                            showDialog(
+                                              context: context,
+                                              builder: (BuildContext context) {
+                                                String notePin = value
+                                                    .getAllFolders()[index]
+                                                    .pin;
+                                                return AlertDialog(
+                                                  title: const Text(
+                                                      'Open Locked Folder'),
+                                                  content: Column(
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
+                                                    children: [
+                                                      const Text(
+                                                          'Enter the pin to enter this folder:'),
+                                                      const SizedBox(
+                                                          height: 12),
+                                                      Pinput(
+                                                        obscureText: true,
+                                                        onCompleted: (pin) {
+                                                          if (pin == notePin) {
+                                                            Navigator.of(
+                                                                    context)
+                                                                .pop();
+                                                            goInsideFolder(
+                                                                value, index);
+                                                          }
+                                                        },
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  actions: [
+                                                    TextButton(
+                                                      onPressed: () {
+                                                        Navigator.of(context)
+                                                            .pop();
+                                                      },
+                                                      child:
+                                                          const Text('Cancel'),
+                                                    ),
+                                                  ],
+                                                );
+                                              },
+                                            );
+                                          }
                                         },
                                         notes: folderNotes,
                                         folder: 'folder',
+                                        pin: value.getAllFolders()[index].pin,
                                       ),
                                     );
                                   },

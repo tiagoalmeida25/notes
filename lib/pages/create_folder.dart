@@ -49,6 +49,7 @@ class _CreateFolderState extends State<CreateFolder> {
           updatedAt: DateTime.now(),
           isPinned: false,
           notes: [],
+          pin: '',
         ),
       );
       Navigator.pop(context);

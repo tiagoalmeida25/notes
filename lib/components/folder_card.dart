@@ -11,6 +11,7 @@ class FolderCard extends StatelessWidget {
   final Function() onTap;
   final String folder;
   final DateTime date;
+  final String pin;
 
   const FolderCard({
     super.key,
@@ -21,6 +22,7 @@ class FolderCard extends StatelessWidget {
     required this.onTap,
     required this.folder,
     required this.date,
+    required this.pin,
   });
 
   @override
@@ -76,8 +78,7 @@ class FolderCard extends StatelessWidget {
         month = 'Dec';
         break;
     }
-    String formattedDate =
-        '${date.day} $month ${date.year}';
+    String formattedDate = '${date.day} $month ${date.year}';
 
     return GestureDetector(
       onTap: onTap,
@@ -97,11 +98,17 @@ class FolderCard extends StatelessWidget {
                   padding: const EdgeInsets.only(left: 16.0),
                   child: Row(
                     children: [
-                      Icon(
-                        CupertinoIcons.folder_fill,
-                        color: getColorFromString(color),
-                        size: 60,
-                      ),
+                      pin == ''
+                          ? Icon(
+                              CupertinoIcons.folder_fill,
+                              color: getColorFromString(color),
+                              size: 60,
+                            )
+                          : Icon(
+                              CupertinoIcons.lock_fill,
+                              color: getColorFromString(color),
+                              size: 60,
+                            ),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -139,21 +146,22 @@ class FolderCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                if (notes.isNotEmpty)
-                  Positioned(
-                    bottom: 10,
-                    left: 108,
-                    right: 8,
-                    child: SizedBox(
-                      height: 25,
-                      child: Text(
-                        '${notes.length} notes',
-                        style: const TextStyle(
-                          color: Colors.grey,
+                if (pin != '')
+                  if (notes.isNotEmpty)
+                    Positioned(
+                      bottom: 10,
+                      left: 108,
+                      right: 8,
+                      child: SizedBox(
+                        height: 25,
+                        child: Text(
+                          '${notes.length} notes',
+                          style: const TextStyle(
+                            color: Colors.grey,
+                          ),
                         ),
                       ),
                     ),
-                  ),
                 if (notes.isEmpty)
                   const Positioned(
                     bottom: 10,
@@ -176,7 +184,6 @@ class FolderCard extends StatelessWidget {
                       child: const Icon(Icons.push_pin, color: Colors.grey),
                     ),
                   ),
-
                 Positioned(
                   bottom: 8,
                   right: 8,
@@ -186,7 +193,8 @@ class FolderCard extends StatelessWidget {
                     children: [
                       Text(
                         formattedDate,
-                        style: const TextStyle(fontSize: 12, color: Colors.grey),
+                        style:
+                            const TextStyle(fontSize: 12, color: Colors.grey),
                       ),
                     ],
                   ),

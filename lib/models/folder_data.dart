@@ -41,12 +41,33 @@ class FolderData extends ChangeNotifier {
     });
   }
 
-  void removeNoteFromFolder(int folderId, Note note){
+  void removeNoteFromFolder(int folderId, Note note) {
     for (int i = 0; i < _allFolders.length; i++) {
       if (_allFolders[i].id == folderId) {
         _allFolders[i].notes.remove(note.id);
       }
     }
+    saveFolders(_allFolders);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      notifyListeners();
+    });
+  }
+
+  void addSubfolder(int subfolderId, Folder folder) {
+    for (int i = 0; i < _allFolders.length; i++) {
+      if (_allFolders[i].id == folder.id) {
+        _allFolders[i].subfolderId = subfolderId;
+      }
+    }
+  }
+
+  void lockFolder(Folder folder, String pin) {
+    for (int i = 0; i < _allFolders.length; i++) {
+      if (_allFolders[i].id == folder.id) {
+        _allFolders[i].pin = pin;
+      }
+    }
+
     saveFolders(_allFolders);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       notifyListeners();

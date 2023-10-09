@@ -98,7 +98,7 @@ class NoteCard extends StatelessWidget {
       child: Center(
         child: SizedBox(
           width: MediaQuery.of(context).size.width * 0.9,
-          height: text.isNotEmpty ? 135 : 100,
+          height: text.isNotEmpty ? 135 :  pin == '' ? 100 : 135,
           child: Card(
             elevation: 4,
             color: Colors.white,

@@ -192,7 +192,7 @@ class _PinnedState extends State<Pinned> with WidgetsBindingObserver {
                                     const EdgeInsets.only(left: 8.0, right: 16),
                                 child: Row(
                                   mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                                      MainAxisAlignment.end,
                                   children: [
                                     // isSearching
                                     //     ? Row(

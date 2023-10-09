@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:notes/app_colors.dart';
 import 'package:notes/components/grid_note.dart';
 import 'package:notes/components/note_card.dart';
@@ -191,8 +192,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                 padding:
                                     const EdgeInsets.only(left: 8.0, right: 16),
                                 child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
                                     // isSearching
                                     //     ? Row(
@@ -262,6 +262,10 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                             onPressed: () {
                                               setState(() {
                                                 isSorted = !isSorted;
+                                                if (isSorted)
+                                                  print('Sort: Up');
+                                                else
+                                                  print('Sort: Down');
                                               });
                                               sort(
                                                   sortNotifier.value, isSorted);
@@ -369,71 +373,107 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                                 ),
                                                 SlidableAction(
                                                   onPressed: (context) {
-                                                    showCupertinoModalPopup(
-                                                      context: context,
-                                                      builder: (context) =>
-                                                          CupertinoActionSheet(
-                                                        actions: [
-                                                          for (int i = 0;
-                                                              i <
-                                                                  allFolders
-                                                                      .length;
-                                                              i++)
-                                                            CupertinoActionSheetAction(
-                                                              onPressed: () {
-                                                                // remove from current folder
-                                                                Provider.of<FolderData>(
-                                                                        context,
-                                                                        listen:
-                                                                            false)
-                                                                    .removeNoteFromFolder(
-                                                                  value
-                                                                      .getAllNotes()[
-                                                                          index]
-                                                                      .folderId,
-                                                                  value.getAllNotes()[
-                                                                      index],
-                                                                );
-                                                                value
-                                                                    .moveNoteToFolder(
-                                                                  value.getAllNotes()[
-                                                                      index],
-                                                                  allFolders[i],
-                                                                );
+                                                    allFolders.isNotEmpty
+                                                        ? showCupertinoModalPopup(
+                                                            context: context,
+                                                            builder: (context) =>
+                                                                CupertinoActionSheet(
+                                                              actions: [
+                                                                for (int i = 0;
+                                                                    i <
+                                                                        allFolders
+                                                                            .length;
+                                                                    i++)
+                                                                  CupertinoActionSheetAction(
+                                                                    onPressed:
+                                                                        () {
+                                                                      Provider.of<FolderData>(
+                                                                              context,
+                                                                              listen: false)
+                                                                          .removeNoteFromFolder(
+                                                                        value
+                                                                            .getAllNotes()[index]
+                                                                            .folderId,
+                                                                        value.getAllNotes()[
+                                                                            index],
+                                                                      );
+                                                                      value
+                                                                          .moveNoteToFolder(
+                                                                        value.getAllNotes()[
+                                                                            index],
+                                                                        allFolders[
+                                                                            i],
+                                                                      );
 
-                                                                Provider.of<FolderData>(
-                                                                        context,
-                                                                        listen:
-                                                                            false)
-                                                                    .moveNoteToFolder(
-                                                                  value.getAllNotes()[
-                                                                      index],
-                                                                  allFolders[i],
-                                                                );
-                                                                Navigator.pop(
-                                                                    context);
-                                                              },
-                                                              child: Text(
-                                                                allFolders[i]
-                                                                    .title,
-                                                                style: TextStyle(
-                                                                    color: getColorFromString(
-                                                                        allFolders[i]
-                                                                            .color)),
+                                                                      Provider.of<FolderData>(
+                                                                              context,
+                                                                              listen: false)
+                                                                          .moveNoteToFolder(
+                                                                        value.getAllNotes()[
+                                                                            index],
+                                                                        allFolders[
+                                                                            i],
+                                                                      );
+                                                                      Navigator.pop(
+                                                                          context);
+                                                                    },
+                                                                    child: Text(
+                                                                      allFolders[
+                                                                              i]
+                                                                          .title,
+                                                                      style: TextStyle(
+                                                                          color:
+                                                                              getColorFromString(allFolders[i].color)),
+                                                                    ),
+                                                                  ),
+                                                                // remove from folder option
+                                                                CupertinoActionSheetAction(
+                                                                  onPressed:
+                                                                      () {
+                                                                    Provider.of<FolderData>(
+                                                                            context,
+                                                                            listen:
+                                                                                false)
+                                                                        .removeNoteFromFolder(
+                                                                      value
+                                                                          .getAllNotes()[
+                                                                              index]
+                                                                          .folderId,
+                                                                      value.getAllNotes()[
+                                                                          index],
+                                                                    );
+                                                                    Navigator.pop(
+                                                                        context);
+                                                                  },
+                                                                  child: const Text(
+                                                                      'Remove from Folder'),
+                                                                ),
+                                                              ],
+                                                              cancelButton:
+                                                                  CupertinoActionSheetAction(
+                                                                onPressed: () {
+                                                                  Navigator.pop(
+                                                                      context);
+                                                                },
+                                                                child: const Text(
+                                                                    'Cancel'),
                                                               ),
                                                             ),
-                                                        ],
-                                                        cancelButton:
-                                                            CupertinoActionSheetAction(
-                                                          onPressed: () {
-                                                            Navigator.pop(
-                                                                context);
-                                                          },
-                                                          child: const Text(
-                                                              'Cancel'),
-                                                        ),
-                                                      ),
-                                                    );
+                                                          )
+                                                        : Fluttertoast.showToast(
+                                                            msg: "No folders",
+                                                            toastLength: Toast
+                                                                .LENGTH_SHORT,
+                                                            gravity:
+                                                                ToastGravity
+                                                                    .CENTER,
+                                                            timeInSecForIosWeb:
+                                                                1,
+                                                            backgroundColor:
+                                                                Colors.red,
+                                                            textColor:
+                                                                Colors.white,
+                                                            fontSize: 16.0);
                                                   },
                                                   backgroundColor:
                                                       Colors.transparent,
@@ -669,7 +709,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                                               MainAxisSize.min,
                                                           children: [
                                                             const Text(
-                                                                'Enter the pin to lock this note:'),
+                                                                'Enter the pin to enter this note:'),
                                                             const SizedBox(
                                                                 height: 12),
                                                             Pinput(
@@ -783,11 +823,69 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                               pin: value
                                                   .getAllNotes()[index]
                                                   .pin,
-                                              onTap: () => goToNotePage(
-                                                  value.getAllNotes()[index],
-                                                  false),
+                                              onTap: () {
+                                                if (value
+                                                        .getAllNotes()[index]
+                                                        .pin ==
+                                                    '') {
+                                                  goToNotePage(
+                                                      value
+                                                          .getAllNotes()[index],
+                                                      false);
+                                                } else {
+                                                  showDialog(
+                                                    context: context,
+                                                    builder:
+                                                        (BuildContext context) {
+                                                      String notePin = value
+                                                          .getAllNotes()[index]
+                                                          .pin;
+                                                      return AlertDialog(
+                                                        title: const Text(
+                                                            'Open Locked Note'),
+                                                        content: Column(
+                                                          mainAxisSize:
+                                                              MainAxisSize.min,
+                                                          children: [
+                                                            const Text(
+                                                                'Enter the pin to enter this note:'),
+                                                            const SizedBox(
+                                                                height: 12),
+                                                            Pinput(
+                                                              obscureText: true,
+                                                              onCompleted:
+                                                                  (pin) {
+                                                                if (pin ==
+                                                                    notePin) {
+                                                                  Navigator.of(
+                                                                          context)
+                                                                      .pop();
+                                                                  goToNotePage(
+                                                                      value.getAllNotes()[
+                                                                          index],
+                                                                      false);
+                                                                }
+                                                              },
+                                                            ),
+                                                          ],
+                                                        ),
+                                                        actions: [
+                                                          TextButton(
+                                                            onPressed: () {
+                                                              Navigator.of(
+                                                                      context)
+                                                                  .pop();
+                                                            },
+                                                            child: const Text(
+                                                                'Cancel'),
+                                                          ),
+                                                        ],
+                                                      );
+                                                    },
+                                                  );
+                                                }
+                                              },
                                               onLongPress: () {
-                                                // delete or pin
                                                 showCupertinoModalPopup(
                                                   context: context,
                                                   builder: (context) =>
@@ -806,6 +904,97 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                                             true,
                                                         child: const Text(
                                                             'Delete'),
+                                                      ),
+                                                      CupertinoActionSheetAction(
+                                                        onPressed: () {
+                                                          allFolders.isNotEmpty
+                                                              ? showCupertinoModalPopup(
+                                                                  context:
+                                                                      context,
+                                                                  builder:
+                                                                      (context) =>
+                                                                          CupertinoActionSheet(
+                                                                    actions: [
+                                                                      for (int i =
+                                                                              0;
+                                                                          i < allFolders.length;
+                                                                          i++)
+                                                                        CupertinoActionSheetAction(
+                                                                          onPressed:
+                                                                              () {
+                                                                            Provider.of<FolderData>(context, listen: false).removeNoteFromFolder(
+                                                                              value.getAllNotes()[index].folderId,
+                                                                              value.getAllNotes()[index],
+                                                                            );
+                                                                            value.moveNoteToFolder(
+                                                                              value.getAllNotes()[index],
+                                                                              allFolders[i],
+                                                                            );
+
+                                                                            Provider.of<FolderData>(context, listen: false).moveNoteToFolder(
+                                                                              value.getAllNotes()[index],
+                                                                              allFolders[i],
+                                                                            );
+                                                                            Navigator.pop(context);
+                                                                          },
+                                                                          child:
+                                                                              Text(
+                                                                            allFolders[i].title,
+                                                                            style:
+                                                                                TextStyle(color: getColorFromString(allFolders[i].color)),
+                                                                          ),
+                                                                        ),
+                                                                      CupertinoActionSheetAction(
+                                                                        onPressed:
+                                                                            () {
+                                                                          Provider.of<FolderData>(context, listen: false)
+                                                                              .removeNoteFromFolder(
+                                                                            value.getAllNotes()[index].folderId,
+                                                                            value.getAllNotes()[index],
+                                                                          );
+                                                                          Navigator.pop(
+                                                                              context);
+                                                                        },
+                                                                        child: const Text(
+                                                                            'Remove from Folder'),
+                                                                      ),
+                                                                    ],
+                                                                    cancelButton:
+                                                                        CupertinoActionSheetAction(
+                                                                      onPressed:
+                                                                          () {
+                                                                        Navigator.pop(
+                                                                            context);
+                                                                      },
+                                                                      child: const Text(
+                                                                          'Cancel'),
+                                                                    ),
+                                                                  ),
+                                                                )
+                                                              : Fluttertoast
+                                                                  .showToast(
+                                                                  msg:
+                                                                      "No folders",
+                                                                  toastLength: Toast
+                                                                      .LENGTH_SHORT,
+                                                                  gravity:
+                                                                      ToastGravity
+                                                                          .CENTER,
+                                                                  timeInSecForIosWeb:
+                                                                      1,
+                                                                  backgroundColor:
+                                                                      Colors
+                                                                          .red,
+                                                                  textColor:
+                                                                      Colors
+                                                                          .white,
+                                                                  fontSize:
+                                                                      16.0,
+                                                                );
+                                                        },
+                                                        child: const Text(
+                                                          'Move to Folder',
+                                                        ),
                                                       ),
                                                       CupertinoActionSheetAction(
                                                         onPressed: () {
