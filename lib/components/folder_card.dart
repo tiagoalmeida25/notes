@@ -80,6 +80,8 @@ class FolderCard extends StatelessWidget {
     }
     String formattedDate = '${date.day} $month ${date.year}';
 
+    print('notes: ${notes.length}');
+
     return GestureDetector(
       onTap: onTap,
       child: Center(

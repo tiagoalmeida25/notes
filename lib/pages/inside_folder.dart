@@ -68,7 +68,8 @@ class _InsideFolderState extends State<InsideFolder> {
     final folderData = Provider.of<FolderData>(context, listen: false);
     final folder = widget.folder;
 
-    folderData.moveNoteToFolder(note, folder!);
+    folderData.updateFolder(folder!, folder.title, DateTime.now(),
+        setStringFromColor(_color), false, folder.notes);
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -78,16 +79,21 @@ class _InsideFolderState extends State<InsideFolder> {
           folderId: folderId,
         ),
       ),
-    );
-
-    setState(() {
-      notes = [];
-      notes = Provider.of<NoteData>(context, listen: false)
-          .getAllNotes()
-          .where((note) => note.folderId == widget.folder!.id)
-          .toList();
+    ).then((value) {
+      setState(() {
+        notes = Provider.of<NoteData>(context, listen: false)
+            .getAllNotes()
+            .where((note) => note.folderId == widget.folder!.id)
+            .toList();
+        Provider.of<FolderData>(context, listen: false).updateFolder(
+            folder,
+            folder.title,
+            DateTime.now(),
+            setStringFromColor(_color),
+            false,
+            notes.map((e) => e.id).toList());
+      });
     });
-
   }
 
   void _handleSave() {

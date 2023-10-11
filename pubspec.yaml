@@ -1,8 +1,6 @@
 name: notes
 description: Notes app
 
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
-
 version: 1.0.0+1
 
 environment:
@@ -19,7 +17,6 @@ dependencies:
   flutter_slidable:
   flutter_launcher_icons:
   cupertino_icons: ^1.0.2
-  super_editor: ^0.2.6
   shared_preferences: ^2.2.1
   pinput: ^3.0.1
   firebase_core: ^2.17.0

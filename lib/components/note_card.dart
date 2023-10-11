@@ -158,7 +158,7 @@ class NoteCard extends StatelessWidget {
                       left: 4,
                       right: 8,
                       child: SizedBox(
-                        height: 30,
+                        height: 28,
                         child: ListView.builder(
                           scrollDirection: Axis.horizontal,
                           itemCount: tags.length,
