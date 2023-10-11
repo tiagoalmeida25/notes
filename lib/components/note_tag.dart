@@ -15,23 +15,29 @@ class NoteTag extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8),
-      decoration: BoxDecoration(
-        color: backgroundColor.withOpacity(0.3),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: backgroundColor,
-          width: 1,
-        ),
-      ),
-      child: Center(
-        child: Text(
-          label,
-          style: TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.bold,
-            fontSize: fontSize,
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        color: Colors.white,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          decoration: BoxDecoration(
+            color: backgroundColor.withOpacity(0.3),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: backgroundColor,
+              width: 1,
+            ),
+          ),
+          child: Center(
+            child: Text(
+              label,
+              style: TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+                fontSize: fontSize,
+              ),
+            ),
           ),
         ),
       ),

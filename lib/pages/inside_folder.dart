@@ -11,6 +11,7 @@ import 'package:notes/models/note_data.dart';
 import 'package:notes/models/tag.dart';
 import 'package:notes/models/tag_data.dart';
 import 'package:notes/pages/editing_note.dart';
+import 'package:notes/pages/main/home_page.dart';
 import 'package:provider/provider.dart';
 
 class InsideFolder extends StatefulWidget {
@@ -24,6 +25,8 @@ class InsideFolder extends StatefulWidget {
 }
 
 class _InsideFolderState extends State<InsideFolder> {
+  List<Note> notes = [];
+
   late TextEditingController _textEditingController;
   late Color _color;
 
@@ -39,6 +42,7 @@ class _InsideFolderState extends State<InsideFolder> {
 
   @override
   void dispose() {
+    _handleSave();
     _textEditingController.dispose();
     super.dispose();
   }
@@ -47,6 +51,43 @@ class _InsideFolderState extends State<InsideFolder> {
     setState(() {
       _color = color;
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    setState(() {
+      notes = Provider.of<NoteData>(context, listen: false)
+          .getAllNotes()
+          .where((note) => note.folderId == widget.folder!.id)
+          .toList();
+    });
+  }
+
+  void goToNotePage(Note note, bool isNewNote, int folderId) {
+    final folderData = Provider.of<FolderData>(context, listen: false);
+    final folder = widget.folder;
+
+    folderData.moveNoteToFolder(note, folder!);
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EditingNote(
+          note: note,
+          isNewNote: isNewNote,
+          folderId: folderId,
+        ),
+      ),
+    );
+
+    setState(() {
+      notes = [];
+      notes = Provider.of<NoteData>(context, listen: false)
+          .getAllNotes()
+          .where((note) => note.folderId == widget.folder!.id)
+          .toList();
+    });
+
   }
 
   void _handleSave() {
@@ -74,25 +115,25 @@ class _InsideFolderState extends State<InsideFolder> {
 
   @override
   Widget build(BuildContext context) {
-    final folderData = Provider.of<FolderData>(context);
-
     List<Note> allNotes =
         Provider.of<NoteData>(context, listen: false).getAllNotes();
-    List<Tag> allTags = Provider.of<TagData>(context, listen: false).getAllTags();
+    List<Tag> allTags =
+        Provider.of<TagData>(context, listen: false).getAllTags();
 
-    List<Note> notes = [];
+    // for (int i = 0; i < allNotes.length; i++) {
+    //   if (allNotes[i].folderId == widget.folder!.id) {
+    //     notes.add(allNotes[i]);
+    //   }
+    // }
 
-    for (int i = 0; i < allNotes.length; i++) {
-      if (allNotes[i].folderId == widget.folder!.id) {
-        notes.add(allNotes[i]);
-      }
-    }
-    
+    print('notes: ${notes.length}');
 
     return Scaffold(
       appBar: CupertinoNavigationBar(
         leading: IconButton(
-          onPressed: () => Navigator.pop(context),
+          onPressed: () {
+            _handleSave();
+          },
           icon: const Icon(
             CupertinoIcons.back,
             color: Colors.black,
@@ -136,9 +177,9 @@ class _InsideFolderState extends State<InsideFolder> {
               itemBuilder: (context, index) {
                 List<Tag> noteTags = [];
 
-                for(int i = 0; i < notes[index].tags.length; i++) {
-                  for(int j = 0; j < allTags.length; j++) {
-                    if(notes[index].tags[i] == allTags[j].id) {
+                for (int i = 0; i < notes[index].tags.length; i++) {
+                  for (int j = 0; j < allTags.length; j++) {
+                    if (notes[index].tags[i] == allTags[j].id) {
                       noteTags.add(allTags[j]);
                     }
                   }
@@ -172,9 +213,25 @@ class _InsideFolderState extends State<InsideFolder> {
       ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.black,
-        onPressed: _handleSave,
+        onPressed: () {
+          int id = widget.folder!.id;
+          Note newNote = Note(
+            id: id,
+            text: '',
+            title: '',
+            createdAt: DateTime.now(),
+            updatedAt: DateTime.now(),
+            backgroundColor: "white",
+            isPinned: false,
+            tags: [],
+            folderId: widget.folder!.id,
+            pin: '',
+          );
+
+          goToNotePage(newNote, true, widget.folder!.id);
+        },
         child: const Icon(
-          Icons.save,
+          Icons.add,
           color: Colors.white,
         ),
       ),

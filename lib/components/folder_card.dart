@@ -146,7 +146,7 @@ class FolderCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                if (pin != '')
+                if (pin == '')
                   if (notes.isNotEmpty)
                     Positioned(
                       bottom: 10,
@@ -155,7 +155,7 @@ class FolderCard extends StatelessWidget {
                       child: SizedBox(
                         height: 25,
                         child: Text(
-                          '${notes.length} notes',
+                          '${notes.length} notes assigned',
                           style: const TextStyle(
                             color: Colors.grey,
                           ),

@@ -103,24 +103,44 @@ class _TagsState extends State<Tags> with WidgetsBindingObserver {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Confirm Deletion'),
-          content: const Text('Are you sure you want to delete this tag?'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Cancel'),
+        return Theme(
+          data: Theme.of(context).copyWith(
+            dialogTheme: DialogTheme(
+              backgroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16.0),
+              ),
             ),
-            TextButton(
-              onPressed: () {
-                Provider.of<TagData>(context, listen: false).deleteTag(tag);
-                Navigator.of(context).pop();
-              },
-              child: const Text('Delete'),
+            colorScheme: const ColorScheme.light(
+              primary: Colors.black,
+              secondary: Colors.red,
+              surface: Colors.white,
+              background: Color.fromRGBO(238, 238, 238, 1),
+              onPrimary: Colors.white,
+              onSecondary: Colors.white,
+              onSurface: Colors.black,
+              onBackground: Colors.black,
             ),
-          ],
+          ),
+          child: AlertDialog(
+            title: const Text('Confirm Deletion'),
+            content: const Text('Are you sure you want to delete this tag?'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text('Cancel'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Provider.of<TagData>(context, listen: false).deleteTag(tag);
+                  Navigator.of(context).pop();
+                },
+                child: const Text('Delete'),
+              ),
+            ],
+          ),
         );
       },
     );
@@ -141,9 +161,12 @@ class _TagsState extends State<Tags> with WidgetsBindingObserver {
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Padding(
-              padding: EdgeInsets.only(top: 75, left: 16, right: 16),
-              child: Row(
+            Padding(
+              padding: EdgeInsets.only(
+                  top: 75,
+                  left: MediaQuery.of(context).size.width * 0.05,
+                  right: MediaQuery.of(context).size.width * 0.05),
+              child: const Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
@@ -158,7 +181,8 @@ class _TagsState extends State<Tags> with WidgetsBindingObserver {
             ),
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                padding: EdgeInsets.symmetric(
+                    horizontal: MediaQuery.of(context).size.width * 0.05),
                 child: SlidableAutoCloseBehavior(
                   child: allTags.isEmpty
                       ? const Padding(
@@ -291,13 +315,13 @@ class _TagsState extends State<Tags> with WidgetsBindingObserver {
                                       children: [
                                         SlidableAction(
                                           onPressed: (context) {
-                                            value.deleteTag(allTags[index]);
+                                            deleteTag(allTags[index]);
                                           },
-                                          backgroundColor: Colors.red,
+                                          backgroundColor: Colors.transparent,
                                           borderRadius:
                                               BorderRadius.circular(16),
-                                          icon: CupertinoIcons.trash,
-                                          foregroundColor: Colors.white,
+                                          icon: CupertinoIcons.trash_fill,
+                                          foregroundColor: Colors.black,
                                         ),
                                       ],
                                     ),

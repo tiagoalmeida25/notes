@@ -37,6 +37,7 @@ class _EditingTagState extends State<EditingTag> {
 
   @override
   void dispose() {
+    _handleSave();
     _textEditingController.dispose();
     super.dispose();
   }
@@ -79,7 +80,9 @@ class _EditingTagState extends State<EditingTag> {
     return Scaffold(
       appBar: CupertinoNavigationBar(
         leading: IconButton(
-          onPressed: () => Navigator.pop(context),
+          onPressed: () {
+            _handleSave();
+          },
           icon: const Icon(
             CupertinoIcons.back,
             color: Colors.black,

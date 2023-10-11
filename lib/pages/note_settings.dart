@@ -4,7 +4,9 @@ import 'package:notes/components/page_color_picker.dart';
 
 // this page is used to change the background color and set a different type of page(lines, blank or grid)
 class NoteSettings extends StatefulWidget {
-  const NoteSettings({Key? key}) : super(key: key);
+  Color currentColor;
+
+  NoteSettings({Key? key, required this.currentColor}) : super(key: key);
 
   @override
   // ignore: library_private_types_in_public_api
@@ -13,6 +15,12 @@ class NoteSettings extends StatefulWidget {
 
 class _NoteSettingsState extends State<NoteSettings> {
   Color _color = Colors.white;
+
+  @override
+  void initState() {
+    super.initState();
+    _color = widget.currentColor;
+  }
 
   @override
   Widget build(BuildContext context) {

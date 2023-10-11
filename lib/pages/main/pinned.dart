@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:notes/app_colors.dart';
 import 'package:notes/components/grid_note.dart';
 import 'package:notes/components/note_card.dart';
 import 'package:notes/components/sort_dropdown.dart';
@@ -99,8 +101,7 @@ class _PinnedState extends State<Pinned> with WidgetsBindingObserver {
   }
 
   void createNewNote() {
-    int id =
-        Provider.of<NoteData>(context, listen: false).getPinnedNotes().length;
+    int id = DateTime.now().millisecondsSinceEpoch;
     Note newNote = Note(
       id: id,
       text: '',
@@ -121,24 +122,45 @@ class _PinnedState extends State<Pinned> with WidgetsBindingObserver {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Confirm Deletion'),
-          content: const Text('Are you sure you want to delete this note?'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Cancel'),
+        return Theme(
+          data: Theme.of(context).copyWith(
+            dialogTheme: DialogTheme(
+              backgroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16.0),
+              ),
             ),
-            TextButton(
-              onPressed: () {
-                Provider.of<NoteData>(context, listen: false).deleteNote(note);
-                Navigator.of(context).pop();
-              },
-              child: const Text('Delete'),
+            colorScheme: const ColorScheme.light(
+              primary: Colors.black,
+              secondary: Colors.red,
+              surface: Colors.white,
+              background: Color.fromRGBO(238, 238, 238, 1),
+              onPrimary: Colors.white,
+              onSecondary: Colors.white,
+              onSurface: Colors.black,
+              onBackground: Colors.black,
             ),
-          ],
+          ),
+          child: AlertDialog(
+            title: const Text('Confirm Deletion'),
+            content: const Text('Are you sure you want to delete this note?'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text('Cancel'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Provider.of<NoteData>(context, listen: false)
+                      .deleteNote(note);
+                  Navigator.of(context).pop();
+                },
+                child: const Text('Delete'),
+              ),
+            ],
+          ),
         );
       },
     );
@@ -157,13 +179,13 @@ class _PinnedState extends State<Pinned> with WidgetsBindingObserver {
     return Consumer<NoteData>(
       builder: (context, value, child) {
         return Scaffold(
-          backgroundColor: CupertinoColors.systemBackground,
+          backgroundColor: Colors.white,
           body: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Padding(
-                padding: EdgeInsets.only(top: 75, left: 16, right: 16),
-                child: Row(
+              Padding(
+                padding: EdgeInsets.only(top: 75, left: MediaQuery.of(context).size.width * 0.05, right: MediaQuery.of(context).size.width * 0.05),
+                child: const Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
@@ -176,7 +198,7 @@ class _PinnedState extends State<Pinned> with WidgetsBindingObserver {
               ),
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.05),
                   child: SlidableAutoCloseBehavior(
                     child: value.getPinnedNotes().isEmpty
                         ? const Padding(
@@ -191,8 +213,7 @@ class _PinnedState extends State<Pinned> with WidgetsBindingObserver {
                                 padding:
                                     const EdgeInsets.only(left: 8.0, right: 16),
                                 child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.end,
+                                  mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
                                     // isSearching
                                     //     ? Row(
@@ -209,8 +230,7 @@ class _PinnedState extends State<Pinned> with WidgetsBindingObserver {
                                     //                   const InputDecoration(
                                     //                 hintText: 'Search',
                                     //                 hintStyle: TextStyle(
-                                    //                   color: CupertinoColors
-                                    //                       .systemGrey,
+                                    //                   color: Colors.white,
                                     //                 ),
                                     //                 border: InputBorder.none,
                                     //               ),
@@ -230,8 +250,7 @@ class _PinnedState extends State<Pinned> with WidgetsBindingObserver {
                                     //               },
                                     //               icon: const Icon(
                                     //                 CupertinoIcons.xmark,
-                                    //                 color: CupertinoColors
-                                    //                     .systemGrey,
+                                    //                 color: Colors.grey,
                                     //               ),
                                     //             ),
                                     //           ),
@@ -247,8 +266,7 @@ class _PinnedState extends State<Pinned> with WidgetsBindingObserver {
                                     //           },
                                     //           icon: const Icon(
                                     //             CupertinoIcons.search,
-                                    //             color:
-                                    //                 CupertinoColors.systemGrey,
+                                    //             color: Colors.grey,
                                     //           ),
                                     //         ),
                                     //       ),
@@ -272,14 +290,12 @@ class _PinnedState extends State<Pinned> with WidgetsBindingObserver {
                                             icon: isSorted
                                                 ? const Icon(
                                                     CupertinoIcons.arrow_up,
-                                                    color: CupertinoColors
-                                                        .systemGrey,
+                                                    color: Colors.grey,
                                                     size: 18,
                                                   )
                                                 : const Icon(
                                                     CupertinoIcons.arrow_down,
-                                                    color: CupertinoColors
-                                                        .systemGrey,
+                                                    color: Colors.grey,
                                                     size: 18,
                                                   ),
                                           ),
@@ -296,8 +312,7 @@ class _PinnedState extends State<Pinned> with WidgetsBindingObserver {
                                                   icon: const Icon(
                                                     CupertinoIcons
                                                         .rectangle_grid_2x2_fill,
-                                                    color: CupertinoColors
-                                                        .systemGrey,
+                                                    color: Colors.grey,
                                                   ),
                                                 )
                                               : IconButton(
@@ -308,8 +323,7 @@ class _PinnedState extends State<Pinned> with WidgetsBindingObserver {
                                                   },
                                                   icon: const Icon(
                                                     CupertinoIcons.list_bullet,
-                                                    color: CupertinoColors
-                                                        .systemGrey,
+                                                    color: Colors.grey,
                                                   ),
                                                 ),
                                         ),
@@ -377,66 +391,117 @@ class _PinnedState extends State<Pinned> with WidgetsBindingObserver {
                                                 ),
                                                 SlidableAction(
                                                   onPressed: (context) {
-                                                    showCupertinoModalPopup(
-                                                      context: context,
-                                                      builder: (context) =>
-                                                          CupertinoActionSheet(
-                                                        actions: [
-                                                          for (int i = 0;
-                                                              i <
-                                                                  allFolders
-                                                                      .length;
-                                                              i++)
-                                                            CupertinoActionSheetAction(
-                                                              onPressed: () {
-                                                                Provider.of<FolderData>(
-                                                                        context,
-                                                                        listen:
-                                                                            false)
-                                                                    .removeNoteFromFolder(
-                                                                  value
-                                                                      .getAllNotes()[
-                                                                          index]
-                                                                      .folderId,
-                                                                  value.getAllNotes()[
-                                                                      index],
-                                                                );
-                                                                value
-                                                                    .moveNoteToFolder(
-                                                                  value.getPinnedNotes()[
-                                                                      index],
-                                                                  allFolders[i],
-                                                                );
+                                                    allFolders.isNotEmpty
+                                                        ? showCupertinoModalPopup(
+                                                            context: context,
+                                                            builder: (context) =>
+                                                                CupertinoActionSheet(
+                                                              actions: [
+                                                                for (int i = 0;
+                                                                    i <
+                                                                        allFolders
+                                                                            .length;
+                                                                    i++)
+                                                                  CupertinoActionSheetAction(
+                                                                    onPressed:
+                                                                        () {
+                                                                      Provider.of<FolderData>(
+                                                                              context,
+                                                                              listen: false)
+                                                                          .removeNoteFromFolder(
+                                                                        value
+                                                                            .getPinnedNotes()[index]
+                                                                            .folderId,
+                                                                        value.getPinnedNotes()[
+                                                                            index],
+                                                                      );
+                                                                      value
+                                                                          .moveNoteToFolder(
+                                                                        value.getPinnedNotes()[
+                                                                            index],
+                                                                        allFolders[
+                                                                            i],
+                                                                      );
 
-                                                                Provider.of<FolderData>(
-                                                                        context,
-                                                                        listen:
-                                                                            false)
-                                                                    .moveNoteToFolder(
-                                                                  value.getPinnedNotes()[
-                                                                      index],
-                                                                  allFolders[i],
-                                                                );
-                                                                Navigator.pop(
-                                                                    context);
-                                                              },
-                                                              child: Text(
-                                                                allFolders[i]
-                                                                    .title,
+                                                                      Provider.of<FolderData>(
+                                                                              context,
+                                                                              listen: false)
+                                                                          .moveNoteToFolder(
+                                                                        value.getPinnedNotes()[
+                                                                            index],
+                                                                        allFolders[
+                                                                            i],
+                                                                      );
+                                                                      Navigator.pop(
+                                                                          context);
+                                                                    },
+                                                                    child: Text(
+                                                                      allFolders[
+                                                                              i]
+                                                                          .title,
+                                                                      style: TextStyle(
+                                                                          color:
+                                                                              getColorFromString(allFolders[i].color)),
+                                                                    ),
+                                                                  ),
+                                                                // only remove if it's in one
+                                                                if (value
+                                                                        .getPinnedNotes()[
+                                                                            index]
+                                                                        .folderId !=
+                                                                    0)
+                                                                  CupertinoActionSheetAction(
+                                                                    onPressed:
+                                                                        () {
+                                                                      Provider.of<FolderData>(
+                                                                              context,
+                                                                              listen: false)
+                                                                          .removeNoteFromFolder(
+                                                                        value
+                                                                            .getPinnedNotes()[index]
+                                                                            .folderId,
+                                                                        value.getPinnedNotes()[
+                                                                            index],
+                                                                      );
+                                                                      Provider.of<NoteData>(
+                                                                              context,
+                                                                              listen:
+                                                                                  false)
+                                                                          .removeFolder(
+                                                                              value.getAllNotes()[index]);
+
+                                                                      Navigator.pop(
+                                                                          context);
+                                                                    },
+                                                                    child: const Text(
+                                                                        'Remove from Folder'),
+                                                                  )
+                                                              ],
+                                                              cancelButton:
+                                                                  CupertinoActionSheetAction(
+                                                                onPressed: () {
+                                                                  Navigator.pop(
+                                                                      context);
+                                                                },
+                                                                child: const Text(
+                                                                    'Cancel'),
                                                               ),
                                                             ),
-                                                        ],
-                                                        cancelButton:
-                                                            CupertinoActionSheetAction(
-                                                          onPressed: () {
-                                                            Navigator.pop(
-                                                                context);
-                                                          },
-                                                          child: const Text(
-                                                              'Cancel'),
-                                                        ),
-                                                      ),
-                                                    );
+                                                          )
+                                                        : Fluttertoast.showToast(
+                                                            msg: "No folders",
+                                                            toastLength: Toast
+                                                                .LENGTH_SHORT,
+                                                            gravity:
+                                                                ToastGravity
+                                                                    .CENTER,
+                                                            timeInSecForIosWeb:
+                                                                1,
+                                                            backgroundColor:
+                                                                Colors.red,
+                                                            textColor:
+                                                                Colors.white,
+                                                            fontSize: 16.0);
                                                   },
                                                   backgroundColor:
                                                       Colors.transparent,
@@ -484,7 +549,165 @@ class _PinnedState extends State<Pinned> with WidgetsBindingObserver {
                                                       : Colors.black,
                                                 ),
                                                 SlidableAction(
-                                                  onPressed: (context) {},
+                                                  onPressed: (context) {
+                                                    value
+                                                                .getPinnedNotes()[
+                                                                    index]
+                                                                .pin ==
+                                                            ''
+                                                        ? showDialog(
+                                                            context: context,
+                                                            builder:
+                                                                (BuildContext
+                                                                    context) {
+                                                              String notePin =
+                                                                  '';
+                                                              return Theme(
+                                                                data: Theme.of(context).copyWith(
+            dialogTheme: DialogTheme(
+              backgroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16.0),
+              ),
+            ),
+            colorScheme: const ColorScheme.light(
+              primary: Colors.black,
+              secondary: Colors.red,
+              surface: Colors.white,
+              background: Color.fromRGBO(238, 238, 238, 1),
+              onPrimary: Colors.white,
+              onSecondary: Colors.white,
+              onSurface: Colors.black,
+              onBackground: Colors.black,
+            ),
+          ),
+                                                                child:
+                                                                    AlertDialog(
+                                                                  title: const Text(
+                                                                      'Lock Note'),
+                                                                  content:
+                                                                      Column(
+                                                                    mainAxisSize:
+                                                                        MainAxisSize
+                                                                            .min,
+                                                                    children: [
+                                                                      const Text(
+                                                                          'Enter a pin to lock this note:'),
+                                                                      const SizedBox(
+                                                                          height:
+                                                                              12),
+                                                                      Pinput(
+                                                                        obscureText:
+                                                                            true,
+                                                                        onCompleted:
+                                                                            (pin) {
+                                                                          notePin =
+                                                                              pin;
+                                                                        },
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                  actions: [
+                                                                    TextButton(
+                                                                      onPressed:
+                                                                          () {
+                                                                        Navigator.of(context)
+                                                                            .pop();
+                                                                      },
+                                                                      child: const Text(
+                                                                          'Cancel'),
+                                                                    ),
+                                                                    TextButton(
+                                                                      onPressed:
+                                                                          () {
+                                                                        Provider.of<NoteData>(context, listen: false).lockNote(
+                                                                            value.getPinnedNotes()[index],
+                                                                            notePin);
+                                                                        Navigator.of(context)
+                                                                            .pop();
+                                                                      },
+                                                                      child: const Text(
+                                                                          'Lock'),
+                                                                    ),
+                                                                  ],
+                                                                ),
+                                                              );
+                                                            },
+                                                          )
+                                                        : showDialog(
+                                                            context: context,
+                                                            builder:
+                                                                (BuildContext
+                                                                    context) {
+                                                              String notePin = value
+                                                                  .getPinnedNotes()[
+                                                                      index]
+                                                                  .pin;
+                                                              return Theme(
+                                                                data: Theme.of(context).copyWith(
+            dialogTheme: DialogTheme(
+              backgroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16.0),
+              ),
+            ),
+            colorScheme: const ColorScheme.light(
+              primary: Colors.black,
+              secondary: Colors.red,
+              surface: Colors.white,
+              background: Color.fromRGBO(238, 238, 238, 1),
+              onPrimary: Colors.white,
+              onSecondary: Colors.white,
+              onSurface: Colors.black,
+              onBackground: Colors.black,
+            ),
+          ),
+                                                                child:
+                                                                    AlertDialog(
+                                                                  title: const Text(
+                                                                      'Unlocked Note'),
+                                                                  content:
+                                                                      Column(
+                                                                    mainAxisSize:
+                                                                        MainAxisSize
+                                                                            .min,
+                                                                    children: [
+                                                                      const Text(
+                                                                          'Enter the pin to unlock this note:'),
+                                                                      const SizedBox(
+                                                                          height:
+                                                                              12),
+                                                                      Pinput(
+                                                                        obscureText:
+                                                                            true,
+                                                                        onCompleted:
+                                                                            (pin) {
+                                                                          if (pin ==
+                                                                              notePin) {
+                                                                            Provider.of<NoteData>(context, listen: false).lockNote(value.getPinnedNotes()[index],
+                                                                                '');
+                                                                            Navigator.of(context).pop();
+                                                                          }
+                                                                        },
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                  actions: [
+                                                                    TextButton(
+                                                                      onPressed:
+                                                                          () {
+                                                                        Navigator.of(context)
+                                                                            .pop();
+                                                                      },
+                                                                      child: const Text(
+                                                                          'Cancel'),
+                                                                    ),
+                                                                  ],
+                                                                ),
+                                                              );
+                                                            },
+                                                          );
+                                                  },
                                                   icon:
                                                       CupertinoIcons.lock_fill,
                                                   borderRadius:
@@ -531,9 +754,91 @@ class _PinnedState extends State<Pinned> with WidgetsBindingObserver {
                                               isPinned: value
                                                   .getPinnedNotes()[index]
                                                   .isPinned,
-                                              onTap: () => goToNotePage(
-                                                  value.getPinnedNotes()[index],
-                                                  false),
+                                              onTap: () {
+                                                if (value
+                                                        .getPinnedNotes()[index]
+                                                        .pin ==
+                                                    '') {
+                                                  goToNotePage(
+                                                      value.getPinnedNotes()[
+                                                          index],
+                                                      false);
+                                                } else {
+                                                  showDialog(
+                                                    context: context,
+                                                    builder:
+                                                        (BuildContext context) {
+                                                      String notePin = value
+                                                          .getPinnedNotes()[
+                                                              index]
+                                                          .pin;
+                                                      return Theme(
+                                                        data: Theme.of(context).copyWith(
+            dialogTheme: DialogTheme(
+              backgroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16.0),
+              ),
+            ),
+            colorScheme: const ColorScheme.light(
+              primary: Colors.black,
+              secondary: Colors.red,
+              surface: Colors.white,
+              background: Color.fromRGBO(238, 238, 238, 1),
+              onPrimary: Colors.white,
+              onSecondary: Colors.white,
+              onSurface: Colors.black,
+              onBackground: Colors.black,
+            ),
+          ),
+                                                        child: AlertDialog(
+                                                          title: const Text(
+                                                              'Open Locked Note'),
+                                                          content: Column(
+                                                            mainAxisSize:
+                                                                MainAxisSize
+                                                                    .min,
+                                                            children: [
+                                                              const Text(
+                                                                  'Enter the pin to enter this note:'),
+                                                              const SizedBox(
+                                                                  height: 12),
+                                                              Pinput(
+                                                                obscureText:
+                                                                    true,
+                                                                onCompleted:
+                                                                    (pin) {
+                                                                  if (pin ==
+                                                                      notePin) {
+                                                                    Navigator.of(
+                                                                            context)
+                                                                        .pop();
+                                                                    goToNotePage(
+                                                                        value.getPinnedNotes()[
+                                                                            index],
+                                                                        false);
+                                                                  }
+                                                                },
+                                                              ),
+                                                            ],
+                                                          ),
+                                                          actions: [
+                                                            TextButton(
+                                                              onPressed: () {
+                                                                Navigator.of(
+                                                                        context)
+                                                                    .pop();
+                                                              },
+                                                              child: const Text(
+                                                                  'Cancel'),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      );
+                                                    },
+                                                  );
+                                                }
+                                              },
                                               tags: noteTags,
                                               folder: folder,
                                               pin: value
@@ -586,7 +891,6 @@ class _PinnedState extends State<Pinned> with WidgetsBindingObserver {
                                                 folder = allFolders[i];
                                               }
                                             }
-
                                             return NoteGrid(
                                               title: value
                                                   .getPinnedNotes()[index]
@@ -614,11 +918,92 @@ class _PinnedState extends State<Pinned> with WidgetsBindingObserver {
                                               pin: value
                                                   .getPinnedNotes()[index]
                                                   .pin,
-                                              onTap: () => goToNotePage(
-                                                  value.getPinnedNotes()[index],
-                                                  false),
+                                              onTap: () {
+                                                if (value
+                                                        .getPinnedNotes()[index]
+                                                        .pin ==
+                                                    '') {
+                                                  goToNotePage(
+                                                      value.getPinnedNotes()[
+                                                          index],
+                                                      false);
+                                                } else {
+                                                  showDialog(
+                                                    context: context,
+                                                    builder:
+                                                        (BuildContext context) {
+                                                      String notePin = value
+                                                          .getPinnedNotes()[
+                                                              index]
+                                                          .pin;
+                                                      return Theme(
+                                                        data: Theme.of(context).copyWith(
+            dialogTheme: DialogTheme(
+              backgroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16.0),
+              ),
+            ),
+            colorScheme: const ColorScheme.light(
+              primary: Colors.black,
+              secondary: Colors.red,
+              surface: Colors.white,
+              background: Color.fromRGBO(238, 238, 238, 1),
+              onPrimary: Colors.white,
+              onSecondary: Colors.white,
+              onSurface: Colors.black,
+              onBackground: Colors.black,
+            ),
+          ),
+                                                        child: AlertDialog(
+                                                          title: const Text(
+                                                              'Open Locked Note'),
+                                                          content: Column(
+                                                            mainAxisSize:
+                                                                MainAxisSize
+                                                                    .min,
+                                                            children: [
+                                                              const Text(
+                                                                  'Enter the pin to enter this note:'),
+                                                              const SizedBox(
+                                                                  height: 12),
+                                                              Pinput(
+                                                                obscureText:
+                                                                    true,
+                                                                onCompleted:
+                                                                    (pin) {
+                                                                  if (pin ==
+                                                                      notePin) {
+                                                                    Navigator.of(
+                                                                            context)
+                                                                        .pop();
+                                                                    goToNotePage(
+                                                                        value.getPinnedNotes()[
+                                                                            index],
+                                                                        false);
+                                                                  }
+                                                                },
+                                                              ),
+                                                            ],
+                                                          ),
+                                                          actions: [
+                                                            TextButton(
+                                                              onPressed: () {
+                                                                Navigator.of(
+                                                                        context)
+                                                                    .pop();
+                                                              },
+                                                              child: const Text(
+                                                                  'Cancel'),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      );
+                                                    },
+                                                  );
+                                                }
+                                              },
                                               onLongPress: () {
-                                                // delete or pin
                                                 showCupertinoModalPopup(
                                                   context: context,
                                                   builder: (context) =>
@@ -626,7 +1011,7 @@ class _PinnedState extends State<Pinned> with WidgetsBindingObserver {
                                                     actions: [
                                                       CupertinoActionSheetAction(
                                                         onPressed: () {
-                                                          value.deleteNote(
+                                                          deleteNote(
                                                             value.getPinnedNotes()[
                                                                 index],
                                                           );
@@ -637,6 +1022,97 @@ class _PinnedState extends State<Pinned> with WidgetsBindingObserver {
                                                             true,
                                                         child: const Text(
                                                             'Delete'),
+                                                      ),
+                                                      CupertinoActionSheetAction(
+                                                        onPressed: () {
+                                                          allFolders.isNotEmpty
+                                                              ? showCupertinoModalPopup(
+                                                                  context:
+                                                                      context,
+                                                                  builder:
+                                                                      (context) =>
+                                                                          CupertinoActionSheet(
+                                                                    actions: [
+                                                                      for (int i =
+                                                                              0;
+                                                                          i < allFolders.length;
+                                                                          i++)
+                                                                        CupertinoActionSheetAction(
+                                                                          onPressed:
+                                                                              () {
+                                                                            Provider.of<FolderData>(context, listen: false).removeNoteFromFolder(
+                                                                              value.getPinnedNotes()[index].folderId,
+                                                                              value.getPinnedNotes()[index],
+                                                                            );
+                                                                            value.moveNoteToFolder(
+                                                                              value.getPinnedNotes()[index],
+                                                                              allFolders[i],
+                                                                            );
+
+                                                                            Provider.of<FolderData>(context, listen: false).moveNoteToFolder(
+                                                                              value.getPinnedNotes()[index],
+                                                                              allFolders[i],
+                                                                            );
+                                                                            Navigator.pop(context);
+                                                                          },
+                                                                          child:
+                                                                              Text(
+                                                                            allFolders[i].title,
+                                                                            style:
+                                                                                TextStyle(color: getColorFromString(allFolders[i].color)),
+                                                                          ),
+                                                                        ),
+                                                                      CupertinoActionSheetAction(
+                                                                        onPressed:
+                                                                            () {
+                                                                          Provider.of<FolderData>(context, listen: false)
+                                                                              .removeNoteFromFolder(
+                                                                            value.getPinnedNotes()[index].folderId,
+                                                                            value.getPinnedNotes()[index],
+                                                                          );
+                                                                          Navigator.pop(
+                                                                              context);
+                                                                        },
+                                                                        child: const Text(
+                                                                            'Remove from Folder'),
+                                                                      ),
+                                                                    ],
+                                                                    cancelButton:
+                                                                        CupertinoActionSheetAction(
+                                                                      onPressed:
+                                                                          () {
+                                                                        Navigator.pop(
+                                                                            context);
+                                                                      },
+                                                                      child: const Text(
+                                                                          'Cancel'),
+                                                                    ),
+                                                                  ),
+                                                                )
+                                                              : Fluttertoast
+                                                                  .showToast(
+                                                                  msg:
+                                                                      "No folders",
+                                                                  toastLength: Toast
+                                                                      .LENGTH_SHORT,
+                                                                  gravity:
+                                                                      ToastGravity
+                                                                          .CENTER,
+                                                                  timeInSecForIosWeb:
+                                                                      1,
+                                                                  backgroundColor:
+                                                                      Colors
+                                                                          .red,
+                                                                  textColor:
+                                                                      Colors
+                                                                          .white,
+                                                                  fontSize:
+                                                                      16.0,
+                                                                );
+                                                        },
+                                                        child: const Text(
+                                                          'Move to Folder',
+                                                        ),
                                                       ),
                                                       CupertinoActionSheetAction(
                                                         onPressed: () {
@@ -662,7 +1138,7 @@ class _PinnedState extends State<Pinned> with WidgetsBindingObserver {
                                                           Navigator.pop(
                                                               context);
                                                           value
-                                                                      .getAllNotes()[
+                                                                      .getPinnedNotes()[
                                                                           index]
                                                                       .pin ==
                                                                   ''
@@ -675,48 +1151,56 @@ class _PinnedState extends State<Pinned> with WidgetsBindingObserver {
                                                                     String
                                                                         notePin =
                                                                         '';
-                                                                    return AlertDialog(
-                                                                      title: const Text(
-                                                                          'Lock Note'),
-                                                                      content:
-                                                                          Column(
-                                                                        mainAxisSize:
-                                                                            MainAxisSize.min,
-                                                                        children: [
-                                                                          const Text(
-                                                                              'Enter a pin to lock this note:'),
-                                                                          const SizedBox(
-                                                                              height: 12),
-                                                                          Pinput(
-                                                                            obscureText:
-                                                                                true,
-                                                                            onCompleted:
-                                                                                (pin) {
-                                                                              notePin = pin;
+                                                                    return Theme(
+                                                                      data: Theme.of(
+                                                                              context)
+                                                                          .copyWith(
+                                                                              dialogTheme: DialogTheme(
+                                                                        shape:
+                                                                            RoundedRectangleBorder(
+                                                                          borderRadius:
+                                                                              BorderRadius.circular(16),
+                                                                        ),
+                                                                      )),
+                                                                      child:
+                                                                          AlertDialog(
+                                                                        title: const Text(
+                                                                            'Lock Note'),
+                                                                        content:
+                                                                            Column(
+                                                                          mainAxisSize:
+                                                                              MainAxisSize.min,
+                                                                          children: [
+                                                                            const Text('Enter a pin to lock this note:'),
+                                                                            const SizedBox(height: 12),
+                                                                            Pinput(
+                                                                              obscureText: true,
+                                                                              onCompleted: (pin) {
+                                                                                notePin = pin;
+                                                                              },
+                                                                            ),
+                                                                          ],
+                                                                        ),
+                                                                        actions: [
+                                                                          TextButton(
+                                                                            onPressed:
+                                                                                () {
+                                                                              Navigator.of(context).pop();
                                                                             },
+                                                                            child:
+                                                                                const Text('Cancel'),
+                                                                          ),
+                                                                          TextButton(
+                                                                            onPressed:
+                                                                                () {
+                                                                              Provider.of<NoteData>(context, listen: false).lockNote(value.getPinnedNotes()[index], notePin);
+                                                                              Navigator.of(context).pop();
+                                                                            },
+                                                                            child:
+                                                                                const Text('Lock'),
                                                                           ),
                                                                         ],
                                                                       ),
-                                                                      actions: [
-                                                                        TextButton(
-                                                                          onPressed:
-                                                                              () {
-                                                                            Navigator.of(context).pop();
-                                                                          },
-                                                                          child:
-                                                                              const Text('Cancel'),
-                                                                        ),
-                                                                        TextButton(
-                                                                          onPressed:
-                                                                              () {
-                                                                            Provider.of<NoteData>(context, listen: false).lockNote(value.getPinnedNotes()[index],
-                                                                                notePin);
-                                                                            Navigator.of(context).pop();
-                                                                          },
-                                                                          child:
-                                                                              const Text('Lock'),
-                                                                        ),
-                                                                      ],
                                                                     );
                                                                   },
                                                                 )
@@ -729,43 +1213,52 @@ class _PinnedState extends State<Pinned> with WidgetsBindingObserver {
                                                                     String
                                                                         notePin =
                                                                         value
-                                                                            .getAllNotes()[index]
+                                                                            .getPinnedNotes()[index]
                                                                             .pin;
-                                                                    return AlertDialog(
-                                                                      title: const Text(
-                                                                          'Unlocked Note'),
-                                                                      content:
-                                                                          Column(
-                                                                        mainAxisSize:
-                                                                            MainAxisSize.min,
-                                                                        children: [
-                                                                          const Text(
-                                                                              'Enter the pin to unlock this note:'),
-                                                                          const SizedBox(
-                                                                              height: 12),
-                                                                          Pinput(
-                                                                            obscureText:
-                                                                                true,
-                                                                            onCompleted:
-                                                                                (pin) {
-                                                                              if (pin == notePin) {
-                                                                                Provider.of<NoteData>(context, listen: false).lockNote(value.getPinnedNotes()[index], '');
-                                                                                Navigator.of(context).pop();
-                                                                              }
+                                                                    return Theme(
+                                                                      data: Theme.of(
+                                                                              context)
+                                                                          .copyWith(
+                                                                              dialogTheme: DialogTheme(
+                                                                        shape:
+                                                                            RoundedRectangleBorder(
+                                                                          borderRadius:
+                                                                              BorderRadius.circular(16),
+                                                                        ),
+                                                                      )),
+                                                                      child:
+                                                                          AlertDialog(
+                                                                        title: const Text(
+                                                                            'Unlocked Note'),
+                                                                        content:
+                                                                            Column(
+                                                                          mainAxisSize:
+                                                                              MainAxisSize.min,
+                                                                          children: [
+                                                                            const Text('Enter the pin to unlock this note:'),
+                                                                            const SizedBox(height: 12),
+                                                                            Pinput(
+                                                                              obscureText: true,
+                                                                              onCompleted: (pin) {
+                                                                                if (pin == notePin) {
+                                                                                  Provider.of<NoteData>(context, listen: false).lockNote(value.getPinnedNotes()[index], '');
+                                                                                  Navigator.of(context).pop();
+                                                                                }
+                                                                              },
+                                                                            ),
+                                                                          ],
+                                                                        ),
+                                                                        actions: [
+                                                                          TextButton(
+                                                                            onPressed:
+                                                                                () {
+                                                                              Navigator.of(context).pop();
                                                                             },
+                                                                            child:
+                                                                                const Text('Cancel'),
                                                                           ),
                                                                         ],
                                                                       ),
-                                                                      actions: [
-                                                                        TextButton(
-                                                                          onPressed:
-                                                                              () {
-                                                                            Navigator.of(context).pop();
-                                                                          },
-                                                                          child:
-                                                                              const Text('Cancel'),
-                                                                        ),
-                                                                      ],
                                                                     );
                                                                   },
                                                                 );

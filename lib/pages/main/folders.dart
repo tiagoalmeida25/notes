@@ -88,29 +88,39 @@ class _FoldersState extends State<Folders> with WidgetsBindingObserver {
     );
   }
 
+  
+
   void deleteFolder(Folder folder) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Confirm Deletion'),
-          content: const Text('Are you sure you want to delete this folder?'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Cancel'),
+        return Theme(
+          data: Theme.of(context).copyWith(
+              dialogTheme: DialogTheme(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
             ),
-            TextButton(
-              onPressed: () {
-                Provider.of<FolderData>(context, listen: false)
-                    .deleteFolder(folder);
-                Navigator.of(context).pop();
-              },
-              child: const Text('Delete'),
-            ),
-          ],
+          )),
+          child: AlertDialog(
+            title: const Text('Confirm Deletion'),
+            content: const Text('Are you sure you want to delete this folder?'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text('Cancel'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Provider.of<FolderData>(context, listen: false)
+                      .deleteFolder(folder);
+                  Navigator.of(context).pop();
+                },
+                child: const Text('Delete'),
+              ),
+            ],
+          ),
         );
       },
     );
@@ -133,9 +143,9 @@ class _FoldersState extends State<Folders> with WidgetsBindingObserver {
           body: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Padding(
-                padding: EdgeInsets.only(top: 75, left: 16, right: 16),
-                child: Row(
+               Padding(
+                padding: EdgeInsets.only(top: 75, left: MediaQuery.of(context).size.width * 0.05, right: MediaQuery.of(context).size.width * 0.05),
+                child: const Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
@@ -148,7 +158,7 @@ class _FoldersState extends State<Folders> with WidgetsBindingObserver {
               ),
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.05),
                   child: SlidableAutoCloseBehavior(
                     child: value.getAllFolders().isEmpty
                         ? const Padding(
@@ -336,57 +346,73 @@ class _FoldersState extends State<Folders> with WidgetsBindingObserver {
                                                       builder: (BuildContext
                                                           context) {
                                                         String folderPin = '';
-                                                        return AlertDialog(
-                                                          title: const Text(
-                                                              'Lock Folder'),
-                                                          content: Column(
-                                                            mainAxisSize:
-                                                                MainAxisSize
-                                                                    .min,
-                                                            children: [
-                                                              const Text(
-                                                                  'Enter a pin to lock this folder:'),
-                                                              const SizedBox(
-                                                                  height: 12),
-                                                              Pinput(
-                                                                obscureText:
-                                                                    true,
-                                                                onCompleted:
-                                                                    (pin) {
-                                                                  folderPin =
-                                                                      pin;
+                                                        return Theme(
+                                                          data: Theme.of(
+                                                                  context)
+                                                              .copyWith(
+                                                                  dialogTheme:
+                                                                      DialogTheme(
+                                                            shape:
+                                                                RoundedRectangleBorder(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          16),
+                                                            ),
+                                                          )),
+                                                          child: AlertDialog(
+                                                            title: const Text(
+                                                                'Lock Folder'),
+                                                            content: Column(
+                                                              mainAxisSize:
+                                                                  MainAxisSize
+                                                                      .min,
+                                                              children: [
+                                                                const Text(
+                                                                    'Enter a pin to lock this folder:'),
+                                                                const SizedBox(
+                                                                    height: 12),
+                                                                Pinput(
+                                                                  obscureText:
+                                                                      true,
+                                                                  onCompleted:
+                                                                      (pin) {
+                                                                    folderPin =
+                                                                        pin;
+                                                                  },
+                                                                ),
+                                                              ],
+                                                            ),
+                                                            actions: [
+                                                              TextButton(
+                                                                onPressed: () {
+                                                                  Navigator.of(
+                                                                          context)
+                                                                      .pop();
                                                                 },
+                                                                child: const Text(
+                                                                    'Cancel'),
+                                                              ),
+                                                              TextButton(
+                                                                onPressed: () {
+                                                                  Provider.of<FolderData>(
+                                                                          context,
+                                                                          listen:
+                                                                              false)
+                                                                      .lockFolder(
+                                                                          value.getAllFolders()[
+                                                                              index],
+                                                                          folderPin);
+                                                                  Navigator.of(
+                                                                          context)
+                                                                      .pop();
+                                                                },
+                                                                child:
+                                                                    const Text(
+                                                                        'Lock'),
                                                               ),
                                                             ],
                                                           ),
-                                                          actions: [
-                                                            TextButton(
-                                                              onPressed: () {
-                                                                Navigator.of(
-                                                                        context)
-                                                                    .pop();
-                                                              },
-                                                              child: const Text(
-                                                                  'Cancel'),
-                                                            ),
-                                                            TextButton(
-                                                              onPressed: () {
-                                                                Provider.of<FolderData>(
-                                                                        context,
-                                                                        listen:
-                                                                            false)
-                                                                    .lockFolder(
-                                                                        value.getAllFolders()[
-                                                                            index],
-                                                                        folderPin);
-                                                                Navigator.of(
-                                                                        context)
-                                                                    .pop();
-                                                              },
-                                                              child: const Text(
-                                                                  'Lock'),
-                                                            ),
-                                                          ],
                                                         );
                                                       },
                                                     )
@@ -398,51 +424,66 @@ class _FoldersState extends State<Folders> with WidgetsBindingObserver {
                                                             .getAllFolders()[
                                                                 index]
                                                             .pin;
-                                                        return AlertDialog(
-                                                          title: const Text(
-                                                              'Unlocked Note'),
-                                                          content: Column(
-                                                            mainAxisSize:
-                                                                MainAxisSize
-                                                                    .min,
-                                                            children: [
-                                                              const Text(
-                                                                  'Enter the pin to unlock this note:'),
-                                                              const SizedBox(
-                                                                  height: 12),
-                                                              Pinput(
-                                                                obscureText:
-                                                                    true,
-                                                                onCompleted:
-                                                                    (pin) {
-                                                                  if (pin ==
-                                                                      folderPin) {
-                                                                    Provider.of<FolderData>(
-                                                                            context,
-                                                                            listen:
-                                                                                false)
-                                                                        .lockFolder(
-                                                                            value.getAllFolders()[index],
-                                                                            '');
-                                                                    Navigator.of(
-                                                                            context)
-                                                                        .pop();
-                                                                  }
+                                                        return Theme(
+                                                          data: Theme.of(
+                                                                  context)
+                                                              .copyWith(
+                                                                  dialogTheme:
+                                                                      DialogTheme(
+                                                            shape:
+                                                                RoundedRectangleBorder(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          16),
+                                                            ),
+                                                          )),
+                                                          child: AlertDialog(
+                                                            title: const Text(
+                                                                'Unlocked Note'),
+                                                            content: Column(
+                                                              mainAxisSize:
+                                                                  MainAxisSize
+                                                                      .min,
+                                                              children: [
+                                                                const Text(
+                                                                    'Enter the pin to unlock this note:'),
+                                                                const SizedBox(
+                                                                    height: 12),
+                                                                Pinput(
+                                                                  obscureText:
+                                                                      true,
+                                                                  onCompleted:
+                                                                      (pin) {
+                                                                    if (pin ==
+                                                                        folderPin) {
+                                                                      Provider.of<FolderData>(
+                                                                              context,
+                                                                              listen:
+                                                                                  false)
+                                                                          .lockFolder(
+                                                                              value.getAllFolders()[index],
+                                                                              '');
+                                                                      Navigator.of(
+                                                                              context)
+                                                                          .pop();
+                                                                    }
+                                                                  },
+                                                                ),
+                                                              ],
+                                                            ),
+                                                            actions: [
+                                                              TextButton(
+                                                                onPressed: () {
+                                                                  Navigator.of(
+                                                                          context)
+                                                                      .pop();
                                                                 },
+                                                                child: const Text(
+                                                                    'Cancel'),
                                                               ),
                                                             ],
                                                           ),
-                                                          actions: [
-                                                            TextButton(
-                                                              onPressed: () {
-                                                                Navigator.of(
-                                                                        context)
-                                                                    .pop();
-                                                              },
-                                                              child: const Text(
-                                                                  'Cancel'),
-                                                            ),
-                                                          ],
                                                         );
                                                       },
                                                     );
@@ -489,41 +530,55 @@ class _FoldersState extends State<Folders> with WidgetsBindingObserver {
                                                 String notePin = value
                                                     .getAllFolders()[index]
                                                     .pin;
-                                                return AlertDialog(
-                                                  title: const Text(
-                                                      'Open Locked Folder'),
-                                                  content: Column(
-                                                    mainAxisSize:
-                                                        MainAxisSize.min,
-                                                    children: [
-                                                      const Text(
-                                                          'Enter the pin to enter this folder:'),
-                                                      const SizedBox(
-                                                          height: 12),
-                                                      Pinput(
-                                                        obscureText: true,
-                                                        onCompleted: (pin) {
-                                                          if (pin == notePin) {
-                                                            Navigator.of(
-                                                                    context)
-                                                                .pop();
-                                                            goInsideFolder(
-                                                                value, index);
-                                                          }
+                                                return Theme(
+                                                  data: Theme.of(context)
+                                                      .copyWith(
+                                                          dialogTheme:
+                                                              DialogTheme(
+                                                    shape:
+                                                        RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              16),
+                                                    ),
+                                                  )),
+                                                  child: AlertDialog(
+                                                    title: const Text(
+                                                        'Open Locked Folder'),
+                                                    content: Column(
+                                                      mainAxisSize:
+                                                          MainAxisSize.min,
+                                                      children: [
+                                                        const Text(
+                                                            'Enter the pin to enter this folder:'),
+                                                        const SizedBox(
+                                                            height: 12),
+                                                        Pinput(
+                                                          obscureText: true,
+                                                          onCompleted: (pin) {
+                                                            if (pin ==
+                                                                notePin) {
+                                                              Navigator.of(
+                                                                      context)
+                                                                  .pop();
+                                                              goInsideFolder(
+                                                                  value, index);
+                                                            }
+                                                          },
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    actions: [
+                                                      TextButton(
+                                                        onPressed: () {
+                                                          Navigator.of(context)
+                                                              .pop();
                                                         },
+                                                        child: const Text(
+                                                            'Cancel'),
                                                       ),
                                                     ],
                                                   ),
-                                                  actions: [
-                                                    TextButton(
-                                                      onPressed: () {
-                                                        Navigator.of(context)
-                                                            .pop();
-                                                      },
-                                                      child:
-                                                          const Text('Cancel'),
-                                                    ),
-                                                  ],
                                                 );
                                               },
                                             );

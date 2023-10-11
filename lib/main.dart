@@ -86,8 +86,9 @@ class _MainPageState extends State<MainPage> {
       ),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
-        selectedFontSize: 12,
+        selectedFontSize: 16,
         unselectedFontSize: 12,
+        selectedItemColor: Colors.black,
         backgroundColor: CupertinoColors.white,
         elevation: 8,
         currentIndex: _currentIndex,
@@ -227,16 +228,62 @@ class _MainPageState extends State<MainPage> {
   void createTagDialog(BuildContext context) {
     showDialog(
       context: context,
-      builder: (context) =>
-          CreateTag(tagData: Provider.of<TagData>(context, listen: false)),
+      builder: (context) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            dialogTheme: DialogTheme(
+              backgroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16.0),
+              ),
+            ),
+            colorScheme: const ColorScheme.light(
+              primary: Colors.black,
+              secondary: Colors.red,
+              surface: Colors.white,
+              background: Color.fromRGBO(238, 238, 238, 1),
+              onPrimary: Colors.white,
+              onSecondary: Colors.white,
+              onSurface: Colors.black,
+              onBackground: Colors.black,
+            ),
+          ),
+          child: CreateTag(
+            tagData: Provider.of<TagData>(context, listen: false),
+          ),
+        );
+      },
     );
   }
 
   void createFolderDialog(BuildContext context) {
     showDialog(
       context: context,
-      builder: (context) =>
-          CreateFolder(folderData: Provider.of<FolderData>(context, listen: false)),
+      builder: (context) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            dialogTheme: DialogTheme(
+              backgroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16.0),
+              ),
+            ),
+            colorScheme: const ColorScheme.light(
+              primary: Colors.black,
+              secondary: Colors.red,
+              surface: Colors.white,
+              background: Color.fromRGBO(238, 238, 238, 1),
+              onPrimary: Colors.white,
+              onSecondary: Colors.white,
+              onSurface: Colors.black,
+              onBackground: Colors.black,
+            ),
+          ),
+          child: CreateFolder(
+            folderData: Provider.of<FolderData>(context, listen: false),
+          ),
+        );
+      },
     );
   }
 

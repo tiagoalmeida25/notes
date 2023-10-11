@@ -16,8 +16,9 @@ import 'package:provider/provider.dart';
 class EditingNote extends StatefulWidget {
   Note note;
   bool isNewNote;
+  int? folderId;
 
-  EditingNote({super.key, required this.note, required this.isNewNote});
+  EditingNote({super.key, required this.note, required this.isNewNote, this.folderId});
 
   @override
   State<EditingNote> createState() => _EditingNoteState();
@@ -55,7 +56,7 @@ class _EditingNoteState extends State<EditingNote> {
 
   void addNewNote(int i) {
     String text = jsonEncode(_controller.document.toDelta().toJson());
-
+  
     Provider.of<NoteData>(context, listen: false).addNewNote(
       Note(
         id: i,
@@ -66,14 +67,13 @@ class _EditingNoteState extends State<EditingNote> {
         backgroundColor: setStringFromColor(backgroundColor),
         isPinned: false,
         tags: _selectedTags.map((e) => e.id).toList(),
-        folderId: 0,
+        folderId: widget.folderId ?? 0,
         pin: '',
       ),
     );
   }
 
   void updateNote() {
-    // String text = _controller.document.toPlainText();
     String text = jsonEncode(_controller.document.toDelta().toJson());
     String title = _titleController.text;
 
@@ -89,7 +89,7 @@ class _EditingNoteState extends State<EditingNote> {
 
   void noteSettings() async {
     final result = await Navigator.push(
-        context, MaterialPageRoute(builder: (context) => const NoteSettings()));
+        context, MaterialPageRoute(builder: (context) => NoteSettings(currentColor: backgroundColor)));
 
     if (result != null) {
       setState(() {
@@ -300,14 +300,31 @@ class _EditingNoteState extends State<EditingNote> {
                         left: 16, right: 16, bottom: 8, top: 2),
                     child: allTags.isEmpty
                         ? Center(
-                          child: Text('No Tags created yet...',
-                              style: Theme.of(context).textTheme.bodyMedium),
-                        )
+                            child: Text(
+                              'No Tags created yet...',
+                              style: TextStyle(
+                                color: darkColors.contains(backgroundColor)
+                                    ? Colors.grey[300]
+                                    : lightColors.contains(backgroundColor)
+                                        ? Colors.grey[700]
+                                        : Colors.grey[700],
+                              ),
+                            ),
+                          )
                         : Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('Tags',
-                                  style: Theme.of(context).textTheme.bodySmall),
+                              Text(
+                                'Tags',
+                                style: TextStyle(
+                                  color: darkColors.contains(backgroundColor)
+                                      ? Colors.grey[300]
+                                      : lightColors.contains(backgroundColor)
+                                          ? Colors.grey[700]
+                                          : Colors.grey[700],
+                                  fontSize: 12,
+                                ),
+                              ),
                               const SizedBox(height: 8),
                               SizedBox(
                                 height: 25,

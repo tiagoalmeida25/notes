@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:notes/app_colors.dart';
 import 'package:notes/models/folder_data.dart';
 import 'package:notes/models/folder.dart';
@@ -53,6 +54,14 @@ class _CreateFolderState extends State<CreateFolder> {
         ),
       );
       Navigator.pop(context);
+    }
+    else {
+      Fluttertoast.showToast(
+        msg: "Tag name cannot be empty",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 1,
+      );
     }
   }
 

@@ -84,7 +84,7 @@ class NoteCard extends StatelessWidget {
     String truncatedTitle = '';
 
     if (title.isEmpty) {
-      truncatedTitle = 'New note...';
+      truncatedTitle = 'New note ${date.day} $month';
     } else {
       if (title.length > 35) {
         truncatedTitle = '${title.substring(0, 35)}...';
@@ -158,7 +158,7 @@ class NoteCard extends StatelessWidget {
                       left: 4,
                       right: 8,
                       child: SizedBox(
-                        height: 25,
+                        height: 30,
                         child: ListView.builder(
                           scrollDirection: Axis.horizontal,
                           itemCount: tags.length,

@@ -2,18 +2,17 @@ import 'package:flutter/material.dart';
 
 class AppColors {
   static const tagColors = [
-    Color.fromRGBO(165, 226, 251, 1),
     Color.fromRGBO(111, 173, 245, 1),
+    Color.fromRGBO(165, 226, 251, 1),
     Color.fromRGBO(200, 239, 138, 1),
     Color.fromRGBO(132, 196, 197, 1),
     Color.fromRGBO(230, 205, 248, 1),
-    Color.fromRGBO(187, 126, 235, 1),
     Color.fromRGBO(251, 159, 193, 1),
-    Color.fromRGBO(250, 164, 122, 1),
-
+    Color.fromRGBO(187, 126, 235, 1),
     Color.fromRGBO(236, 105, 96, 1),
-    Color.fromRGBO(250, 208, 178, 1),
+    Color.fromRGBO(250, 164, 122, 1),
     Color.fromRGBO(252, 163, 129, 1),
+    Color.fromRGBO(250, 208, 178, 1),
     Color.fromRGBO(250, 237, 169, 1),
     Color.fromRGBO(252, 215, 115, 1),
   ];
