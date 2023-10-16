@@ -11,7 +11,6 @@ import 'package:notes/models/note_data.dart';
 import 'package:notes/models/tag.dart';
 import 'package:notes/models/tag_data.dart';
 import 'package:notes/pages/editing_note.dart';
-import 'package:notes/pages/main/home_page.dart';
 import 'package:provider/provider.dart';
 
 class InsideFolder extends StatefulWidget {
@@ -20,11 +19,10 @@ class InsideFolder extends StatefulWidget {
   const InsideFolder({Key? key, this.folder}) : super(key: key);
 
   @override
-  // ignore: library_private_types_in_public_api
-  _InsideFolderState createState() => _InsideFolderState();
+  InsideFolderState createState() => InsideFolderState();
 }
 
-class _InsideFolderState extends State<InsideFolder> {
+class InsideFolderState extends State<InsideFolder> {
   List<Note> notes = [];
 
   late TextEditingController _textEditingController;
@@ -121,8 +119,6 @@ class _InsideFolderState extends State<InsideFolder> {
 
   @override
   Widget build(BuildContext context) {
-    List<Note> allNotes =
-        Provider.of<NoteData>(context, listen: false).getAllNotes();
     List<Tag> allTags =
         Provider.of<TagData>(context, listen: false).getAllTags();
 

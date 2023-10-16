@@ -3,9 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:notes/data/hive_database_notes.dart';
 import 'package:notes/models/folder.dart';
-import 'package:notes/models/folder_data.dart';
 import 'package:notes/models/note.dart';
-import 'package:provider/provider.dart';
 
 class NoteData extends ChangeNotifier {
   final db = HiveNotesDatabase();

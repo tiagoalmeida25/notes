@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:notes/backup_service.dart';
 import 'package:notes/models/tag.dart';
 
 class HiveTagsDatabase {
@@ -39,28 +38,6 @@ class HiveTagsDatabase {
     final allTagsJson = jsonEncode(allTags);
 
     return allTagsJson;
-  }
-
-  Future<void> restoreFromFirebaseBackup() async {
-    final backupJson =
-        await FirebaseBackupService.downloadBackup('tags_backup.json');
-
-    final List<dynamic> backupTags = jsonDecode(backupJson);
-
-    List<Tag> allTags = [];
-
-    for (int i = 0; i < backupTags.length; i++) {
-      Tag eachTag = Tag(
-        id: backupTags[i][0],
-        text: backupTags[i][1],
-        createdAt: backupTags[i][2],
-        updatedAt: backupTags[i][3],
-        backgroundColor: backupTags[i][4],
-        order: backupTags[i][5],
-      );
-
-      allTags.add(eachTag);
-    }
   }
 
   void saveTags(List<Tag> allTags) {

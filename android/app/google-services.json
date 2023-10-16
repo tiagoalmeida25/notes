@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "982044790525",
+    "project_id": "everything-notes",
+    "storage_bucket": "everything-notes.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:982044790525:android:4a51b21bd693348eb8b894",
+        "android_client_info": {
+          "package_name": "com.tiagoalmeida.notes"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBuwkzDT2OKv57EQJd6E1AoMhmG3b-y7gQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

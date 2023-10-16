@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:notes/backup_service.dart';
 import 'package:notes/models/note.dart';
 
 class HiveNotesDatabase {
@@ -41,32 +40,6 @@ class HiveNotesDatabase {
     final allNotes = loadNotes();
     final allNotesJson = jsonEncode(allNotes);
     return allNotesJson;
-  }
-
-  Future<void> restoreFromFirebaseBackup() async {
-    final backupJson = await FirebaseBackupService.downloadBackup('notes_backup.json');
-    // Deserialize backupJson and update local Hive database
-
-    final List<dynamic> backupNotes = jsonDecode(backupJson);
-
-    List<Note> allNotes = [];
-
-    for (int i = 0; i < backupNotes.length; i++) {
-      Note eachNote = Note(
-        id: backupNotes[i][0],
-        text: backupNotes[i][1],
-        title: backupNotes[i][2],
-        createdAt: backupNotes[i][3],
-        updatedAt: backupNotes[i][4],
-        backgroundColor: backupNotes[i][5],
-        isPinned: backupNotes[i][6],
-        tags: backupNotes[i][7],
-        folderId: backupNotes[i][8],
-        pin: backupNotes[i][9],
-      );
-
-      allNotes.add(eachNote);
-    }
   }
 
   void saveNotes(List<Note> allNotes) {

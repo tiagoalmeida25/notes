@@ -2,18 +2,16 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:notes/components/page_color_picker.dart';
 
-// this page is used to change the background color and set a different type of page(lines, blank or grid)
 class NoteSettings extends StatefulWidget {
-  Color currentColor;
+  final Color currentColor;
 
-  NoteSettings({Key? key, required this.currentColor}) : super(key: key);
+  const NoteSettings({Key? key, required this.currentColor}) : super(key: key);
 
   @override
-  // ignore: library_private_types_in_public_api
-  _NoteSettingsState createState() => _NoteSettingsState();
+  NoteSettingsState createState() => NoteSettingsState();
 }
 
-class _NoteSettingsState extends State<NoteSettings> {
+class NoteSettingsState extends State<NoteSettings> {
   Color _color = Colors.white;
 
   @override

@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:notes/backup_service.dart';
 import 'package:notes/models/folder.dart';
 
 class HiveFoldersDatabase {
@@ -42,31 +41,6 @@ class HiveFoldersDatabase {
     final allFoldersJson = jsonEncode(allFolders);
 
     return allFoldersJson;
-  }
-
-  Future<void> restoreFromFirebaseBackup() async {
-    final backupJson =
-        await FirebaseBackupService.downloadBackup('folders_backup.json');
-
-    final List<dynamic> backupFolder = jsonDecode(backupJson);
-
-    List<Folder> allFolders = [];
-
-    for (int i = 0; i < backupFolder.length; i++) {
-      Folder eachFolder = Folder(
-        id: backupFolder[i][0],
-        title: backupFolder[i][1],
-        createdAt: backupFolder[i][2],
-        updatedAt: backupFolder[i][3],
-        color: backupFolder[i][4],
-        notes: backupFolder[i][5],
-        isPinned: backupFolder[i][6],
-        subfolderId: backupFolder[i][7],
-        pin: backupFolder[i][8],
-      );
-
-      allFolders.add(eachFolder);
-    }
   }
 
   void saveFolders(List<Folder> allFolders) {
