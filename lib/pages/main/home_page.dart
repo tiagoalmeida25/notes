@@ -192,7 +192,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Notes',
+                      'Everything Notes',
                       style:
                           TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
                     ),
